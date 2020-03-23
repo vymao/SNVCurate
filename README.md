@@ -36,6 +36,27 @@ Additional Information/Default parameters:
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
 - `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
 
+2. `MuSE_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
+```
+usage: FastqToSam.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] [-out OUTPUT_DIRECTORY] [-csv TUMOR/NORMAL_CSV] [-n NUM_CORES]
+                     [-t RUNTIME] [-p QUEUE] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] [--mail_user MAIL_USER] 
+                     [-reference REFERENCE.FASTA] [-dbsnp dbSNP.vcf] [-mode MODE] [-data_type WGS/WES] [-r1] [-r2]
+```
+Additional Information/Default parameters:     
+- `-csv`: A csv file containing information about matched tumor/normal pairs. See `MuTect2_sample.csv` for proper formatting.
+- `-n`: Number of cores (default = 2).
+- `-t`: Slurm job runtime. Note that this is the runtime per interval job (default = 0-12:0:0).
+- `-p`: Slurm queue (default = park).
+- `--mem_per_cpu`: Memory per core (default = 10G).
+- `--mail_type`: Notification type (default = FAIL). default='ALL', help='slurm job submission option').
+- `--mail_user`: Email.
+- `-reference`: Reference FASTA file path (default = `/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta`).
+- `-dbsnp`: dbSNP database VCF path (default = `/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf`).
+- `-mode`: Either `call` or `sump`. You must call before running `sump`. 
+- `-data_type`: WGS or WES. 
+- `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
+- `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
+
 ## Running the SNV curating pipeline: 
 There are two ways to run this pipeline: 
 1. Input a config file `parameters.config` in the **same directory** as SNVCurate. The config file should follow this format: 
