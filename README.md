@@ -29,9 +29,9 @@ Additional Information/Default parameters:
 - `--mem_per_cpu`: Memory per core (default = 10G).
 - `--mail_type`: Notification type (default = FAIL). default='ALL', help='slurm job submission option').
 - `--mail_user`: Email.
-- `-gatk4`: GATK executable path(default = /n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk).
-- `-reference`: Reference FASTA file path (default = /home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta).
-- `-dbsnp`: dbSNP database VCF path (default = /home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf).
+- `-gatk4`: GATK executable path(default = `/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk`).
+- `-reference`: Reference FASTA file path (default = `/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta`).
+- `-dbsnp`: dbSNP database VCF path (default = `/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf`).
 - `-scatter`: Number of interval files (splits calling into genomic intervals to speed computation) (default = 50).
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
 - `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
