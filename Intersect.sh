@@ -16,6 +16,7 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 
 main=$1
 path2Mutect=$2
+out=$3
 
 for file in ${path2Mutect}/*.vcf; do 
     new_dir=$(echo $file | cut -d'.' -f1)
@@ -52,11 +53,15 @@ for path in ${path2Mutect}/*; do
     rm *PASS* 
     rm *INTERSECTION* *TIER* 000* *MUTECT*
 
-    if [ ! -f ${dirname}.PASS.vcf ]; then
+    if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
         for file in ${dirname}.vcf; do 
-            grep "PASS\|#" $file > ${dirname}.PASS.vcf
+            grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
         done
     fi
+
+    test_dir=${out}/${dirname}/intersection_files
+    mkdir $test_dir
+    mv ${dirname}.PASS_MuTecT.vcf $test_dir
 done
 
 cd $main 
@@ -69,9 +74,9 @@ for path in ${main}/*; do
     rm *PASS* 
     rm *INTERSECTION* *TIER* 000* *MUTECT*
 
-    if [ ! -f ${dirname}.PASS.vcf ]; then
+    if [ ! -f ${dirname}.PASS_MuSE.vcf ]; then
         for file in ${dirname}.vcf; do 
-            grep "PASS\|#" $file > ${dirname}.PASS.vcf
+            grep "PASS\|#" $file > ${dirname}.PASS_MuSE.vcf
         done
     fi
 
@@ -80,21 +85,38 @@ for path in ${main}/*; do
             grep "Tier\|#" $file > ${dirname}.TIER.vcf
         done
     fi
+
+    test_dir=${out}/${dirname}/intersection_files
+    mv ${dirname}.PASS_MuSE.vcf $test_dir
 done
 
-bcftools sort ${dirname}.PASS.vcf > ${dirname}.PASS.sorted.vcf
-cp ${dirname}.PASS.sorted.vcf ${dirname}.PASS.vcf
 
-bgzip -c ${dirname}.PASS.vcf > ${dirname}.PASS.vcf.gz
-tabix -p vcf ${dirname}.PASS.vcf.gz
+for path in $out/*; do 
+    [ -d $path ] || continue
+    cd $path
+    dirname=$(basename $path)
+    cd intersection_files
 
-mutectFile=${path2Mutect}/${dirname}/${dirname}.PASS.vcf
-bcftools sort $mutectFile > ${dirname}.MUTECT_SORTED.vcf
-mutectFile=${dirname}.MUTECT_SORTED.vcf
-bgzip -c $mutectFile > ${mutectFile}.gz
-tabix -p vcf ${mutectFile}.gz
+    bcftools sort ${dirname}.PASS_MuSE.vcf > ${dirname}.PASS_MuSE.sorted.vcf
+    cp ${dirname}.PASS_MuSE.sorted.vcf ${dirname}.PASS_MuSE.vcf
 
-bcftools isec -p $PWD -Oz ${dirname}.PASS.vcf.gz ${mutectFile}.gz
-gunzip 0003.vcf.gz
-intersected_file=${dirname}.INTERSECTION.vcf
-mv 0003.vcf $intersected_file
+    bgzip -c ${dirname}.PASS_MuSE.vcf > ${dirname}.PASS_MuSE.vcf.gz
+    tabix -p vcf ${dirname}.PASS_MuSE.vcf.gz
+
+    mutectFile=${path2Mutect}/${dirname}/${dirname}.PASS.vcf
+    bcftools sort ${dirname}.PASS_MuTecT.vcf > ${dirname}.PASS_MuTecT.sorted.vcf 
+    cp ${dirname}.PASS_MuSE.sorted.vcf ${dirname}.PASS_MuTecT.vcf
+
+    bgzip -c ${dirname}.PASS_MuTecT.vcf > ${dirname}.PASS_MuTecT.vcf.gz
+    tabix -p vcf ${dirname}.PASS_MuTecT.vcf.gz
+
+    bcftools isec -p $PWD -Oz ${dirname}.PASS_MuSE.vcf.gz ${dirname}.PASS_MuTecT.vcf.gz
+    gunzip 0003.vcf.gz
+    intersected_file=${dirname}.INTERSECTION.vcf
+    mv 0003.vcf $intersected_file
+done
+
+
+
+
+
