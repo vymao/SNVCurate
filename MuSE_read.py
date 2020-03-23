@@ -36,7 +36,6 @@ def parse_args():
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
-    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
     parser.add_argument('-mode', default='call')
     parser.add_argument('-data_type', default='WGS')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
@@ -113,8 +112,6 @@ def main():
 
     os.system('module load gcc/6.2.0 python/3.6.0 java perl')
 
-    #Getting the indices
-
     if args['mode'].lower() == 'call':
         tumor_index = get_column(args['csv'], "T")
         normal_index = get_column(args['csv'], "N")
@@ -131,8 +128,9 @@ def main():
                         tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
                         normal_sample = os.path.join(args['input_normal_path'], get_bam(args['csv'], index, normal_index))
 
-                        os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
-                            ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] + ' -data_type ' + args['data_type'])
+                        os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
+                            ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] 
+                            + ' -data_type ' + args['data_type'])
 
                         #print('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
                         #    ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'])
@@ -142,8 +140,9 @@ def main():
             for index, line in enumerate(f):
                 if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
                     tumor = line.strip();
-                    os.system('python3 ' + tools_dir + ' -tumor ' + tumor + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
-                            ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] + ' -data_type ' + args['data_type'])
+                    os.system('python3 ' + tools_dir + ' -tumor ' + tumor + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
+                            ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] 
+                            + ' -data_type ' + args['data_type'])
 if __name__ == "__main__":
     main()
 
