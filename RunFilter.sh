@@ -22,23 +22,32 @@ tot_cut=$5
 vaf_cut=$6 
 maf_cut=$7
 
-dirname=$(basename $path2Intersection)
-cd $path2Intersection
+sampledir=$(dirname $path2Intersection)
+dirname=$(basename $sampledir)
+
+cd $sampledir
+mkdir cut_filtering
+mkdir pon_filtering
 
 
+cd cut_filtering
 if [ ! -f ${path2Intersection}*txt ]; then
-    /home/mk446/bin/annovar/table_annovar.pl ${path2Intersection}/${dirname}.INTERSECTION.vcf '/home/mk446/bin/annovar/humandb/' -buildver 'hg19' -out $file -remove -protocol 'refGene,avsnp142,exac03,gnomad_genome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+    /home/mk446/bin/annovar/table_annovar.pl ${path2Intersection}/${dirname}.INTERSECTION.vcf '/home/mk446/bin/annovar/humandb/' -buildver 'hg19' -out $dirname -remove -protocol 'refGene,avsnp142,exac03,gnomad_genome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
 fi
 
-for file in *INTERSECTION*.txt; do 
+for file in *.txt; do 
     mv $file ${file}.csv
 done
 
-for file in ${path2Intersection}/*csv; do 
-    if [ ! -f ${main}/${dirname}.PASS.vcf.hg19_multianno.txt.ANNO.somatic_variants_filtered.2_5_0.01.vcf ]; then
-       python3 Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path $path2Intersection -vcf_path ${path2Intersection}/${dirname}.INTERSECTION.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut
+for file in *csv; do 
+    if [ ! -f cut_filtering/${dirname}.PASS.vcf.hg19_multianno.txt.ANNO.somatic_variants_filtered.*.vcf ]; then
+       python3 Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path ${sampledir}/cut_filtering -vcf_path ${path2Intersection}/${dirname}.INTERSECTION.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut
     fi
 done
+
+mv ${dirname}.PASS.vcf.hg19_multianno.txt.ANNO.somatic_variants_filtered.*.vcf ${dirname}.somatic_variants_filtered_1.vcf
+
+
 
 
 
