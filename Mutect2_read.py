@@ -119,14 +119,15 @@ def main():
             if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
                 current_tumor_sample = get_bam(args['csv'], index, tumor_index)
                 current_normal_sample = get_bam(args['csv'], index, normal_index)
-                print(current_normal_sample)
+                #print(current_normal_sample)
 
                 if current_tumor_sample is None or current_normal_sample is None:
                     #continue
                     if current_normal_sample is None and current_tumor_sample is not None and args['panel'] != 'nopath': 
                         tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
                         os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
-                            ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + args['gnomad_path'])
+                            ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
+                            + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + args['gnomad_path'])
                         #print('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
                         #    ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'])                        
                     else:
@@ -136,7 +137,8 @@ def main():
                     normal_sample = os.path.join(args['input_normal_path'], get_bam(args['csv'], index, normal_index))
 
                     os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
-                        ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'])
+                        ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
+                        + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'])
 
                     #print(tumor_sample)
                     #print(normal_sample)
