@@ -21,7 +21,6 @@ def parse_args():
     parser.add_argument('-reference', default='hg19')
     parser.add_argument('-pon', default='/n/data1/hms/dbmi/park/victor/references/TCGA_1000_PON.hg19.REORDERED.vcf')
     parser.add_argument('-bam')
-    parser.add_argument('-out')
 
 
     return parser.parse_args()
@@ -104,14 +103,23 @@ def main():
 	vcfs = vcfs[vcfs['clipped_reads'] < vcfs['Soft Clipped Cutoff']]
 	vcfs.to_csv(os.path.join(path_vcfs_intersection, 'Final_Callset.txt'), sep = '\t', index=False)
 
-	output_name = output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
+	output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
 	prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
 	command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" 
 			+ " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -vcfinput -polish"
 
 	os.system(command)
 
+	somatic_file_path = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")
+	add_vcf_header(callset_risk, somatic_file_path, True)
 
+	with open(os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv'), 'r') as f: 
+	    for index, line in enumerate(f):
+	    	if index == 0: 
+	    		continue
+	        with open(os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf"), 'a') as new: 
+	            vcf_line = find_in_vcf(args['somatic_vcf'], line)
+	            new.write(vcf_line)
 
 
 
@@ -276,6 +284,35 @@ def merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff, path_vcfs_intersection)
     soft_clipped_cutoff[['sampleId']] = soft_clipped_cutoff[['sampleId']].astype(str)
     vcfs = vcfs.merge(soft_clipped_cutoff, how='left', on='sampleId')
     return vcfs
+
+def add_vcf_header(vcf, file_path, write):
+    end = 0
+    with open(vcf, 'r') as f_input:
+        for index, line in enumerate(f_input):
+            if '#' in line:
+                if write:
+                    with open(file_path, 'a+') as g_out:
+                        g_out.write(line)
+                end += 1
+    return end
+
+def find_in_vcf(vcf_file, line):
+    line_list = line.rstrip().split('\t')
+
+    chrom = line_list[0]
+    pos = line_list[1]
+
+    with open(vcf_file, 'r') as vcf: 
+        for index, vcf_line in enumerate(vcf):
+            vcf_line_list = vcf_line.rstrip().split('\t')
+            if '#' in line: 
+                continue
+            elif line.isspace() or chrom != vcf_line_list[0]:
+                continue
+            else:
+                #print(vcf_line_list)
+                if int(pos) == int(vcf_line_list[1]) or int(pos) == int(vcf_line_list[1]) - 1 or int(pos) == int(vcf_line_list[1]) + 1:
+                    return vcf_line
 
 if __name__ == "__main__":
     main()

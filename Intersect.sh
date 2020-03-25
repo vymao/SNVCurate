@@ -18,6 +18,8 @@ main=$1
 path2Mutect=$2
 out=$3
 
+cd $path2Mutect
+
 for file in ${path2Mutect}/*.vcf; do 
     new_dir=$(echo $file | cut -d'.' -f1)
     if [ ! -d "$new_dir" ]; then
@@ -30,6 +32,7 @@ for file in ${path2Mutect}/*.vcf; do
 done
 
 
+cd $main
 for file in ${main}/*.vcf; do 
     new_dir=$(echo $file | cut -d'.' -f1)
     if [ ! -d "$new_dir" ]; then
@@ -53,14 +56,25 @@ for path in ${path2Mutect}/*; do
     rm *PASS* 
     rm *INTERSECTION* *TIER* 000* *MUTECT*
 
+    bcftools concat *.vcf -o ${dirname}.Combined.vcf
+
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
-        for file in ${dirname}.vcf; do 
+        for file in ${dirname}.Combined.vcf; do 
             grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
         done
     fi
 
-    test_dir=${out}/${dirname}/intersection_files
+    for file in ${dirname}/*Combined.vcf; do 
+        python3 Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf 
+    done
+
+    test_dir=${out}/${dirname}
     mkdir $test_dir
+    mkdir ${test_dir}/annotation_files
+    mv ${dirname}.M2_RISK.germline_variants_filtered ${dirname}.M2_Risk_variants_filtered
+    mv ${dirname}.M2_Risk_variants_filtered ${test_dir}/annotation_files
+
+    mkdir ${test_dir}/intersection_files
     mv ${dirname}.PASS_MuTecT.vcf $test_dir
 done
 
@@ -86,7 +100,9 @@ for path in ${main}/*; do
         done
     fi
 
-    test_dir=${out}/${dirname}/intersection_files
+    test_dir=${out}/${dirname}
+    mkdir $test_dir
+    mkdir ${test_dir}/intersection_files
     mv ${dirname}.PASS_MuSE.vcf $test_dir
 done
 
@@ -115,6 +131,9 @@ for path in $out/*; do
     intersected_file=${dirname}.INTERSECTION.vcf
     mv 0003.vcf $intersected_file
 done
+
+
+
 
 
 
