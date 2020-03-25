@@ -38,7 +38,7 @@ def main():
     vcfs = import_append_process_vcfs(somatic_file)
     vcfs = vcfs[vcfs['#CHROM'].apply(lambda x: len(str(x)) <=5)]
     vcfs = vcfs[vcfs['FILTER']=='PASS']
-	prep_annovar(vcfs, basename, path_vcfs_intersection)
+	prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
 
 	if args['normal_vcf'] is not None: 
 		path_vcfs_germline = os.path.dirname(args['normal_vcf'])
@@ -89,15 +89,30 @@ def main():
 	path_bams = args['bam']
 	path_soft_clipped_cutoff_out = os.path.join(path_vcfs_intersection, 'soft_clipped_cutoff.csv')
 
+	if args['reference'] == 'hg19': hg19 = True
+	else: hg19 = False
+
+
 	clean_bins(path_bins, path_bins_out, genotyped)
 	bins = pd.read_csv(path_bins_out, sep='\t', header=None)
-	
+
+	soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins)
+	soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
+
+	vcfs = merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff)
+	vcfs = annotate_clipped_reads(vcfs, hg19)
+	vcfs = vcfs[vcfs['clipped_reads'] < vcfs['Soft Clipped Cutoff']]
+	vcfs.to_csv(os.path.join(path_vcfs_intersection, 'Final_Callset.txt'), sep = '\t', index=False)
+
+	output_name = output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
+	prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
+	command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" 
+			+ " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -vcfinput -polish"
+
+	os.system(command)
 
 
 
-
-
-   
 
 
 def return_files_in_dir(path, ext='*somatic_variants_filtered_1.vcf'):
@@ -138,7 +153,7 @@ def prep_annovar(vcfs, name, path_vcfs_intersection):
     annot = vcfs.copy()
     annot['END'] = annot['POS']
     annot = annot[list(annot.columns[:2]) + ['END'] + list(annot.columns[3:5])]
-    csv_path = os.path.join(path_vcfs_intersection, name + '.annot_normal.csv')
+    csv_path = os.path.join(path_vcfs_intersection, name)
     annot.to_csv(csv_path, header=False, sep='\t', index=False)
     
 def import_merge_annovar_annotations(vcfs, path_intermed_in):
@@ -155,33 +170,6 @@ def gen_dummies(vcfs, Genotyped = True):
     vcfs['1000G_blacklist'] = vcfs['bed4'].notnull()
     if Genotyped: 
         vcfs['CE_Indel'] = vcfs['bed6'].notnull()      
-    return vcfs
-
-def clean_sv_bed_files(vcfs):
-    vcfs.rename(columns={'bed7': 'Moran.bed',
-                    'bed8': 'Sestan.bed',
-                    'bed9': 'Vaccarino.bed',
-                    'bed10': 'Walsh.bed',
-                    'bed11': 'Weinberger.bed'}, inplace =1)
-    for col in ['Moran.bed', 'Sestan.bed', 'Vaccarino.bed', 'Walsh.bed', 'Weinberger.bed']:
-        vcfs[col] = vcfs[col].apply(lambda x: str(x)[5:]).apply(pd.to_numeric, errors='coerce').fillna(3)
-    samples = list(vcfs['sampleId'].unique())
-    group = ['Weinberger.bed',
-             'Weinberger.bed',
-             'Vaccarino.bed',
-             'Sestan.bed',
-             'Moran.bed',
-             'Walsh.bed',
-             'Weinberger.bed',
-             'Sestan.bed',
-             'Vaccarino.bed',
-             'Vaccarino.bed',
-             'Walsh.bed',
-             'Moran.bed',
-             'Vaccarino.bed']
-    vcfs['sv_ratio'] = np.nan
-    for sample, group_name in zip(samples, group):
-        vcfs['sv_ratio'] = np.where(vcfs['sampleId']==sample, vcfs[group_name], vcfs['sv_ratio'])
     return vcfs
 
 def keep_only_indels(vcfs):
@@ -263,7 +251,7 @@ def return_num_clipped_reads(chrom, start, stop, path, sam_file, hg19):
         return 0
     return num_sc_reads
 
-def annotate_clipped_reads(vcfs):
+def annotate_clipped_reads(vcfs, hg19):
     df = vcfs.copy()
     df['POS'] = df['POS'].astype(int)
     df['POS_END'] = df['POS'] + 100
