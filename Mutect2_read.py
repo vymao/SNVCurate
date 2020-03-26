@@ -43,7 +43,7 @@ def parse_args():
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
-    parser.add_argument('--mail_user', default='none', help='slurm job submission option')
+    parser.add_argument('--mail_user', default=None, help='slurm job submission option')
     parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK3.5_160425_g7a7b7cd/GenomeAnalysisTK.jar', help='path to software')
     # parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/lawrence/bin/GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar', help='path to software')
     parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
@@ -100,6 +100,9 @@ def get_bam(csv, row, column):
                     return result[column]
 
 def main(): 
+    if args['mail_user'] is None: 
+        print('No email given.')
+        sys.exit()
     tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/Mutect2.py'
     args = vars(parse_args())
     output_dir = arg_clean(args)

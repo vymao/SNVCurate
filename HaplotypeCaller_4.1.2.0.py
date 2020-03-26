@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('--mem_per_cpu', default='20G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
-    parser.add_argument('--mail_user', default='victor_mao@hms.harvard.edu', help='slurm job submission option')
+    parser.add_argument('--mail_user', help='slurm job submission option')
     parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to software execution script')
     #parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/human_g1k_v37.fasta', help='path to reference_path file')
     #parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')

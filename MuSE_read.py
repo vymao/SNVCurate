@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('--mem_per_cpu', default='15G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
-    parser.add_argument('--mail_user', default='victor_mao@hms.harvard.edu', help='slurm job submission option')
+    parser.add_argument('--mail_user', default=None, help='slurm job submission option')
     parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
@@ -101,6 +101,9 @@ def get_bam(csv, row, column):
                     return result[column]
 
 def main(): 
+    if args['mail_user'] is None: 
+        print('No email given.')
+        sys.exit()
     tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py'
     args = vars(parse_args())
     output_dir = arg_clean(args)
