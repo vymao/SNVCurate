@@ -84,7 +84,7 @@ Additional Information/Default parameters:
 
 5. `Annotate.sh`: Bash script to annotate the filtering results and merge them into final annotated callsets. 
 ```
-usage: sh Filter.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PATH_TO_NORMAL]
+usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PATH_TO_NORMAL]
 ```
 Additional Information/Default parameters:  
 - All paths should be full paths.
@@ -92,6 +92,19 @@ Additional Information/Default parameters:
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
 - `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
 - `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
+
+6. `HaplotypeCaller_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
+```
+usage: python3 HaplotypeCaller_read.py [-input_path] [-output_path] [-queue] [-t1] [-t2] [-r1] [-r2] [-m] [-gatk] [-input_json] 
+```
+Additional Information/Default parameters: 
+- `-input_path`: Path to a text file that lists the full path to each matched normal. See `HaplotypeCaller_sample.txt` as an example.
+- `-t1`: The runtime specified for the main HaplotypeCaller job (default = 3-00:00:00). 
+- `-t2`: The runtime (in minutes) for the spawned Cromwell jobs (default = 2000). 
+- `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 0). Index 0 is the lowest. 
+- `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
+-  `-gatk`: `old` or `new`. The new version is GATK 4.1.2.0, the old version is 4.0.0.0 (default = `new`). 
+- `-input_json`: The json file used to set the parameters of HaplotypeCaller. This is reference dependent (default = `/n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/haplotypecaller-gvcf-gatk4.hg37.wgs.inputs.json`). 
 
 ## Running the SNV curating pipeline: 
 There are two ways to run this pipeline: 
