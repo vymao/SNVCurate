@@ -15,12 +15,18 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2Intersection=$1
 normal=$2
-panel=$3
+panel=$12
 csv=$4
 alt_cut=$5
 tot_cut=$6
 vaf_cut=$7
 maf_cut=$8
+reference=$9
+path2database=$10
+panelfilter=$11
+bam=$3
+
+cd $path2Intersection
 
 if [ -z "$1" ]; then
     err "No path to intersection file provided."
@@ -42,7 +48,6 @@ for path in ${path2Intersection}/*; do
     else
         normalname=$normal
     fi
-    sbatch Annotate.sh $path2Intersection $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut
+    sbatch RunFilter.sh $path2Intersection $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam $panelfilter
 done
-
 
