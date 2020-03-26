@@ -16,8 +16,8 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 out=$1
 path2Mutect=$2
 reference=$3
-path2normal=$4
-csv=$5
+path2normal=$5
+csv=$4
 
 cd $out
 
