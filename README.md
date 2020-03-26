@@ -18,7 +18,7 @@ These are the tools/software required (loaded under `module load [dependency]`),
 usage: python3 Mutect2_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] [-out OUTPUT_DIRECTORY] [-csv TUMOR/NORMAL_CSV] 
                      [-pon PANEL_OF_NORMALS] [-n NUM_CORES] [-t RUNTIME] [-p QUEUE] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE]
                      [--mail_user MAIL_USER] [-gatk4 PATH_TO_GATK4] [-reference REFERENCE.FASTA] [-dbsnp dbSNP.vcf] [-gnomad GNOMAD.vcf] 
-                     [-scatter] [-r1] [-r2]
+                     [-scatter COUNT] [-r1 START] [-r2 END]
 ```
 Additional Information/Default parameters: 
 - `-pon`: Used when there are no matched normals. 
@@ -40,7 +40,7 @@ Additional Information/Default parameters:
 ```
 usage: python3 MuSE_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] [-out OUTPUT_DIRECTORY] [-csv TUMOR/NORMAL_CSV] [-n NUM_CORES]
                      [-t RUNTIME] [-p QUEUE] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] [--mail_user MAIL_USER] 
-                     [-reference REFERENCE.FASTA] [-dbsnp dbSNP.vcf] [-mode MODE] [-data_type WGS/WES] [-r1] [-r2]
+                     [-reference REFERENCE.FASTA] [-dbsnp dbSNP.vcf] [-mode MODE] [-data_type WGS/WES] [-r1 START] [-r2 END]
 ```
 Additional Information/Default parameters:     
 - `-csv`: A csv file containing information about matched tumor/normal pairs. See `MuTect2_sample.csv` for proper formatting.
@@ -93,18 +93,26 @@ Additional Information/Default parameters:
 - `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
 - `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
 
-6. `HaplotypeCaller_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
+6. `HaplotypeCaller_read.py`: Wrapper script to run the GATK HaplotypeCaller pipeline for germline mutation calling. 
 ```
-usage: python3 HaplotypeCaller_read.py [-input_path] [-output_path] [-queue] [-t1] [-t2] [-r1] [-r2] [-m] [-gatk] [-input_json] 
+usage: python3 HaplotypeCaller_read.py [-input_path INPUT_PATH] [-output_path OUTPUT_PATH] [-P QUEUE] [-t RUNTIME] [-r1] [-r2] 
+                                  [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] [--mail_user MAIL_USER] [-gatk PATH_TO_GATK]
+                                    [-scatter COUNT] [-reference REFERENCE.FASTA]
 ```
 Additional Information/Default parameters: 
 - `-input_path`: Path to a text file that lists the full path to each matched normal. See `HaplotypeCaller_sample.txt` as an example.
-- `-t1`: The runtime specified for the main HaplotypeCaller job (default = 3-00:00:00). 
-- `-t2`: The runtime (in minutes) for the spawned Cromwell jobs (default = 2000). 
+- `-n`: Number of cores (default = 1).
+- `-t`: Slurm job runtime. Note that this is the runtime per interval job (default = 0-12:0:0).
+- `-p`: Slurm queue (default = park).
+- `--mem_per_cpu`: Memory per core (default = 10G).
+- `--mail_type`: Notification type (default = FAIL)
+- `--mail_user`: Email.
+- `-gatk`: GATK executable path (default = `/home/mk446/BiO/Install/GATK4.1.2.0/gatk`).
+- `-scatter`: Number of interval files (splits calling into genomic intervals to speed computation) (default = 50).
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 0). Index 0 is the lowest. 
 - `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
--  `-gatk`: `old` or `new`. The new version is GATK 4.1.2.0, the old version is 4.0.0.0 (default = `new`). 
-- `-input_json`: The json file used to set the parameters of HaplotypeCaller. This is reference dependent (default = `/n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/haplotypecaller-gvcf-gatk4.hg37.wgs.inputs.json`). 
+- `-reference`: Path to reference FASTA (default = `/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta`). 
+
 
 ## Running the SNV curating pipeline: 
 There are two ways to run this pipeline: 
