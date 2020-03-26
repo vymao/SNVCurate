@@ -36,7 +36,7 @@ Additional Information/Default parameters:
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
 - `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
 
-2. `MuSE_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
+2. `MuSE_read.py`: Wrapper script to run the MuSE pipeline for somatic mutation calling. 
 ```
 usage: python3 MuSE_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] [-out OUTPUT_DIRECTORY] [-csv TUMOR/NORMAL_CSV] [-n NUM_CORES]
                      [-t RUNTIME] [-p QUEUE] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] [--mail_user MAIL_USER] 
@@ -56,6 +56,37 @@ Additional Information/Default parameters:
 - `-data_type`: WGS or WES. 
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
 - `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
+
+3. `Intersect.sh`: Bash script to organize and intersect the calls by MuTecT and MuSE. 
+```
+usage: sh Intersect.sh [OUTPUT_DIRECTORY] [MUTECT2_PATH] [MUSE_PATH]
+```
+Additional Information/Default parameters:  
+- Both the MuTecT2 and MuSE paths should be paths to the list of files directly outputted by MuTecT2 and MuSE. The script will create and organize and manipulate files on its own. 
+- The MuSE path is optional, but recommended. 
+
+4. `Filter.sh`: Bash script to filter the intersection of the calls. 
+```
+usage: sh Intersect.sh [PATH_TO_INTERSECTION] [PATH_TO_NORMAL] [PATH_TO_BAMS] [CSV] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT] [REFERENCE]
+                      [PATH_TO_ANNOVAR_DATABASES] [PATH
+```
+Additional Information/Default parameters:  
+- Both the MuTecT2 and MuSE paths should be paths to the list of files directly outputted by MuTecT2 and MuSE. The script will create and organize and manipulate files on its own. 
+- The MuSE path is optional, but recommended. 
+
+path2Intersection=$1
+normal=$2
+panel=$3
+csv=$4
+alt_cut=$5
+tot_cut=$6
+vaf_cut=$7
+maf_cut=$8
+reference=$9
+path2database=$10
+panelfilter=$11
+bam=$12
+
 
 ## Running the SNV curating pipeline: 
 There are two ways to run this pipeline: 
