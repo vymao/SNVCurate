@@ -34,7 +34,7 @@ Additional Information/Default parameters:
 - `-dbsnp`: dbSNP database VCF path (default = `/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf`).
 - `-scatter`: Number of interval files (splits calling into genomic intervals to speed computation) (default = 50).
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
-- `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
+- `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
 
 2. `MuSE_read.py`: Wrapper script to run the MuSE pipeline for somatic mutation calling. 
 ```
@@ -55,7 +55,7 @@ Additional Information/Default parameters:
 - `-mode`: Either `call` or `sump`. You must call before running `sump`. Note that in `sump`, you do not need a normal file and instead should input the resulting file from `call` using the `-tumor` flag. 
 - `-data_type`: WGS or WES. 
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
-- `-r2`: The lower range index bound for BAMs to submit from the csv file (default = 100000).
+- `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
 
 3. `Intersect.sh`: Bash script to organize and intersect the calls by MuTecT and MuSE. 
 ```
@@ -67,7 +67,7 @@ Additional Information/Default parameters:
 
 4. `Filter.sh`: Bash script to filter the intersection of the calls. 
 ```
-usage: sh Intersect.sh [PATH_TO_INTERSECTION] [PATH_TO_NORMAL] [PANEL] [PATH_TO_BAMS] [CSV] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]                           [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [FILTER_WITH_PANEL] 
+usage: sh Filter.sh [PATH_TO_INTERSECTION] [PATH_TO_NORMAL] [PANEL] [PATH_TO_BAMS] [CSV] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]                           [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [FILTER_WITH_PANEL] 
 ```
 Additional Information/Default parameters:  
 - All fields are required. All paths should be full paths.
@@ -81,6 +81,17 @@ Additional Information/Default parameters:
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
 - `[PATH_TO_ANNOVAR_DATABASES]`: A path to a directory for which the script will output soft links to Annovar databases, along with custom filtering BED files. 
 - `[FILTER_WITH_PANEL]`: True (if PoN filtering is desired), False (otherwise). 
+
+5. `Annotate.sh`: Bash script to annotate the filtering results and merge them into final annotated callsets. 
+```
+usage: sh Filter.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PATH_TO_NORMAL]
+```
+Additional Information/Default parameters:  
+- All paths should be full paths.
+- `[OUTPUT_DIRECTORY]`: The same output directory used before.
+- `[REFERENCE]`: hg19 or hg38 (for Annovar). 
+- `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
+- `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
 
 ## Running the SNV curating pipeline: 
 There are two ways to run this pipeline: 
