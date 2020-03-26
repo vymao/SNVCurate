@@ -67,26 +67,20 @@ Additional Information/Default parameters:
 
 4. `Filter.sh`: Bash script to filter the intersection of the calls. 
 ```
-usage: sh Intersect.sh [PATH_TO_INTERSECTION] [PATH_TO_NORMAL] [PATH_TO_BAMS] [CSV] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT] [REFERENCE]
-                      [PATH_TO_ANNOVAR_DATABASES] [PATH
+usage: sh Intersect.sh [PATH_TO_INTERSECTION] [PATH_TO_NORMAL] [PANEL] [PATH_TO_BAMS] [CSV] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]                           [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [FILTER_WITH_PANEL] 
 ```
 Additional Information/Default parameters:  
-- Both the MuTecT2 and MuSE paths should be paths to the list of files directly outputted by MuTecT2 and MuSE. The script will create and organize and manipulate files on its own. 
-- The MuSE path is optional, but recommended. 
-
-path2Intersection=$1
-normal=$2
-panel=$3
-csv=$4
-alt_cut=$5
-tot_cut=$6
-vaf_cut=$7
-maf_cut=$8
-reference=$9
-path2database=$10
-panelfilter=$11
-bam=$12
-
+- All fields are required. All paths should be full paths.
+- `[PATH_TO_INTERSECTION]`: The full path to the directory of the intersection of the calls. 
+- `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller or a Panel of Normals. 
+- `[PANEL]`: True (if the normal is a PoN), False (otherwise). 
+- `[PATH_TO_BAMS]`: The full path to the directory of BAM files. 
+- `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
+- `[ALT_CUT]/[VAF_CUT]`: The alternate read-level depth/VAF to cut at. These will be filtered into a file with `bad_somatic_quality` in the filename. 
+- `[MAF_CUT]`: The population germline cutoff to cut at. 
+- `[REFERENCE]`: hg19 or hg38 (for Annovar). 
+- `[PATH_TO_ANNOVAR_DATABASES]`: A path to a directory for which the script will output soft links to Annovar databases, along with custom filtering BED files. 
+- `[FILTER_WITH_PANEL]`: True (if PoN filtering is desired), False (otherwise). 
 
 ## Running the SNV curating pipeline: 
 There are two ways to run this pipeline: 
