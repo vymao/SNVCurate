@@ -101,8 +101,9 @@ There are two ways to run this pipeline:
 
 ## Running components separately: 
 1. Run MuTecT2 on the BAM files using `Mutect2_read.py`. 
-2. If you desire higher specifity for somatic calls, run MuSE. 
-3. Run the script `Intersect.sh` to intersect the two calls. 
-4. Run the script `Filter.sh` to filter the intersection.
-5. Run the script `Annotate.sh` to finish. 
+2. If you desire higher specifity for somatic calls, run MuSE using `MuSE_read.py`. 
+3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
+4. Run the script `Intersect.sh` to intersect the two calls. 
+5. Run the script `Filter.sh` to filter the intersection.
+6. Run the script `Annotate.sh` to finish. 
     
