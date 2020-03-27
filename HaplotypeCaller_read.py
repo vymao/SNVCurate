@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('-input_path', help='Path to the text file')
     parser.add_argument('-output_path', default='/n/data1/hms/dbmi/park/victor/other/', help='Path to where the final pipeline output will be written to. Default output will be to /n/data1/hms/dbmi/park/victor/other/.')
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
-    parser.add_argument('-t', '--runtime', default='0-12:0:0', help='slurm job submission option')
+    parser.add_argument('-t', '--runtime', default='0-15:0:0', help='slurm job submission option')
     parser.add_argument('-r1', default=0, help='Lower range bound of indices of BAMs to run')
     parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
@@ -47,21 +47,23 @@ def parse_args():
     return parser.parse_args()
 
 def main(): 
-    if args['mail_user'] is None: 
-        print('No email given.')
-        sys.exit()
     tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/'
     args = vars(parse_args())
+
+    if args['mail_user'] is None:
+        print('No email given.')
+        sys.exit()
+
     output_dir, pipeline = arg_clean(args)
     #move_files(args)
 
     os.system('module load gcc/6.2.0 python/3.6.0 java')
 
-        with open(args['input_path'], 'r') as f:
-            for index, line in enumerate(f):
-                if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
-                    os.system('python3 ' + tools_dir + pipeline + ' -in_file ' + line.strip('\n') + ' -out ' + output_dir + ' -t ' + args['t1'] + ' --mem_per_cpu ' args['mem_per_cpu']
-                        + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' -gatk ' + args['gatk_path'] + ' reference ' + args['reference_path'] + ' -scatter ' + args['scatter_size'] + 
+    with open(args['input_path'], 'r') as f:
+    	for index, line in enumerate(f):
+             if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
+                  os.system('python3 ' + tools_dir + pipeline + ' -in_file ' + line.strip('\n') + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' --mem_per_cpu ' + args['mem_per_cpu']
+                        + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' -gatk ' + args['gatk_path'] + ' -reference ' + args['reference_path'] + ' -scatter ' + args['scatter_size'] + 
                         ' -n ' + args['num_cores'])
 
 def arg_clean(args):
@@ -83,8 +85,7 @@ def arg_clean(args):
 
     if args['output_path'] == '/n/data1/hms/dbmi/park/victor/other/': output_dir = args['output_path']
     if args['output_path'] == '.' or args['output_path'] == './': output_dir = os.getcwd() 
-    output_dir = os.path.join(args['output_path'], filename + '.HaplotypeCaller')
-    os.makedirs(output_dir, exist_ok = True)
+    else: output_dir = args['output_path']
 
     pipeline = 'GATK_Germline_SNPs_Indels/HaplotypeCaller_4.1.2.0.py'
 
