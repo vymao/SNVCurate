@@ -58,11 +58,8 @@ def arg_clean(args):
 
     #if args['out'] == './': output_dir = args['out']
     if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd() 
-    if args['mode'] == 'call':       
-        output_dir = os.path.join(args['output_directory'], filename)
-        os.makedirs(output_dir, exist_ok = True)
-    else: 
-        output_dir = args['output_directory']
+    else: output_dir = args['output_directory']
+    
     return output_dir
 
 def collect_called(normals_path):
@@ -138,7 +135,7 @@ def main():
                         + ' -data_type ' + args['data_type'])
     else: 
         print('Invalid mode.')
-        
+
 if __name__ == "__main__":
     main()
 
