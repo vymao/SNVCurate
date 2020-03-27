@@ -19,34 +19,6 @@ path2Mutect=$2
 out=$1
 
 cd $path2Mutect
-
-for file in ${path2Mutect}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    if [ ! -d "$new_dir" ]; then
-        mkdir $new_dir
-    fi
-done
-for file in ${path2Mutect}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    mv $file $new_dir
-done
-
-
-cd $main
-for file in ${main}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    if [ ! -d "$new_dir" ]; then
-        mkdir $new_dir
-    fi
-done
-for file in ${main}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    mv $file $new_dir
-done
-
-
-
-cd $path2Mutect
 for path in ${path2Mutect}/*; do 
     [ -d "${path}" ] || continue 
     cd $path
