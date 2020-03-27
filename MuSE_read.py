@@ -63,21 +63,12 @@ def arg_clean(args):
         os.makedirs(output_dir, exist_ok = True)
     else: 
         output_dir = args['output_directory']
-    print(output_dir)
     return output_dir
 
-#This needs further editing to accomodate more relevant scripts
-"""
-    if args['pipeline'].lower() == 'somatic':
-        pipeline = 'GATK_Somatic_SNPs_Indels/Mutect2.py'
-    else:
-        if args['queue'] == 'priopark':
-            pipeline = 'GATK_Germline_SNPs_Indels/HaplotypeCaller_original.py'
-        else:
-            pipeline = 'GATK_Germline_SNPs_Indels/HaplotypeCaller.py'
+def collect_called(normals_path):
+    normals = [os.path.realpath(file) for file in glob.glob(os.path.join(normals_path, '*.txt'))]
+    return normals
 
-    return output_dir, pipeline
-"""
 def get_column(csv, sample):
     with open(csv, 'r') as file:
         for index, line in enumerate(file):
@@ -101,12 +92,12 @@ def get_bam(csv, row, column):
                     return result[column]
 
 def main(): 
-    if args['mail_user'] is None: 
-        print('No email given.')
-        sys.exit()
     tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py'
     args = vars(parse_args())
     output_dir = arg_clean(args)
+    if args['mail_user'] is None: 
+        print('No email given.')
+        sys.exit()
     
 
     if int(args['r1']) == 0 and args['mode'].lower() == 'call':
@@ -138,14 +129,16 @@ def main():
                         #print('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
                         #    ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'])
 
-    if args['mode'].lower() == 'sump':
-        with open(args['csv'], 'r') as f:
-            for index, line in enumerate(f):
-                if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
-                    tumor = line.strip();
-                    os.system('python3 ' + tools_dir + ' -tumor ' + tumor + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
-                            ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] 
-                            + ' -data_type ' + args['data_type'])
+    elif args['mode'].lower() == 'sump':
+        called = collect_called(args['input_tumor_path'])
+        for line in called: 
+                tumor = line.strip();
+                os.system('python3 ' + tools_dir + ' -tumor ' + tumor + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
+                        ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] 
+                        + ' -data_type ' + args['data_type'])
+    else: 
+        print('Invalid mode.')
+        
 if __name__ == "__main__":
     main()
 

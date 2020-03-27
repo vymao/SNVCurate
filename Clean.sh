@@ -26,10 +26,7 @@ for file in ${path2Mutect}/*.vcf; do
     if [ ! -d "$new_dir" ]; then
         mkdir $new_dir
     fi
-done
-for file in ${path2Mutect}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    mv $file $new_dir
+    mv ${new_dir}.* $new_dir
 done
 
 
@@ -39,10 +36,7 @@ for file in ${main}/*.vcf; do
     if [ ! -d "$new_dir" ]; then
         mkdir $new_dir
     fi
-done
-for file in ${main}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    mv $file $new_dir
+    mv ${new_dir}.* $new_dir
 done
 
 if [ $normal -eq == "true" ]; then
@@ -52,11 +46,9 @@ if [ $normal -eq == "true" ]; then
         if [ ! -d "$new_dir" ]; then
             mkdir $new_dir
         fi
+        mv ${new_dir}.* $new_dir
     done
-    for file in ${path2HaplotypeCaller}/*.vcf.gz; do 
-        new_dir=$(echo $file | cut -d'.' -f1)
-        mv $file $new_dir
-    done
+  
     for path in ${path2HaplotypeCaller}/*; do 
         [ -d $path ] || continue
         cd $path

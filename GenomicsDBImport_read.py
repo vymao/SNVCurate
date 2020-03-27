@@ -18,9 +18,9 @@ from time import sleep
 def parse_args():
     """Uses argparse to enable user to customize script functionality"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-tumor_name', '--input_tumor_name', help='name of tumor file')
     parser.add_argument('-in_dir', '--input_directory', help='input directory containing gVCFs to be merged')
     parser.add_argument('-out_dir', '--output_directory', default='./', help='directory to which the output will be written to')
+    parser.add_argument('-list', help='list of normal samples')
     parser.add_argument('-n', '--num_cores', default='15', help='slurm job submission option')
     parser.add_argument('-t', '--runtime', default='10-00:00:00', help='slurm job submission option')
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
@@ -69,6 +69,18 @@ def clean_arg_paths(args):
     output_dir = os.path.join(args.output_directory, '.GenotypeGVCFs')
     os.makedirs(output_dir, exist_ok=True)
     return output_dir
+
+def clean_HaplotypeCaller_directory(args): 
+    with open(args.list, 'r') as file: 
+        for index, line in enumerate(file): 
+            sample = os.path.basename(line).split('.')[0]
+            full_sample = os.path.join(in_dir, sample)
+            os.makedirs(full_sample, exist_ok=True)
+            os.system('mv ' + full_sample + '.* ' + full_sample)
+            os.chdir(full_sample)
+            os.system('cat *.gz ' + sample + '.gz')
+            os.system("tabix -p vcf " + sample + ".gz")
+
 
 def generate_regions_files(args, output_directory):
     os.makedirs(os.path.dirname(os.path.join(output_directory, '.Mutect2/.regions/')), exist_ok=True)
