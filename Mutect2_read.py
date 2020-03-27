@@ -51,7 +51,7 @@ def parse_args():
     # parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf', help='path to dbsnp file')
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
-    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
+    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.raw.sites.b37.vcf', help='path to gnomad file' )
     parser.add_argument('-scatter', '--scatter_size', default='50')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
     parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
@@ -72,9 +72,8 @@ def arg_clean(args):
         filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
 
     #if args['out'] == './': output_dir = args['out']
-    if args['output_directory'] == '.' or './': output_dir = os.getcwd() 
-    output_dir = os.path.join(args['output_directory'], filename)
-    os.makedirs(output_dir, exist_ok = True)
+    if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd()
+    else: output_dir = args['output_directory'] 
     return output_dir
 
 def get_column(csv, sample):
@@ -100,12 +99,13 @@ def get_bam(csv, row, column):
                     return result[column]
 
 def main(): 
-    if args['mail_user'] is None: 
-        print('No email given.')
-        sys.exit()
     tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/Mutect2.py'
     args = vars(parse_args())
     output_dir = arg_clean(args)
+
+    if args['mail_user'] is None:
+        print('No email given.')
+        sys.exit()
 
     if int(args['r1']) == 0:
         print("Invalid r1 parameter. r1 must be greater than 0 to account for headers")
