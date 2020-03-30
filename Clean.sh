@@ -18,7 +18,6 @@ path2MuSE=$4
 path2Mutect=$3
 path2HaplotypeCaller=$1
 normal=$(echo "$2" | awk '{print tolower($0)}')
-echo $normal
 
 
 cd $path2Mutect
@@ -59,7 +58,7 @@ fi
 
 if [ $normal == "true" ]; then
     cd $path2HaplotypeCaller
-    for file in ${path2HaplotypeCaller}/*.vcf.gz; do 
+    for file in ${path2HaplotypeCaller}/*.vcf; do 
         base=$(basename $file)
 	new_dir=$(echo $base | cut -d'.' -f1)
         mkdir -p $new_dir
@@ -75,8 +74,11 @@ if [ $normal == "true" ]; then
         [ -d $path ] || continue
         cd $path
         dirname=$(basename $path)
-	vcf-concat *.vcf.gz | gzip -c > ${dirname}.vcf.gz
-        tabix -p vcf ${dirname}.vcf.gz
+	if [ ! -f ${dirname}.vcf ]; then
+	     bcftools concat *.vcf -o ${dirname}.vcf
+	fi
+	bgzip -c ${dirname}.vcf > ${dirname}.vcf.gz
+	tabix -p vcf ${dirname}.vcf.gz
     done
 fi
 

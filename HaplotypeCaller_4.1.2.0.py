@@ -71,7 +71,7 @@ def return_slurm_command(args):
     return slurm_command
 
 def gen_output_file_name(args, region_file):
-    output_file_name = args.output_directory + '.HaplotypeCaller/' + ntpath.basename(args.input_tumor_path) + '_' + ntpath.basename(region_file[1:]) + '.g.vcf.gz'
+    output_file_name = args.output_directory + '.HaplotypeCaller/' + ntpath.basename(args.input_tumor_path) + '_' + ntpath.basename(region_file[1:]) + '.g.vcf'
 
     return output_file_name
 
