@@ -17,6 +17,10 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 main=$3
 path2Mutect=$2
 out=$1
+package_path=$(dirname "$(readlink -f "$0")")
+#echo $package_path
+
+
 
 cd $path2Mutect
 for path in ${path2Mutect}/*; do 
@@ -37,7 +41,7 @@ for path in ${path2Mutect}/*; do
     fi
 
     for file in ${dirname}/*Combined.vcf; do 
-        python3 Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf 
+        python3 ${package_path}/Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf 
     done
 
     test_dir=${out}/${dirname}
@@ -74,8 +78,8 @@ if ! [ -z "$main" ]; then
         fi
 
         test_dir=${out}/${dirname}
-        mkdir $test_dir
-        mkdir ${test_dir}/intersection_files
+        mkdir -p $test_dir
+        mkdir -p ${test_dir}/intersection_files
         mv ${dirname}.PASS_MuSE.vcf $test_dir/intersection_files
     done
 
@@ -106,14 +110,14 @@ if ! [ -z "$main" ]; then
     done
 else
     for path in ${path2Mutect}/*; do 
-    [ -d "${path}" ] || continue 
-    cd ${path}/intersection_files
+    	[ -d "${path}" ] || continue 
+    	cd ${path}/intersection_files
 
-    dirname="$(basename "${path}")"
-    intersected_file=${dirname}.INTERSECTION.vcf
+ 	dirname="$(basename "${path}")"
+    	intersected_file=${dirname}.INTERSECTION.vcf
 
-    mv ${dirname}.PASS_MuTecT.vcf $intersected_file
-done
+    	mv ${dirname}.PASS_MuTecT.vcf $intersected_file
+    done
 fi
 
 
