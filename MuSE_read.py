@@ -24,7 +24,7 @@ def parse_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-tumor', '--input_tumor_path', help='path to input tumor file')
     parser.add_argument('-normal', '--input_normal_path', help='path to normal file')
-    parser.add_argument('-csv', help='csv containing matched tumor/normal pairs')
+    parser.add_argument('-csv', default=None, help='csv containing matched tumor/normal pairs')
     parser.add_argument('-out', '--output_directory', default='./', help='directory to which the output directory "/.Mutect2/" will be written to')
     parser.add_argument('-n', '--num_cores', default='1', help='slurm job submission option')
     parser.add_argument('-t', '--runtime', default='2-00:00:00', help='slurm job submission option')
@@ -59,7 +59,7 @@ def arg_clean(args):
     #if args['out'] == './': output_dir = args['out']
     if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd() 
     else: output_dir = args['output_directory']
-    
+
     return output_dir
 
 def collect_called(normals_path):
@@ -91,10 +91,13 @@ def get_bam(csv, row, column):
 def main(): 
     tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py'
     args = vars(parse_args())
-    output_dir = arg_clean(args)
-    if args['mail_user'] is None: 
+    if args['mail_user'] is None or (args['csv'] is None and args['mode'] == 'call'): 
         print('No email given.')
         sys.exit()
+    elif args['csv'] is None and args['mode'] == 'call':
+        print('No csv given.')
+        sys.exit()
+    output_dir = arg_clean(args)
     
 
     if int(args['r1']) == 0 and args['mode'].lower() == 'call':
