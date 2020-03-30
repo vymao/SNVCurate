@@ -17,6 +17,7 @@ import os
 import re
 import ntpath
 import sys
+import glob
 
 def parse_args():
     """Uses argparse to enable user to customize script functionality""" 
@@ -50,11 +51,12 @@ def arg_clean(args):
     3. Creates a new output directory within the specified directory
     4. Specifies the appropriate script, depending on the desired pipeline
     """
-    if '.csv' in args['csv']:
-        filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
-    else:
-        args['csv'] = args['csv'] + '.csv'
-        filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
+    if args['csv'] is not None: 
+    	if '.csv' in args['csv']:
+             filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
+    	else:
+             args['csv'] = args['csv'] + '.csv'
+             filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
 
     #if args['out'] == './': output_dir = args['out']
     if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd() 

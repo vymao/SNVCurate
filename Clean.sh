@@ -11,50 +11,74 @@
 #SBATCH --mail-user=victor_mao@hms.harvard.edu   # Email to which notifications will be sent
 
 
-module load gcc/6.2.0 python/3.6.0 java bcftools
+module load gcc/6.2.0 python/3.6.0 java bcftools vcftools
 
 
-main=$4
-path2Mutect=$2
+path2MuSE=$4
+path2Mutect=$3
 path2HaplotypeCaller=$1
-normal=$(echo "$1" | awk '{print tolower($0)}')
+normal=$(echo "$2" | awk '{print tolower($0)}')
+echo $normal
+
 
 cd $path2Mutect
 
 for file in ${path2Mutect}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    if [ ! -d "$new_dir" ]; then
-        mkdir $new_dir
-    fi
-    mv ${new_dir}.* $new_dir
+    base=$(basename $file)
+    new_dir=$(echo $base | cut -d'.' -f1)
+    mkdir -p $new_dir
+done
+
+for path in ${path2Mutect}/*; do 
+     [ -d $path ] || continue
+     sample=$(basename $path)
+     mv ${sample}.* $sample
 done
 
 
-cd $main
-for file in ${main}/*.vcf; do 
-    new_dir=$(echo $file | cut -d'.' -f1)
-    if [ ! -d "$new_dir" ]; then
-        mkdir $new_dir
-    fi
-    mv ${new_dir}.* $new_dir
-done
 
-if [ $normal -eq == "true" ]; then
+if ! [ -z "$path2MuSE" ]; then
+     cd $path2MuSE
+     for file in ${path2MuSE}/*.vcf; do
+	  base=$(basename $file) 
+          new_dir=$(echo $base | cut -d'.' -f1)
+          mkdir -p $new_dir
+     done
+
+     for path in ${path2MuSE}/*; do 
+     	[ -d $path ] || continue 
+     	sample=$(basename $path)
+     	mv ${sample}.* $sample 
+     done
+fi
+
+if [ $normal == "true" ]; then
+     echo "yes"
+fi
+
+
+if [ $normal == "true" ]; then
     cd $path2HaplotypeCaller
     for file in ${path2HaplotypeCaller}/*.vcf.gz; do 
-        new_dir=$(echo $file | cut -d'.' -f1)
-        if [ ! -d "$new_dir" ]; then
-            mkdir $new_dir
-        fi
-        mv ${new_dir}.* $new_dir
+        base=$(basename $file)
+	new_dir=$(echo $base | cut -d'.' -f1)
+        mkdir -p $new_dir
     done
+
+     for path in ${path2HaplotypeCaller}/*; do
+        [ -d $path ] || continue
+        sample=$(basename $path)
+        mv ${sample}.* $sample
+     done
   
     for path in ${path2HaplotypeCaller}/*; do 
         [ -d $path ] || continue
         cd $path
         dirname=$(basename $path)
-        cat *.gz ${dirname}.vcf.gz
+	vcf-concat *.vcf.gz | gzip -c > ${dirname}.vcf.gz
         tabix -p vcf ${dirname}.vcf.gz
     done
 fi
+
+
 
