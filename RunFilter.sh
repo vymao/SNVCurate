@@ -21,10 +21,10 @@ alt_cut=$4
 tot_cut=$5 
 vaf_cut=$6 
 maf_cut=$7
-panelfilter=$8
+panelfilter=$11
 reference=$9
 path2database=$10
-bam=$11
+bam=$8
 
 sampledir=$(dirname $path2Intersection)
 dirname=$(basename $sampledir)
@@ -49,18 +49,19 @@ for file in *csv; do
     fi
 done
 
-mv ${dirname}.PASS.vcf.hg19_multianno.txt.ANNO.somatic_variants_filtered.*.vcf ${dirname}.somatic_variants_filtered_1.vcf
+mv ${dirname}.*.PASS.ANNO.somatic_variants_filtered ${dirname}.somatic_variants_filtered_1.vcf
+mv ${dirname}.*.PASS.ANNO.germline_variants_filtered ${dirname}.germline_variants_filtered.vcf
 
 if ! [ -z "$panelfilter" ]; then
     cd ${sampledir}/pon_filtering
     python3 PoN_filter.py -somatic_vcf ${sampledir}/${cut_filtering}/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar path2database -reference reference -bam $bam -pon $panelfilter 
     
-
-    mv ${dirname}/Final_Callset.vcf ${dirname}.somatic_variants_filtered_1.vcf
+    mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
+    mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
+else 
+    cp ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
+    mv ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
 fi
-
-mv ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
-
 
 
 

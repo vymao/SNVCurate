@@ -1,0 +1,23 @@
+{
+  "email": "victor_mao@hms.harvard.edu",
+  "tumor_directory": "/path/to/tumor_bams",
+  "normal_directory": "/path/to/normal_bams", 
+  "normal": "True",
+  "output_directory": "/path/to/output_directory",
+  "scatter": 50,
+  "dbSNP": "/path/to/dbSNP_database",
+  "gnomAD": "/path/to/gnomAD_database",
+  "reference_path": "/path/to/reference",
+  "panel_path": "/path/to/panel",
+  "panel": "True",
+  "reference": "hg19",
+  "mail_type": "FAIL", 
+  "data_type": "WES", 
+  "csv": "/path/to/csv",
+  "num_cores": 1, 
+  "runtime": "1-00:00:00", 
+  "queue": "park", 
+  "memory": "10G",
+  "database_path": "/path/to/database_directory"
+
+}
