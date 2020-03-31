@@ -32,7 +32,13 @@ for path in ${path2Mutect}/*; do
     rm *PASS* 
     rm *INTERSECTION* *TIER* 000* *MUTECT*
 
-    bcftools concat *.vcf -o ${dirname}.Combined.vcf
+    #bcftools concat *.vcf -o ${dirname}.Combined.vcf 2>&1 >/dev/null | grep "not contiguous" 
+
+    if bcftools concat *.vcf -o ${dirname}.Combined.vcf 2>&1 >/dev/null | grep -q "not contiguous"; then
+        echo "There was a problem with MuTecT, and the chromosomes are not contiguous. Please try rerunning MuTecT on sample ${dirname} and then rerun this script."
+        exit $ERRCODE
+
+fi
 
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
         for file in ${dirname}.Combined.vcf; do 
