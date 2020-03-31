@@ -1,7 +1,10 @@
 {
   "email": "victor_mao@hms.harvard.edu",
-  "tumor_directory": "/path/to/tumor_bams",
-  "normal_directory": "/path/to/normal_bams", 
+  "BAM_path": "/path/to/bams",
+  "Mutect_directory": "/path/to/Mutect_output",
+  "MuSE_path": "/path/to/MuSE_output", 
+  "MuSE": "True", 
+  "HaplotypeCaller_path": "/path/to/HaplotypeCaller_output",
   "normal": "True",
   "output_directory": "/path/to/output_directory",
   "scatter": 50,

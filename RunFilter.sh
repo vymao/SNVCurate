@@ -54,7 +54,7 @@ mv ${dirname}.*.PASS.ANNO.germline_variants_filtered ${dirname}.germline_variant
 
 if ! [ -z "$panelfilter" ]; then
     cd ${sampledir}/pon_filtering
-    python3 PoN_filter.py -somatic_vcf ${sampledir}/${cut_filtering}/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar path2database -reference reference -bam $bam -pon $panelfilter 
+    python3 PoN_filter.py -somatic_vcf ${sampledir}/${cut_filtering}/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter 
     
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
     mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
