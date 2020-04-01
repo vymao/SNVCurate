@@ -15,20 +15,6 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2Intersection=$1
 normal=$2
-panel=$12
-csv=$4
-alt_cut=$5
-tot_cut=$6
-vaf_cut=$7
-maf_cut=$8
-reference=$9
-path2database=$10
-panelfilter=$11
-bam=$3
-
-
-path2Intersection=$1
-normal=$2
 matchedNormal=$(echo "$3" | awk '{print tolower($0)}')
 csv=$4
 alt_cut=$5
@@ -59,8 +45,9 @@ normalname="null"
 
 for path in ${path2Intersection}/*; do
     [ -d $path ] || continue
+    dirname=$(basename $path)
 
-    if [ $matchedNormal == "false"]; then
+    if [ $matchedNormal == "true"]; then
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
     else
         normalname=$normal
