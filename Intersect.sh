@@ -30,7 +30,7 @@ for path in ${path2Mutect}/*; do
     dirname="$(basename "${path}")"
 
     rm *PASS* 
-    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf
+    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK*
 
     #bcftools concat *.vcf -o ${dirname}.Combined.vcf 2>&1 >/dev/null | grep "not contiguous" 
 
@@ -41,19 +41,20 @@ for path in ${path2Mutect}/*; do
     fi
 
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
-        for file in ${dirname}.Combined.vcf; do 
+        for file in ${dirname}.Combined.vcf; do
+	    echo "working" 
             grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
         done
     fi
 
-    for file in ${dirname}/*Combined.vcf; do 
+    for file in ${dirname}.Combined.vcf; do 
         python3 ${package_path}/Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf 
     done
 
     test_dir=${out}/${dirname}
     mkdir -p $test_dir
     mkdir -p ${test_dir}/annotation_files
-    mv ${dirname}.M2_RISK.germline_variants_filtered.vcf ${dirname}.M2_Risk_variants_filtered.vcf
+    mv ${dirname}.*M2_RISK.germline_variants_filtered.vcf ${dirname}.M2_Risk_variants_filtered.vcf
     mv ${dirname}.M2_Risk_variants_filtered.vcf ${test_dir}/annotation_files
 
     mkdir -p ${test_dir}/intersection_files
