@@ -26,6 +26,23 @@ path2database=$10
 panelfilter=$11
 bam=$3
 
+
+path2Intersection=$1
+normal=$2
+matchedNormal=$(echo "$3" | awk '{print tolower($0)}')
+csv=$4
+alt_cut=$5
+tot_cut=$6
+vaf_cut=$7
+maf_cut=$8
+reference=$9
+path2database=$10
+bam=$11
+filterwithPanel=$(echo "$12" | awk '{print tolower($0)}')
+panel=$13
+
+
+
 cd $path2Intersection
 
 if [ -z "$1" ]; then
@@ -43,11 +60,15 @@ normalname="null"
 for path in ${path2Intersection}/*; do
     [ -d $path ] || continue
 
-    if [ $panel -eq "False"]; then
+    if [ $matchedNormal == "false"]; then
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
     else
         normalname=$normal
     fi
-    sbatch RunFilter.sh $path2Intersection $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam $panelfilter
+
+    if [ $filterwithPanel == "false"]; then
+        sbatch RunFilter.sh ${path2Intersection}/intersection_files $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam 
+    else
+        sbatch RunFilter.sh ${path2Intersection}/intersection_files $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam $panel
 done
 
