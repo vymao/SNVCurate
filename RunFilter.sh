@@ -50,8 +50,8 @@ for file in *csv; do
     fi
 done
 
-mv ${dirname}.*.PASS.ANNO.somatic_variants_filtered ${dirname}.somatic_variants_filtered_1.vcf
-mv ${dirname}.*.PASS.ANNO.germline_variants_filtered ${dirname}.germline_variants_filtered.vcf
+mv ${dirname}.*.ANNO.somatic_variants_filtered* ${dirname}.somatic_variants_filtered_1.vcf
+mv ${dirname}.*.ANNO.germline_variants_filtered* ${dirname}.germline_variants_filtered.vcf
 
 if ! [ -z "$panelfilter" ]; then
     cd ${sampledir}/pon_filtering
