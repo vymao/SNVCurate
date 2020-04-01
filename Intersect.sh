@@ -31,7 +31,7 @@ for path in ${path2Mutect}/*; do
     dirname="$(basename "${path}")"
 
     rm *PASS* 
-    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK*
+    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf
 
     #bcftools concat *.vcf -o ${dirname}.Combined.vcf 2>&1 >/dev/null | grep "not contiguous" 
 
