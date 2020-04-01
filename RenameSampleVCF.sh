@@ -16,67 +16,6 @@
 module load gcc/6.2.0 python/3.6.0 samtools/1.3.1 bwa/0.7.15 java 
 
 path2picard="/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar"
-#path2vcf="/n/data1/hms/dbmi/park/ethan/GERBURG/MUTECT/"
-path2mutect="/n/data1/hms/dbmi/park/victor/Doga/Gerburg_WES_2/Panc_matched_realigned_list/.Mutect2"
-: '
-for path in ${path2mutect}/DS-bkm-129-T1_Combined_RECAL; do
-    [ -d "${path}" ] || continue # ß
-    dirname="$(basename "${path}")" 
-
-    cd $path
-
-	for file in ${path}/*Combined.vcf; do
-
-		bname=$(basename $file)
-		base=$(echo $bname | cut -d'.' -f1)
-
-	  	for sample in `bcftools view -h $file | grep "^#CHROM" | cut -f10-`; do
-	    	bcftools view -c1 -Oz -s $sample -o ${file/.vcf*/.$sample.vcf.gz} $file
-	 	done
-
-	 	echo 'Splitting...done.'
-
-		for sample in ${path}/${base}*.gz; do tabix -p vcf -f $sample; done
-
-		echo 'Indexing...done.'
-
-		#for sample in ${path}/${base}*.gz; do 
-		#      java -jar $path2picard RenameSampleInVcf \
-		#      INPUT=$sample\
-		#      OUTPUT=${sample}.grouped.vcf \
-		#      NEW_SAMPLE_NAME="Sample_DS-bkm"
-		#done
-
-		
-		for sample in ${path}/${base}*-T_*.gz; do 
-		      java -jar $path2picard RenameSampleInVcf \
-		      INPUT=$sample\
-		      OUTPUT=${sample}.grouped.vcf \
-		      NEW_SAMPLE_NAME="Sample_DS-bkm"
-		done
-
-		echo 'Renaming Sample...done'
-
-		for sample in ${path}/${base}*.gz.grouped.vcf; do 
-			bgzip -c $sample > ${sample}.gz
-		done
-
-
-		for sample in ${path}/${base}*.gz.grouped.vcf; do 
-			tabix -p vcf -f $sample.gz
-		done
-
-		echo 'Reindexing...done'
-
-		bcftools concat ${base}*.grouped.vcf -o ${base}.Combined.RENAMED.vcf
-
-		rm *.grouped*
-		rm *L00*
-	done
-
-done
-'
-
 
 path=$1
 dirname="$(basename "${path}")" 
@@ -88,33 +27,27 @@ for file in ${path}/*Combined.vcf; do
 	bname=$(basename $file)
 	base=$(echo $bname | cut -d'.' -f1)
 
+	echo "Splitting..."
+
   	for sample in `bcftools view -h $file | grep "^#CHROM" | cut -f10-`; do
     	bcftools view -c1 -Oz -s $sample -o ${file/.vcf*/.$sample.vcf.gz} $file
  	done
 
- 	echo 'Splitting...done.'
+ 	echo 'Indexing...'
 
 	for sample in ${path}/${base}*.gz; do tabix -p vcf -f $sample; done
 
-	echo 'Indexing...done.'
-	
+	echo 'Renaming Sample...'	
+
 	for sample in ${path}/${base}*.gz; do 
 	      java -jar $path2picard RenameSampleInVcf \
 	      INPUT=$sample\
 	      OUTPUT=${sample}.grouped.vcf \
-	      NEW_SAMPLE_NAME="Sample_DS-bkm"
+	      NEW_SAMPLE_NAME="TUMOR-Merged"
 	done
 
-	
-	: '
-	for sample in ${path}/${base}*-T2_*.gz; do 
-	      java -jar $path2picard RenameSampleInVcf \
-	      INPUT=$sample\
-	      OUTPUT=${sample}.grouped.vcf \
-	      NEW_SAMPLE_NAME="Sample_DS-bkm"
-	done
-	'
-	echo 'Renaming Sample...done'
+	echo 'Reindexing...'
+
 
 	for sample in ${path}/${base}*.gz.grouped.vcf; do 
 		bgzip -c $sample > ${sample}.gz
@@ -124,8 +57,6 @@ for file in ${path}/*Combined.vcf; do
 	for sample in ${path}/${base}*.gz.grouped.vcf; do 
 		tabix -p vcf -f $sample.gz
 	done
-
-	echo 'Reindexing...done'
 
 	bcftools concat ${base}*.grouped.vcf -o ${base}.Combined.RENAMED.vcf
 
