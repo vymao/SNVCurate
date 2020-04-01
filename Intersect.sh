@@ -14,7 +14,8 @@
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
 
-main=$3
+main=$4
+multilane=$(echo "$3" | awk '{print tolower($0)}')
 path2Mutect=$2
 out=$1
 package_path=$(dirname "$(readlink -f "$0")")
@@ -40,11 +41,21 @@ for path in ${path2Mutect}/*; do
 
     fi
 
+    if [ $multilane == "true" ]; then
+        sh ${package_path}/RenameSampleVCF.sh $path
+    fi
+
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
-        for file in ${dirname}.Combined.vcf; do
-	    echo "working" 
-            grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
-        done
+        if [ $multilane == "true" ]; then
+            for file in ${dirname}.Combined.RENAMED.vcf; do
+                grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
+            done
+        else
+            for file in ${dirname}.Combined.vcf; do
+    	    echo "working" 
+                grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
+            done
+        fi
     fi
 
     for file in ${dirname}.Combined.vcf; do 
