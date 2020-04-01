@@ -14,6 +14,7 @@
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2database=$1
+reference=$2
 cd $path2database
 
 annovar_database=/home/mk446/bin/annovar/humandb

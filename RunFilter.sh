@@ -13,6 +13,7 @@
 
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
+path2SNVCurate=$(dirname "$(readlink -f "$0")")
 
 path2Intersection=$1
 normal=$2
@@ -45,7 +46,7 @@ done
 
 for file in *csv; do 
     if [ ! -f cut_filtering/${dirname}.PASS.vcf.hg19_multianno.txt.ANNO.somatic_variants_filtered.*.vcf ]; then
-       python3 Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path ${sampledir}/cut_filtering -vcf_path ${path2Intersection}/${dirname}.INTERSECTION.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut
+       python3 ${path2SNVCurate}/Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path ${sampledir}/cut_filtering -vcf_path ${path2Intersection}/${dirname}.INTERSECTION.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut
     fi
 done
 
@@ -54,7 +55,7 @@ mv ${dirname}.*.PASS.ANNO.germline_variants_filtered ${dirname}.germline_variant
 
 if ! [ -z "$panelfilter" ]; then
     cd ${sampledir}/pon_filtering
-    python3 PoN_filter.py -somatic_vcf ${sampledir}/${cut_filtering}/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter 
+    python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/${cut_filtering}/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter 
     
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
     mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf

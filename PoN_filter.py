@@ -6,7 +6,6 @@ import re
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-%matplotlib inline
 import subprocess
 import argparse
 import sys

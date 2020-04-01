@@ -18,18 +18,18 @@ from time import sleep
 def parse_args():
     """Uses argparse to enable user to customize script functionality"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-in_dir', '--input_directory', help='input directory containing GenomicsDB')
+    parser.add_argument('-in_dir', '--input_directory', help='input directory containing GenomicsDB or HaplotypeCaller output')
     parser.add_argument('-out_dir', '--output_directory', default='./', help='directory to which the output will be written to')
     parser.add_argument('-n', '--num_cores', default='1', help='slurm job submission option')
-    parser.add_argument('-t', '--runtime', default='2-00:00:00', help='slurm job submission option')
+    parser.add_argument('-t', '--runtime', default='0-12:00:00', help='slurm job submission option')
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('--mem_per_cpu', default='15G', help='slurm job submission option')
-    parser.add_argument('--mail_type', default='ALL', help='slurm job submission option')
+    parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', help='slurm job submission option')
     parser.add_argument('-gatk3', '--gatk3_path', default='/home/mk446/BiO/Install/GATK3.8-0/GenomeAnalysisTK.jar', help='path to GATK3 jar script')
     parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to GATK4 software')
-    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/human_g1k_v37.fasta', help='path to reference_path file')
-    parser.add_argument('-mode', default='group', help='Call Joint Genotyping in group mode or single sample mode')
+    parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
+    parser.add_argument('-mode', default='single', help='Call Joint Genotyping in group mode or single sample mode')
     return parser.parse_args()
 
 def main():
@@ -45,14 +45,14 @@ def main():
         sh_file_name = gen_sh_file_name(args, output_file_name)
         write_out(args, slurm_command, primary_command, sh_file_name)
      
-        #submit_job(sh_file_name)
+        submit_job(sh_file_name)
     elif args.mode.lower() == 'single': 
         slurm_command = return_slurm_command(args)
         normal_list = collect_normals(args.input_directory)
-
+        #print(normal_list)
         for file in normal_list:
             sample = os.path.basename(file)
-            output_file_name = os.path.join(output_dir, sample + '.vcf')
+            output_file_name = gen_output_file_name_single(file, output_dir)
             primary_command = return_primary_command_single(args, file, output_file_name)
 
             sh_file_name = gen_sh_file_name(args, output_file_name)
@@ -90,6 +90,11 @@ def return_slurm_command(args):
 
 def gen_output_file_name_GenomicsDB(args, output_directory):
     output_file_name = os.path.join(output_directory, 'Genotype_grouped.vcf')
+    return output_file_name
+
+def gen_output_file_name_single(sample, output_directory):
+    base = os.path.basename(sample).split('.')[0]    
+    output_file_name = os.path.join(output_directory, base + '.vcf')
     return output_file_name
 
 def return_primary_command_GenomicsDB(args, output):

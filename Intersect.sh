@@ -105,7 +105,7 @@ if ! [ -z "$main" ]; then
 
         mutectFile=${path2Mutect}/${dirname}/${dirname}.PASS.vcf
         bcftools sort ${dirname}.PASS_MuTecT.vcf > ${dirname}.PASS_MuTecT.sorted.vcf 
-        cp ${dirname}.PASS_MuSE.sorted.vcf ${dirname}.PASS_MuTecT.vcf
+        cp ${dirname}.PASS_MuTecT.sorted.vcf ${dirname}.PASS_MuTecT.vcf
 
         bgzip -c ${dirname}.PASS_MuTecT.vcf > ${dirname}.PASS_MuTecT.vcf.gz
         tabix -p vcf ${dirname}.PASS_MuTecT.vcf.gz

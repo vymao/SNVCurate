@@ -75,10 +75,10 @@ if [ $normal == "true" ]; then
         cd $path
         dirname=$(basename $path)
 	if [ ! -f ${dirname}.vcf ]; then
-	     bcftools concat *.vcf -o ${dirname}.vcf
+	     bcftools concat *.vcf -o ${dirname}.g.vcf
 	fi
-	bgzip -c ${dirname}.vcf > ${dirname}.vcf.gz
-	tabix -p vcf ${dirname}.vcf.gz
+	bgzip -c ${dirname}.g.vcf > ${dirname}.g.vcf.gz
+	tabix -p vcf ${dirname}.g.vcf.gz
     done
 fi
 

@@ -13,6 +13,8 @@
 
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
+path2SNVCurate=$(dirname "$(readlink -f "$0")")
+
 path2Intersection=$1
 normal=$2
 matchedNormal=$(echo "$3" | awk '{print tolower($0)}')
@@ -47,15 +49,19 @@ for path in ${path2Intersection}/*; do
     [ -d $path ] || continue
     dirname=$(basename $path)
 
-    if [ $matchedNormal == "true"]; then
+    if [ $matchedNormal == "true" ]; then
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
+	base=$(basename $normal)
+        dir=$(dirname $normal)
+        normalname=${dir}/${base}/${normalname}.vcf
     else
         normalname=$normal
     fi
 
-    if [ $filterwithPanel == "false"]; then
-        sbatch RunFilter.sh ${path2Intersection}/intersection_files $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam 
+    if [ $filterwithPanel == "false" ]; then
+        sh ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam 
     else
-        sbatch RunFilter.sh ${path2Intersection}/intersection_files $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam $panel
+        sh ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam $panel
+    fi
 done
 
