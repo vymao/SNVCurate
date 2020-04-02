@@ -93,12 +93,15 @@ def main():
 
      clean_bins(path_bins, path_bins_out, genotyped)
      bins = pd.read_csv(path_bins_out, sep='\t', header=None)
-
+     
+     """
      soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
      soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
+     """
 
-     vcfs = merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff)
-     vcfs = annotate_clipped_reads(vcfs, hg19)
+     soft_clipped_cutoff = pd.read_csv(path_soft_clipped_cutoff_out)
+     vcfs = merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff, path_vcfs_intersection)
+     vcfs = annotate_clipped_reads(vcfs, hg19, path_bams)
      vcfs = vcfs[vcfs['clipped_reads'] < vcfs['Soft Clipped Cutoff']]
      vcfs.to_csv(os.path.join(path_vcfs_intersection, 'Final_Callset.txt'), sep = '\t', index=False)
 
@@ -107,10 +110,14 @@ def main():
      command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" + \
                " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -vcfinput -polish"
 
-     os.system(command)
+     #os.system(command)
+   
 
-     somatic_file_path = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")
-     add_vcf_header(callset_risk, somatic_file_path, True)
+     somatic_file_path = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")  
+     if (os.path.exists(somatic_file_path)): 
+          os.remove(somatic_file_path)
+
+     add_vcf_header(args['somatic_vcf'], somatic_file_path, True)
 
      with open(os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv'), 'r') as f: 
           for index, line in enumerate(f):
@@ -264,7 +271,7 @@ def return_num_clipped_reads(chrom, start, stop, path, sam_file, hg19):
           return 0
      return num_sc_reads
 
-def annotate_clipped_reads(vcfs, hg19):
+def annotate_clipped_reads(vcfs, hg19, path_bams):
      df = vcfs.copy()
      df['POS'] = df['POS'].astype(int)
      df['POS_END'] = df['POS'] + 100
