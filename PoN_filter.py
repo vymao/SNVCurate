@@ -5,14 +5,12 @@ import glob
 import re
 import warnings
 import numpy as np
-import matplotlib.pyplot as plt
 import subprocess
 import argparse
 import sys
 import pysam
 
 def parse_args():
-    """Uses argparse to enable user to customize script functionality"""
      parser = argparse.ArgumentParser()
      parser.add_argument('-somatic_vcf', help='path to initial somatic SNVs from initial filtering')
      parser.add_argument('-normal_vcf', default=None, help='path to normal file for InDel mask creation')
@@ -22,8 +20,7 @@ def parse_args():
      parser.add_argument('-bam')
      parser.add_argument('-out')
 
-
-    return parser.parse_args()
+     return parser.parse_args()
 
 def main():
      args = vars(parse_args())
@@ -38,7 +35,7 @@ def main():
      vcfs = vcfs[vcfs['#CHROM'].apply(lambda x: len(str(x)) <=5)]
      vcfs = vcfs[vcfs['FILTER']=='PASS']
      prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
-
+     
      if args['normal_vcf'] is not None: 
           path_vcfs_germline = os.path.dirname(args['normal_vcf'])
           germline = import_append_process_vcfs(args['normal_vcf'])
@@ -50,8 +47,8 @@ def main():
           genotyped = True
 
           command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
-                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r,r" + 
-                         " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed,FCD_indels.bed " + 
+                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r,r" + \
+                         " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed,FCD_indels.bed " + \
                          "--argument ',,,,-colsWanted 4,-colsWanted 5,,,,' -csvout -polish"
      else: 
           sample_paths = os.path.join(path_vcfs_intersection, basename+ '.annot_normal.csv')
@@ -60,17 +57,17 @@ def main():
           genotyped = False
 
           command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
-                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r" + 
-                         " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + 
-                         "--argument ',,,,-colsWanted 4,-colsWanted 5,,,,' -csvout -polish"
+                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r" + \
+                         " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + \
+                         "--argument ',,,,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
 
-     os.system(command)
-
+     #os.system(command)
+         
      path_intermed_in = os.path.join(path_vcfs_intersection, output_name + '.hg19_multianno.csv')
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
-     vcfs = gen_dummies(vcfs, Genotyped)
+     vcfs = gen_dummies(vcfs, genotyped)
 
-     pon = import_vcf(path_pon)
+     pon = import_vcf(args['pon'])
      pon['PON'] = True
      pon = pon.drop_duplicates(['#CHROM', 'POS'])
      vcfs_merged = vcfs.merge(pon[['#CHROM', 'POS', 'PON']], how='left', on=['#CHROM', 'POS'])
@@ -95,7 +92,7 @@ def main():
      clean_bins(path_bins, path_bins_out, genotyped)
      bins = pd.read_csv(path_bins_out, sep='\t', header=None)
 
-     soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins)
+     soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
      soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
 
      vcfs = merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff)
@@ -105,8 +102,8 @@ def main():
 
      output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
      prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
-     command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" 
-               + " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -vcfinput -polish"
+     command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" + \
+               " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -vcfinput -polish"
 
      os.system(command)
 
@@ -122,7 +119,7 @@ def main():
                     new.write(vcf_line)
 
 
-
+     
 def return_files_in_dir(path, ext='*somatic_variants_filtered_1.vcf'):
      return glob.glob(path + ext, recursive=True)
 
@@ -205,7 +202,7 @@ def clean_bins(path_bins, path_bins_out, Genotyped):
           bins[0] = bins[0].apply(lambda x: re.sub('M', 'MT', x))
      bins.to_csv(path_bins_out, header=None, index=False, sep='\t')
     
-def generate_soft_clipped_cutoff(path_vcfs_intersection, bins):
+def generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams):
      bam_files = []
      soft_clipped = []
      """

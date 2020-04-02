@@ -32,4 +32,4 @@ ln -s ${annovar_database}/hg19_rmsk.bed hg19_rmsk.bed
 ln -s ${annovar_database}/all_repeats.b37.bed all_repeats.b37.bed
 ln -s ${annovar_database}/20141020.strict_mask.whole_genome.bed 20141020.strict_mask.whole_genome.bed
 ln -s ${annovar_database}/all.repeatmasker.b37.bed all.repeatmasker.b37.bed
-
+ln -s ${annovar_database}/${reference}_refGeneMrna.fa ${reference}_refGeneMrna.fa
