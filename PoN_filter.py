@@ -121,7 +121,7 @@ def main():
                     new.write(vcf_line)
 
 def collect_bams(bam_path, sample):
-    normals = [os.path.realpath(file) for file in glob.glob(os.path.join(bam_path, sample + '.bam'))]
+    normals = [os.path.realpath(file) for file in glob.glob(os.path.join(bam_path, sample + '*.bam'))]
     if len(normals) > 1:
           print("More than one corresponding BAM found. Please re-edit names and rerun.")
           sys.exit()  
