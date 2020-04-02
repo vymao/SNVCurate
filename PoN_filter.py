@@ -82,7 +82,9 @@ def main():
      path_exome_capture_bed = '/n/data1/hms/dbmi/park/alon/files/FCD/Reference_Files/TruSeq_Exome_Targeted_Regions_Manifest/truseq-exome-targeted-regions-manifest-v1-2.bed'
      path_bins = '/n/data1/hms/dbmi/park/alon/files/FCD/Reference_Files/bins/bins.bed'
      path_bins_out = '/n/data1/hms/dbmi/park/alon/files/FCD/Filtration/SV/CNV_SegDup_Bins/bins_no_contigs.bed'
-     path_bams = args['bam']
+
+
+     path_bams = collect_bams(args['bam'], basename)
      path_soft_clipped_cutoff_out = os.path.join(path_vcfs_intersection, 'soft_clipped_cutoff.csv')
 
      if args['reference'] == 'hg19': hg19 = True
@@ -118,7 +120,13 @@ def main():
                     vcf_line = find_in_vcf(args['somatic_vcf'], line)
                     new.write(vcf_line)
 
+def collect_bams(bam_path, sample):
+    normals = [os.path.realpath(file) for file in glob.glob(os.path.join(bam_path, sample + '.bam'))]
+    if len(normals) > 1:
+          print("More than one corresponding BAM found. Please re-edit names and rerun.")
+          sys.exit()  
 
+    return normals[0]
      
 def return_files_in_dir(path, ext='*somatic_variants_filtered_1.vcf'):
      return glob.glob(path + ext, recursive=True)
