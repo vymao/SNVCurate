@@ -13,6 +13,7 @@
 
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
+path2SNVCurate=$(dirname "$(readlink -f "$0")")
 out=$1
 path2Mutect=$2
 reference=$3
@@ -49,24 +50,24 @@ for path in ${out}/*; do
 
 
     for file in *somatic_variants_filtered_2.*txt; do 
-        python3 Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS.vcf
     done
 
 
     for file in *germline_variants_filtered.*txt; do 
-        python3 Label_Source.py -source filtering -out $out -in $file
+        python3 ${path2SNVCurate}/Label_Source.py -source filtering -out $out -in $file
     done 
 
     for file in *germline_variants_filtered.*txt.LABELED; do 
-        python3 Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS.vcf
     done 
 
     for file in *M2_Risk_variants_filtered.*txt; do 
-       python3 Label_Source.py -source Mutect -out $out -in $file
+       python3 ${path2SNVCurate}/Label_Source.py -source Mutect -out $out -in $file
     done 
 
     for file in *M2_Risk_variants_filtered.*txt.LABELED; do 
-        python3 Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*.Combined.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*.Combined.vcf
     done 
 
 
@@ -74,15 +75,17 @@ for path in ${out}/*; do
     if ! [ -z "$path2normal" ]; then
         cd $path2normal
 
+        dirname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
+
         /home/mk446/bin/annovar/table_annovar.pl ${path2normal}/${dirname}.vcf '/home/mk446/bin/annovar/humandb/' -out $dirname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
 
          
         if [ ! -f ${dirname}*.LABELED ]; then
-            python3 Label_Source.py -source HaplotypeCaller -out $path2normal -in ${dirname}.*txt
+            python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out $path2normal -in ${dirname}.*txt
         fi
         
         if [ ! -f ${dirname}*.LABELED.levels ]; then
-            python3 Add_Read_Info.py -in_file ${dirname}*.LABELED -vcf_path ${path2normal}/${dirname}.vcf -hap True
+            python3 ${path2SNVCurate}/Add_Read_Info.py -in_file ${dirname}*.LABELED -vcf_path ${path2normal}/${dirname}.vcf -hap True
         fi
        
     fi
