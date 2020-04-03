@@ -62,7 +62,7 @@ def main():
                          " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + \
                          "--argument ',,,,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
  
-     #os.system(command)
+     os.system(command)
          
      path_intermed_in = os.path.join(path_vcfs_intersection, output_name + '.hg19_multianno.csv')
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
@@ -96,8 +96,8 @@ def main():
      bins = pd.read_csv(path_bins_out, sep='\t', header=None)
      
      
-     #soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
-     #soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
+     soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
+     soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
      
 
      soft_clipped_cutoff = pd.read_csv(path_soft_clipped_cutoff_out)
