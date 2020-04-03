@@ -22,10 +22,16 @@ csv=$4
 
 cd $out
 
+rm *csv
+rm *vcf
+
 for path in ${out}/*; do 
     [ -d $path ] || continue
     dirname="$(basename "${path}")"
     cd ${path}/annotation_files
+
+    rm *levels
+    rm *LABELED
 
     for file in *somatic_variants_filtered_2.vcf; do 
         outname=${dirname}.somatic_variants_filtered_2
