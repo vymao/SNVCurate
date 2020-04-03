@@ -46,7 +46,7 @@ for path in ${out}/*; do
     done   
 
     for file in *M2_Risk_variants_filtered.vcf; do 
-        outname=${dirname}.M2_RISK.germline_variants_filtered
+        outname=${dirname}.M2_Risk_variants_filtered
         /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
         #sed -i '/#/d' ${dirname}.M2_RISK.germline_variants_filtered*.txt 
     done 
@@ -58,7 +58,6 @@ for path in ${out}/*; do
     for file in *somatic_variants_filtered_2.*txt; do 
         python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS_MuTecT.vcf
     done
-germline_variants_filtered.hg19_multianno.txt
 
     for file in *germline_variants_filtered.*txt; do 
         python3 ${path2SNVCurate}/Label_Source.py -source filtering -out ${path}/annotation_files -in $file
@@ -122,12 +121,12 @@ for path in ${out}/*; do
 
             for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
                 #cp $file "${Output_path}/${dirname}.germline_combined.csv"
-                tail -n +2 $file >> "${Output_path}/${dirname}.germline_combined.csv"
+                tail -n +2 $file >> "${out}/${dirname}.germline_combined.csv"
             done
             
 
             for file in ${path}/annotation_files/*${Filtered_file}; do
-                tail -n +2 $file >> "${Output_path}/${dirname}.germline_combined.csv"
+                tail -n +2 $file >> "${out}/${dirname}.germline_combined.csv"
             done
         fi
 
@@ -135,12 +134,12 @@ for path in ${out}/*; do
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
         if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
             for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
-                cp $file "${Output_path}/${dirname}.germline_combined.csv"
-            done
+                cp $file "${out}/${dirname}.germline_combined.csv"
+           done
             
 
             for file in ${path}/annotation_files/*${Filtered_file}; do
-                tail -n +2 $file >> "${Output_path}/${dirname}.germline_combined.csv"
+                tail -n +2 $file >> "${out}/${dirname}.germline_combined.csv"
             done
         fi
     fi

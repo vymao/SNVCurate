@@ -45,6 +45,8 @@ def find_in_vcf(args, line):
                     return vcf_line
 
 def get_read_levels(args, vcf_line):
+    if vcf_line is None: 
+    	return
     line_list = vcf_line.rstrip().split('\t')
     #print(line_list)
     tumor_info = line_list[9].split(':')[1].split(',')
