@@ -30,19 +30,19 @@ for path in ${out}/*; do
     for file in *somatic_variants_filtered_2.vcf; do 
         outname=${dirname}.somatic_variants_filtered_2
         /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-        sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
+        #sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
     done
 
     for file in *germline_variants_filtered.vcf; do 
         outname=${dirname}.02_05_001.PASS.ANNO.germline_variants_filtered
         /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-        sed -i '/#/d' *PASS.ANNO.germline_variants_filtered*.txt 
+        #sed -i '/#/d' *PASS.ANNO.germline_variants_filtered*.txt 
     done   
 
     for file in *M2_Risk_variants_filtered.vcf; do 
         outname=${dirname}.M2_RISK.germline_variants_filtered
         /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-        sed -i '/#/d' ${dirname}.M2_RISK.germline_variants_filtered*.txt 
+        #sed -i '/#/d' ${dirname}.M2_RISK.germline_variants_filtered*.txt 
     done 
 
 
@@ -95,7 +95,7 @@ done
 
 
 
-for path in $out/*; do
+for path in ${out}/*; do
     [ -d "${path}" ] || continue # if not a directory, skip'
     dirname="$(basename "${path}")"
     cd $path
