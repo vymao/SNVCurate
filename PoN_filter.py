@@ -24,6 +24,7 @@ def parse_args():
 
 def main():
      args = vars(parse_args())
+     
      path_vcfs_intersection = os.path.dirname(args['somatic_vcf'])
      basename = os.path.basename(args['somatic_vcf']).split('.')[0]
 

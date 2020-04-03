@@ -24,11 +24,10 @@ tot_cut=$6
 vaf_cut=$7
 maf_cut=$8
 reference=$9
-path2database=$10
-bam=$11
-filterwithPanel=$(echo "$12" | awk '{print tolower($0)}')
-panel=$13
-
+path2database=${10}
+bam=${11}
+filterwithPanel=$(echo "${12}" | awk '{print tolower($0)}')
+panel=${13}
 
 
 cd $path2Intersection
@@ -59,9 +58,10 @@ for path in ${path2Intersection}/*; do
     fi
 
     if [ $filterwithPanel == "false" ]; then
-        sh ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam 
+        sh ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database 
     else
-        sh ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $path2database $bam $panel
+        sh ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel
     fi
 done
+
 
