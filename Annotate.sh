@@ -24,7 +24,7 @@ cd $out
 for path in ${out}/*; do 
     [ -d $path ] || continue
     dirname="$(basename "${path}")"
-    cd annotation_files
+    cd ${path}/annotation_files
 
     for file in *somatic_variants_filtered_2.vcf; do 
         outname=${dirname}.somatic_variants_filtered_2
