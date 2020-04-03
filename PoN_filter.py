@@ -36,7 +36,7 @@ def main():
      vcfs = vcfs[vcfs['#CHROM'].apply(lambda x: len(str(x)) <=5)]
      vcfs = vcfs[vcfs['FILTER']=='PASS']
      prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
-     
+
      if args['normal_vcf'] is not None: 
           path_vcfs_germline = os.path.dirname(args['normal_vcf'])
           germline = import_append_process_vcfs(args['normal_vcf'])
@@ -61,8 +61,8 @@ def main():
                          output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r" + \
                          " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + \
                          "--argument ',,,,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
-
-     os.system(command)
+ 
+     #os.system(command)
          
      path_intermed_in = os.path.join(path_vcfs_intersection, output_name + '.hg19_multianno.csv')
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
@@ -96,8 +96,8 @@ def main():
      bins = pd.read_csv(path_bins_out, sep='\t', header=None)
      
      
-     soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
-     soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
+     #soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
+     #soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
      
 
      soft_clipped_cutoff = pd.read_csv(path_soft_clipped_cutoff_out)
@@ -109,7 +109,7 @@ def main():
      output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
      prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
      command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" + \
-               " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -vcfinput -polish"
+               " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -csvout -polish"
 
      os.system(command)
    
@@ -137,7 +137,7 @@ def collect_bams(bam_path, sample):
     return normals[0]
      
 def return_files_in_dir(path, ext='*somatic_variants_filtered_1.vcf'):
-     return glob.glob(path + ext, recursive=True)
+     return glob.glob(os.path.join(path, ext), recursive=True)
 
 def import_mutect_vcf(path, skiprows_num):
      return pd.read_csv(path, sep='\t', skiprows=skiprows_num)
@@ -293,6 +293,9 @@ def annotate_clipped_reads(vcfs, hg19, path_bams):
 
 def merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff, path_vcfs_intersection):
      vcfs['sampleId'] = vcfs['sampleId'].astype(str)
+     names = [ntpath.basename(file) for file in return_files_in_dir(path_vcfs_intersection)]
+     print(len(names))
+     print(len(soft_clipped_cutoff))
      soft_clipped_cutoff['sampleId'] = [ntpath.basename(file) for file in return_files_in_dir(path_vcfs_intersection)]
      soft_clipped_cutoff[['sampleId']] = soft_clipped_cutoff[['sampleId']].astype(str)
      vcfs = vcfs.merge(soft_clipped_cutoff, how='left', on='sampleId')
