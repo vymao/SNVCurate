@@ -11,7 +11,7 @@
 #SBATCH --mail-user=victor_mao@hms.harvard.edu   # Email to which notifications will be sent
 
 
-module load gcc/6.2.0 python/3.6.0 java bcftools
+#module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2SNVCurate=$(dirname "$(readlink -f "$0")")
 
@@ -31,11 +31,12 @@ sampledir=$(dirname $path2Intersection)
 dirname=$(basename $sampledir)
 
 cd $sampledir
-mkdir cut_filtering
+mkdir -p cut_filtering
 #mkdir pon_filtering
 
 
-cd cut_filtering
+cd cut_filtering 
+: '
 if [ ! -f ${path2Intersection}*txt ]; then
     /home/mk446/bin/annovar/table_annovar.pl ${path2Intersection}/${dirname}.INTERSECTION.vcf '/home/mk446/bin/annovar/humandb/' -buildver 'hg19' -out $dirname -remove -protocol 'refGene,avsnp142,exac03,gnomad_genome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
 fi
@@ -53,12 +54,13 @@ done
 mv ${dirname}.*.ANNO.somatic_variants_filtered* ${dirname}.somatic_variants_filtered_1.vcf
 mv ${dirname}.*.ANNO.germline_variants_filtered* ${dirname}.germline_variants_filtered.vcf
 
+'
 if ! [ -z "$panelfilter" ]; then
-    cd ${sampledir}/pon_filtering
+    cd ${sampledir}/cut_filtering
     python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter
     
-    mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
-    mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
+    #mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
+    #mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
 else 
     cp ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
     mv ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
