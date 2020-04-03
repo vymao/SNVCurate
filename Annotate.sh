@@ -34,7 +34,7 @@ for path in ${out}/*; do
     done
 
     for file in *germline_variants_filtered.vcf; do 
-        outname=${dirname}.02_05_001.PASS.ANNO.germline_variants_filtered
+        outname=${dirname}.germline_variants_filtered
         /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
         #sed -i '/#/d' *PASS.ANNO.germline_variants_filtered*.txt 
     done   
@@ -46,11 +46,11 @@ for path in ${out}/*; do
     done 
 
 
-    mutect=${path2Mutect}/${dirname}
+    mutect=${out}/${dirname}/intersection_files
 
 
     for file in *somatic_variants_filtered_2.*txt; do 
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS_MuTecT.vcf
     done
 
 
@@ -59,7 +59,7 @@ for path in ${out}/*; do
     done 
 
     for file in *germline_variants_filtered.*txt.LABELED; do 
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*PASS_MuTecT.vcf
     done 
 
     for file in *M2_Risk_variants_filtered.*txt; do 
@@ -67,7 +67,7 @@ for path in ${out}/*; do
     done 
 
     for file in *M2_Risk_variants_filtered.*txt.LABELED; do 
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${mutect}/*.Combined.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/*.Combined.vcf
     done 
 
 
