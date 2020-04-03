@@ -61,9 +61,11 @@ if ! [ -z "$panelfilter" ]; then
     
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
     mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
+    mv ${dirname}.germline_variants_filtered.vcf ${sampledir}/annotation_files
 else 
     cp ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
     mv ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
+    mv ${dirname}.germline_variants_filtered.vcf ${sampledir}/annotation_files
 fi
 
 
