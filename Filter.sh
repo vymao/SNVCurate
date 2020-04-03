@@ -11,7 +11,7 @@
 #SBATCH --mail-user=victor_mao@hms.harvard.edu   # Email to which notifications will be sent
 
 
-module load gcc/6.2.0 python/3.6.0 java bcftools
+#module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2SNVCurate=$(dirname "$(readlink -f "$0")")
 

@@ -27,7 +27,7 @@ for path in ${out}/*; do
     cd annotation_files
 
     for file in *somatic_variants_filtered_2.vcf; do 
-        outname=${dirname}.somatic_variants_filtered_1
+        outname=${dirname}.somatic_variants_filtered_2
         /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
         sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
     done
