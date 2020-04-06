@@ -4,13 +4,70 @@ This pipeline is used only for running on Orchestra, the Harvard Medical School 
 
 **Note: This pipeline presumes that the BAM files are formatted properly (demultiplexed and indexed correctly). If they are not, please see BAMCurate first before running this pipeline. If no matched normal is available, run this pipeline using another normal of the same sequencing type.**
 
+## Running the SNV curating pipeline: 
+### Environment/file setup:
+1. Create two files: One csv with tumor/normal matched pairs (leave `N/A` if no normal) and one text file with each normal sample (if applicable). See `Tumor_Normal_sample.csv` and `HaplotypeCaller_sample.txt` for formatting.
+2. Set up the environment using Conda, or download and install the packages individually (see below for dependencies). 
+
+### Running the pipeline (together): 
+There are two ways to run this pipeline: 
+1. Create a config file `parameters.config`. See `parameters_example.config` for details.
+2. Run `runAll.sh`.
+
+### Running the pipeline (individual): 
+1. Run MuTecT2 on the BAM files using `Mutect2_read.py`. 
+2. If you desire higher specifity for somatic calls (recommended), run MuSE using `MuSE_read.py`. 
+3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
+4. Run the script `Clean.sh` to clean the calls made by the callers. 
+5. Run `GenotypeGVCFs_read.py` on the new HaplotypeCaller gVCFs to finish calling germline mutations.
+4. Run the script `Intersect.sh` to intersect the two calls. 
+5. Run the script `Filter.sh` to filter the intersection.
+6. Run the script `Annotate.sh` to finish. 
+
 ## Dependencies: 
-These are the tools/software required (loaded under `module load [dependency]`), which should all be available as modules on O2: 
-1. gcc/6.2.0 (the General C Compiler)
-2. java (more specifically, the JVM)
-3. python/3.6.0
-4. bcftools
-5. samtools
+- _libgcc_mutex=0.1=conda_forge
+- _openmp_mutex=4.5=0_gnu
+- bzip2=1.0.8=h516909a_2
+- ca-certificates=2019.11.28=hecc5488_0
+- certifi=2019.11.28=py37hc8dfbb8_1
+- curl=7.68.0=hf8cf82a_0
+- jq=1.6=h14c3975_1000
+- krb5=1.16.4=h2fd8d38_0
+- ld_impl_linux-64=2.34=h53a641e_0
+- libblas=3.8.0=14_openblas
+- libcblas=3.8.0=14_openblas
+- libcurl=7.68.0=hda55be3_0
+- libdeflate=1.5=h516909a_0
+- libedit=3.1.20170329=hf8c457e_1001
+- libffi=3.2.1=he1b5a44_1007
+- libgcc-ng=9.2.0=h24d8f2e_2
+- libgfortran-ng=7.3.0=hdf63c60_5
+- libgomp=9.2.0=h24d8f2e_2
+- liblapack=3.8.0=14_openblas
+- libopenblas=0.3.7=h5ec1e0e_6
+- libssh2=1.8.2=h22169c7_2
+- libstdcxx-ng=9.2.0=hdf63c60_2
+- muse=1.0.rc=hdbcaa40_3
+- ncurses=6.1=hf484d3e_1002
+- numpy=1.18.1=py37h8960a57_1
+- oniguruma=6.9.3=h516909a_0
+- openssl=1.1.1f=h516909a_0
+- pandas=1.0.3=py37h0da4684_0
+- pip=20.0.2=py_2
+- pysam=0.15.4=py37hbcae180_0
+- python=3.7.6=h8356626_5_cpython
+- python-dateutil=2.8.1=py_0
+- python_abi=3.7=1_cp37m
+- pytz=2019.3=py_0
+- readline=8.0=hf8c457e_0
+- setuptools=46.1.3=py37hc8dfbb8_0
+- six=1.14.0=py_1
+- sqlite=3.30.1=hcee41ef_0
+- tabix=0.2.6=ha92aebf_0
+- tk=8.6.10=hed695b0_0
+- wheel=0.34.2=py_1
+- xz=5.2.4=h516909a_1002
+- zlib=1.2.11=h516909a_1006
 
 ## Information about relevant scripts: 
 1. `Mutect2_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
@@ -137,18 +194,4 @@ Additional Information/Default parameters:
 - `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
 - `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
 
-
-## Running the SNV curating pipeline: 
-There are two ways to run this pipeline: 
-1. Input a config file `parameters.config` in the **same directory** as SNVCurate. The config file should follow this format: 
-
-2. Run each component separately. See below for details.
-
-## Running components separately: 
-1. Run MuTecT2 on the BAM files using `Mutect2_read.py`. 
-2. If you desire higher specifity for somatic calls, run MuSE using `MuSE_read.py`. 
-3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
-4. Run the script `Intersect.sh` to intersect the two calls. 
-5. Run the script `Filter.sh` to filter the intersection.
-6. Run the script `Annotate.sh` to finish. 
     
