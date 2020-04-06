@@ -14,10 +14,10 @@
 module load gcc/6.2.0 python/3.6.0 java bcftools vcftools
 
 
-path2MuSE=$4
-path2Mutect=$3
-path2HaplotypeCaller=$1
-normal=$(echo "$2" | awk '{print tolower($0)}')
+path2MuSE=$3
+path2Mutect=$2
+path2HaplotypeCaller=$(echo "$1" | awk '{print tolower($0)}')
+#normal=$(echo "$2" | awk '{print tolower($0)}')
 
 
 cd $path2Mutect
@@ -51,12 +51,8 @@ if ! [ -z "$path2MuSE" ]; then
      done
 fi
 
-if [ $normal == "true" ]; then
-     echo "yes"
-fi
 
-
-if [ $normal == "true" ]; then
+if ! [ $path2HaplotypeCaller == "none" ]; then
     cd $path2HaplotypeCaller
     for file in ${path2HaplotypeCaller}/*.vcf; do 
         base=$(basename $file)
