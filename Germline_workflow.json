@@ -30,6 +30,8 @@
 
   "##_COMMENT8": "PREEMPTION",
   "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.preemptible_attempts": "(optional) Int?",
-  "##HaplotypeCallerGvcf_GATK4.MergeGVCFs.preemptible_attempts": "(optional) Int?"
+  "##HaplotypeCallerGvcf_GATK4.MergeGVCFs.preemptible_attempts": "(optional) Int?",
 
+  "##_COMMENT9": "CORES",
+  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.cores": 8
 }

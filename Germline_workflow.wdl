@@ -32,6 +32,8 @@ workflow HaplotypeCallerGvcf_GATK4 {
   String output_suffix = if making_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_filename = vcf_basename + output_suffix
 
+  Int cores
+
   call HaplotypeCaller {
     input:
       input_bam = input_bam,
@@ -43,6 +45,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
       make_gvcf = making_gvcf,
       docker = gatk_docker,
       gatk_path = gatk_path
+      cores = cores
   }
     # Merge per-interval GVCFs
 ##  call MergeGVCFs {
@@ -102,6 +105,7 @@ task HaplotypeCaller {
 
   Int machine_mem_gb = select_first([mem_gb, 7])
   Int command_mem_gb = machine_mem_gb - 1
+  Int cores
 
   command <<<
   set -e
