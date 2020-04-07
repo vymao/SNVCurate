@@ -67,8 +67,8 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   # Outputs that will be retained when execution is complete
   output {
-    File output_vcf = GenotypeGVCFs.output_vcf
-    File output_vcf_index = GenotypeGVCFs.output_vcf_index
+    File output_vcf = GenotypeGVCFs_single.output_vcf
+    File output_vcf_index = GenotypeGVCFs_single.output_vcf_index
   }
 }
 
