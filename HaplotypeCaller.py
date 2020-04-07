@@ -120,7 +120,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = [args.r]
         d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = [args.r + '.fai']
         d["HaplotypeCallerGvcf_GATK4.gatk_path"] = [args.gatk]
-        d["HaplotypeCallerGvcf_GATK4.cores"] = [int(args.cn)]
+        d["HaplotypeCallerGvcf_GATK4.HaplotypeCaller.cores"] = [int(args.cn)]
     
     with open(dir + 'Input.json', 'w') as f:
         f.write(json.dumps(d))
