@@ -1,0 +1,35 @@
+{
+  "##_COMMENT1": "INPUT BAM",
+  "HaplotypeCallerGvcf_GATK4.input_bam": "path/to/bam",
+  "HaplotypeCallerGvcf_GATK4.input_bam_index": "path/to/index",
+  "HaplotypeCallerGvcf_GATK4.output_directory": "output_dir/", 
+
+  "##_COMMENT2": "REFERENCE FILES",
+  "HaplotypeCallerGvcf_GATK4.ref_dict": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.dict",
+  "HaplotypeCallerGvcf_GATK4.ref_fasta": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta",
+  "HaplotypeCallerGvcf_GATK4.ref_fasta_index": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta.fai",
+
+  "##_COMMENT3": "DOCKERS", 
+  "HaplotypeCallerGvcf_GATK4.gatk_docker": "broadinstitute/gatk:4.0.1.0",
+  
+  "##_COMMENT4": "PATHS", 
+  "HaplotypeCallerGvcf_GATK4.gatk_path": "/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk",
+  "HaplotypeCallerGvcf_GATK4.HaplotypeCaller.make_gvcf": "True",
+  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.contamination": "(optional) Float?",
+
+  "##_COMMENT5": "JAVA OPTIONS", 
+  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.java_options": "(optional) String?",
+
+  "##_COMMENT6": "MEMORY ALLOCATION", 
+  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.mem_gb": "(optional) Int?",
+  "##HaplotypeCallerGvcf_GATK4.MergeGVCFs.mem_gb": "(optional) Int?",
+
+  "##_COMMENT7": "DISK SIZE ALLOCATION",
+  "##HaplotypeCallerGvcf_GATK4.MergeGVCFs.disk_space_gb": "(optional) Int?",
+  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.disk_space_gb": "(optional) Int?",
+
+  "##_COMMENT8": "PREEMPTION",
+  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.preemptible_attempts": "(optional) Int?",
+  "##HaplotypeCallerGvcf_GATK4.MergeGVCFs.preemptible_attempts": "(optional) Int?",
+
+}
