@@ -60,15 +60,15 @@ def main():
     
     for input_file in input_files:
 
-        input_json = generate_cromwell_inputs(args, input_file, json, wdl, overrides)
+        input_json, input_config, input_wdl = generate_cromwell_inputs(args, input_file, json, wdl, overrides)
         slurm_command = return_slurm_command(args)
         output_file_name = gen_output_file_name(args, input_file)
-        primary_command = return_primary_command(args, output_file_name, input_file, input_json)
+        primary_command = return_primary_command(args, output_file_name, input_file, input_json, input_config, input_wdl)
 
         sh_file_name = gen_sh_file_name(args, output_file_name)
         write_out(args, slurm_command, primary_command, sh_file_name)
 
-        sample_name = ntpath.basename(sh_file_name).split('.bam')[0] + '.g.vcf.gz'  
+        sample_name = ntpath.basename(sh_file_name).split('.bam')[0] + '.vcf'  
         path_to_vcf = os.path.join(ntpath.dirname(ntpath.dirname(ntpath.dirname(sh_file_name))), sample_name)
 
         if not os.path.isfile(path_to_vcf):
@@ -169,7 +169,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
     """
     copyfile(wdl, os.path.join(dir, 'workflow.wdl'))
 
-    return dir + 'input.json'
+    return os.path.join(dir,'Input.json'), os.path.join(dir, 'Overrides.config'), os.path.join(dir, 'workflow.wdl')
 
 def return_slurm_command(args):
     """Returns slurm command given args provided"""
@@ -189,8 +189,8 @@ def gen_output_file_name(args, input_file):
     output_file_name = args.output_directory + '.HaplotypeCaller/' + '.' + os.path.basename(input_file) + '/' + os.path.basename(input_file)
     return output_file_name
 
-def return_primary_command(args, output_file_name, input_file, input_json):
-    primary_command = 'java -Dconfig.file=' + re.sub('input.json', 'Overrides.config', input_json) + ' -jar ' + args.cromwell_path + ' run ' + re.sub('input.json', 'haplotypecaller-gvcf-gatk4.wdl', input_json) + ' -i ' + input_json
+def return_primary_command(args, output_file_name, input_file, input_json, input_config, input_wdl):
+    primary_command = 'java -Dconfig.file=' + input_config + ' -jar ' + args.cromwell_path + ' run ' + input_wdl + ' -i ' + input_json
     return primary_command
 
 def gen_sh_file_name(args, output_file_name):
