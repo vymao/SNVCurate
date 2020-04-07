@@ -44,34 +44,34 @@ workflow HaplotypeCallerGvcf_GATK4 {
       docker = gatk_docker,
       gatk_path = gatk_path
   }
+    # Merge per-interval GVCFs
+##  call MergeGVCFs {
+##    input:
+##      input_vcfs = HaplotypeCaller.output_vcf,
+##      input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
+##      output_filename = output_filename,
+##      docker = gatk_docker,
+##      gatk_path = gatk_path,
+##      output_directory = output_directory
+##  }
+
+  call GenotypeGVCFs_single {
+    input: 
+      input_vcfs = HaplotypeCaller.output_vcf,
+      input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
+      output_filename = vcf_basename + ".vcf",
+      docker = gatk_docker,
+      gatk_path = gatk_path,
+      output_directory = output_directory
+  }
+
+  # Outputs that will be retained when execution is complete
+  output {
+    File output_vcf = GenotypeGVCFs.output_vcf
+    File output_vcf_index = GenotypeGVCFs.output_vcf_index
+  }
 }
 
-# Merge per-interval GVCFs
-call MergeGVCFs {
-  input:
-    input_vcfs = HaplotypeCaller.output_vcf,
-    input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
-    output_filename = output_filename,
-    docker = gatk_docker,
-    gatk_path = gatk_path,
-    output_directory = output_directory
-}
-
-call GenotypeGVCFs_single {
-  input: 
-    input_vcfs = MergeGVCFs.output_vcf,
-    input_vcfs_indexes = MergeGVCFs.output_vcf_index,
-    output_filename = vcf_basename + ".vcf",
-    docker = gatk_docker,
-    gatk_path = gatk_path,
-    output_directory = output_directory
-}
-
-# Outputs that will be retained when execution is complete
-output {
-  File output_vcf = GenotypeGVCFs.output_vcf
-  File output_vcf_index = GenotypeGVCFs.output_vcf_index
-}
 
 
 # TASK DEFINITIONS
