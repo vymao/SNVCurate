@@ -39,7 +39,7 @@ def parse_args():
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default='victor_mao@hms.harvard.edu', help='slurm job submission option')
     parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK3.5_160425_g7a7b7cd/GenomeAnalysisTK.jar', help='path to software')
-    parser.add_argument('-gatk_new', '--gatk_path_new', default='/home/mk446/BiO/Install/GATK4.1.2.0//gatk', help='path to software')
+    parser.add_argument('-gatk_new', '--gatk_path_new', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to software')
     parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
     parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
@@ -168,7 +168,7 @@ def main():
         output_file_name = gen_output_file_name(args, region_file)
 
         if args.panel == 'nopath':
-            primary_command = return_primary_command(args, output_file_name, region_file)
+            primary_command = return_new_primary_command(args, output_file_name, region_file)
         else: 
             primary_command = return_pon_command(args, output_file_name, region_file)
 

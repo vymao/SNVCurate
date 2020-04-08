@@ -1,4 +1,4 @@
-
+\
 """
 Execution test:
 python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_file /n/data1/hms/dbmi/park/victor/other/tests/5817_liver_bulk.bam -out /n/data1/hms/dbmi/park/victor/other/tests/ -t2 2100
@@ -84,6 +84,10 @@ def clean_arg_paths(args):
         if 'input_directory' in arg and d[arg]=='./': d[arg] = os.getcwd()
         if 'output_directory' in arg and d[arg]=='./': d[arg] = os.getcwd()    
         if 'directory' in arg and d[arg] is not None and d[arg][-1] != '/': d[arg] += '/'
+    output_dir = re.sub(" ", "", d["output_directory"])
+    if output_dir[len(output_dir) - 1] is not "/":
+        d["output_directory"] = output_dir + "/"
+    print(args.output_directory)
 
 def return_input_files(args, ext):
     input_bams = [os.path.realpath(file) for file in glob.glob(args.input_directory + '*.' + ext)]
@@ -119,7 +123,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d = json.loads(data)
         d["HaplotypeCallerGvcf_GATK4.input_bam"] = input_file
         d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = path
-        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller')
+        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller/')
         d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict')
         d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = args.r
         d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = args.r + '.fai'

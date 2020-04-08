@@ -285,7 +285,7 @@ task GenotypeGVCFs_single {
       GenotypeGVCFs \
       -R ${ref_fasta} \
       -V ${input_bam} \
-      -O ${output_filename} \
+      -O ${output_directory}${output_filename} \
   >>>
 
 
@@ -298,7 +298,7 @@ task GenotypeGVCFs_single {
 
 
   output {
-    File output_vcf = "${output_directory}/${output_filename}"
-    File output_vcf_index = "${output_directory}/${output_filename}.tbi"
+    File output_vcf = "${output_directory}${output_filename}"
+    File output_vcf_index = "${output_directory}${output_filename}.idx"
   }
 }
