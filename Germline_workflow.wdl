@@ -45,8 +45,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
             ref_fasta_index = ref_fasta_index,
             make_gvcf = making_gvcf,
             docker = gatk_docker,
-            gatk_path = gatk_path,
-            reference = reference
+            gatk_path = gatk_path
         }
           # Merge per-interval GVCFs
         call MergeGVCFs {
@@ -62,7 +61,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
   }
 
   if (reference != "b37") {
-    call HaplotypeCaller {
+    call HaplotypeCaller_other {
       input:
         input_bam = input_bam,
         input_bam_index = input_bam_index,
@@ -72,8 +71,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
         ref_fasta_index = ref_fasta_index,
         make_gvcf = making_gvcf,
         docker = gatk_docker,
-        gatk_path = gatk_path,
-        reference = reference
+        gatk_path = gatk_path
     }
   }
 
@@ -81,14 +79,13 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   call GenotypeGVCFs_single {
     input: 
-      input_bam = if (reference == "b37") then MergeGVCFs.output_vcf else HaplotypeCaller.output_vcf,
-      input_bam_index = if (reference == "b37") then MergeGVCFs.output_vcf_index else HaplotypeCaller.output_vcf_index,
+      input_bam = if (reference == "b37") then MergeGVCFs.output_vcf else HaplotypeCaller_other.output_vcf,
+      input_bam_index = if (reference == "b37") then MergeGVCFs.output_vcf_index else HaplotypeCaller_other.output_vcf_index,
       output_filename = vcf_basename + ".vcf",
       docker = gatk_docker,
       gatk_path = gatk_path,
       output_directory = output_directory,
-      ref_fasta = ref_fasta, 
-      reference = reference
+      ref_fasta = ref_fasta
   }
 
   # Outputs that will be retained when execution is complete
@@ -118,7 +115,6 @@ task HaplotypeCaller {
   String gatk_path
   String? java_options
   String java_opt = select_first([java_options, "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10"])
-  String reference
 
   # Runtime parameters
   String docker
@@ -130,32 +126,18 @@ task HaplotypeCaller {
   Int machine_mem_gb = select_first([mem_gb, 7])
   Int command_mem_gb = machine_mem_gb - 1
 
-  if (reference == "b37") {
-    command <<<
-    set -e
-    
-      ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
-        HaplotypeCaller \
-        -R ${ref_fasta} \
-        -I ${input_bam} \
-        -L ${interval_list} \
-        -O ${output_filename} \
-        -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
-    >>>
-  }
+  command <<<
+  set -e
+  
+    ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
+      HaplotypeCaller \
+      -R ${ref_fasta} \
+      -I ${input_bam} \
+      -L ${interval_list} \
+      -O ${output_filename} \
+      -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
+  >>>
 
-  if (reference != "b37") {
-    command <<<
-    set -e
-    
-      ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
-        HaplotypeCaller \
-        -R ${ref_fasta} \
-        -I ${input_bam} \
-        -O ${output_filename} \
-        -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
-    >>>
-  }
 
 ##  runtime {
 ##    runtime_minutes: ${runtime}
@@ -169,6 +151,58 @@ task HaplotypeCaller {
     File output_vcf_index = "${output_filename}.tbi"
   }
 }
+
+task HaplotypeCaller_other {
+  File input_bam
+  File input_bam_index
+
+  String output_filename
+  File ref_dict
+  File ref_fasta
+  File ref_fasta_index
+  Float? contamination
+  Boolean make_gvcf
+
+  String gatk_path
+  String? java_options
+  String java_opt = select_first([java_options, "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10"])
+
+  # Runtime parameters
+  String docker
+  Int? mem_gb
+  Int? disk_space_gb
+  Boolean use_ssd = false
+  Int? preemptible_attempts
+
+  Int machine_mem_gb = select_first([mem_gb, 7])
+  Int command_mem_gb = machine_mem_gb - 1
+
+  command <<<
+  set -e
+  
+    ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
+      HaplotypeCaller \
+      -R ${ref_fasta} \
+      -I ${input_bam} \
+      -O ${output_filename} \
+      -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
+  >>>
+
+
+##  runtime {
+##    runtime_minutes: ${runtime}
+##    cpus: ${cores}
+##    requested_memory_mb_per_core: ${memory}
+##    queue: ${queue}
+##  }
+
+  output {
+    File output_vcf = "${output_filename}"
+    File output_vcf_index = "${output_filename}.tbi"
+  }
+}
+
+
 
 # Merge GVCFs generated per-interval for the same sample
 task MergeGVCFs {
