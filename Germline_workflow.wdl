@@ -14,9 +14,12 @@ workflow HaplotypeCallerGvcf_GATK4 {
   File ref_fasta
   File ref_fasta_index
   String output_directory
-  
+  String reference
+
   Boolean? make_gvcf
   Boolean making_gvcf = select_first([make_gvcf,true])
+
+  Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
 
   String gatk_docker
 
@@ -29,42 +32,63 @@ workflow HaplotypeCallerGvcf_GATK4 {
   String output_suffix = if making_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_filename = vcf_basename + output_suffix
 
-  Int cores
 
-  call HaplotypeCaller {
-    input:
-      input_bam = input_bam,
-      input_bam_index = input_bam_index,
-      output_filename = output_filename,
-      ref_dict = ref_dict,
-      ref_fasta = ref_fasta,
-      ref_fasta_index = ref_fasta_index,
-      make_gvcf = making_gvcf,
-      docker = gatk_docker,
-      gatk_path = gatk_path,
-      cores = cores
+  if (reference == "b37") {
+    scatter (interval_file in scattered_calling_intervals) {
+        call HaplotypeCaller {
+          input:
+            input_bam = input_bam,
+            input_bam_index = input_bam_index,
+            output_filename = output_filename,
+            ref_dict = ref_dict,
+            ref_fasta = ref_fasta,
+            ref_fasta_index = ref_fasta_index,
+            make_gvcf = making_gvcf,
+            docker = gatk_docker,
+            gatk_path = gatk_path,
+            reference = reference
+        }
+          # Merge per-interval GVCFs
+        call MergeGVCFs {
+          input:
+            input_vcfs = HaplotypeCaller.output_vcf,
+            input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
+            output_filename = output_filename,
+            docker = gatk_docker,
+            gatk_path = gatk_path,
+            output_directory = output_directory
+        }
+    }
   }
-    # Merge per-interval GVCFs
-##  call MergeGVCFs {
-##    input:
-##      input_vcfs = HaplotypeCaller.output_vcf,
-##      input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
-##      output_filename = output_filename,
-##      docker = gatk_docker,
-##      gatk_path = gatk_path,
-##      output_directory = output_directory
-##  }
+
+  if (reference != "b37") {
+    call HaplotypeCaller {
+      input:
+        input_bam = input_bam,
+        input_bam_index = input_bam_index,
+        output_filename = output_filename,
+        ref_dict = ref_dict,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index,
+        make_gvcf = making_gvcf,
+        docker = gatk_docker,
+        gatk_path = gatk_path,
+        reference = reference
+    }
+  }
+
+
 
   call GenotypeGVCFs_single {
     input: 
-
-      input_bam = HaplotypeCaller.output_vcf,
-      input_bam_index = HaplotypeCaller.output_vcf_index,
+      input_bam = if (reference == "b37") then MergeGVCFs.output_vcf else HaplotypeCaller.output_vcf,
+      input_bam_index = if (reference == "b37") then MergeGVCFs.output_vcf_index else HaplotypeCaller.output_vcf_index,
       output_filename = vcf_basename + ".vcf",
       docker = gatk_docker,
       gatk_path = gatk_path,
       output_directory = output_directory,
-      ref_fasta = ref_fasta
+      ref_fasta = ref_fasta, 
+      reference = reference
   }
 
   # Outputs that will be retained when execution is complete
@@ -77,6 +101,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
 
 # TASK DEFINITIONS
+
 
 # HaplotypeCaller per-sample in GVCF mode
 task HaplotypeCaller {
@@ -93,6 +118,7 @@ task HaplotypeCaller {
   String gatk_path
   String? java_options
   String java_opt = select_first([java_options, "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10"])
+  String reference
 
   # Runtime parameters
   String docker
@@ -103,19 +129,33 @@ task HaplotypeCaller {
 
   Int machine_mem_gb = select_first([mem_gb, 7])
   Int command_mem_gb = machine_mem_gb - 1
-  Int cores
 
-  command <<<
-  set -e
-  
-    ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
-      --spark-master local[${cores}] \
-      HaplotypeCaller \
-      -R ${ref_fasta} \
-      -I ${input_bam} \
-      -O ${output_filename} \
-      -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
-  >>>
+  if (reference == "b37") {
+    command <<<
+    set -e
+    
+      ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
+        HaplotypeCaller \
+        -R ${ref_fasta} \
+        -I ${input_bam} \
+        -L ${interval_list} \
+        -O ${output_filename} \
+        -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
+    >>>
+  }
+
+  if (reference != "b37") {
+    command <<<
+    set -e
+    
+      ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
+        HaplotypeCaller \
+        -R ${ref_fasta} \
+        -I ${input_bam} \
+        -O ${output_filename} \
+        -contamination ${default=0 contamination} ${true="-ERC GVCF" false="" make_gvcf}
+    >>>
+  }
 
 ##  runtime {
 ##    runtime_minutes: ${runtime}

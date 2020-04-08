@@ -1,4 +1,4 @@
-	
+
 """
 Execution test:
 python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_file /n/data1/hms/dbmi/park/victor/other/tests/5817_liver_bulk.bam -out /n/data1/hms/dbmi/park/victor/other/tests/ -t2 2100
@@ -44,6 +44,7 @@ def parse_args():
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     parser.add_argument('-r', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta')
     parser.add_argument('-gatk', default='/home/mk446/BiO/Install/GATK4.1.2.0//gatk', help='path to software')
+    parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
     return parser.parse_args()
 
 def main():
