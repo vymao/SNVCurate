@@ -1,0 +1,42 @@
+{
+  "##_COMMENT1": "INPUT BAM",
+  "MuTecT.input_bam": "path/to/bam",
+  "MuTecT.input_bam_index": "path/to/index",
+  "MuTecT.normal_bam": "path/to/bam",
+  "MuTecT.normal_bam_index": "path/to/index",
+  "MuTecT.panel": "path/to/bam",
+  "MuTecT.panel_index": "path/to/index",
+  "MuTecT.output_directory": "output_dir/", 
+
+  "##_COMMENT2": "REFERENCE FILES",
+  "MuTecT.ref_dict": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.dict",
+  "MuTecT.ref_fasta": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta",
+  "MuTecT.ref_fasta_index": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta.fai",
+  "MuTecT.gnomad": "/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.raw.sites.b37.vcf",
+  "MuTecT.mode": "normal",
+
+  "##_COMMENT3": "INTERVALS",
+  "MuTecT.interval_list": "/n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/b37_wgs_scattered_calling_intervals.txt",
+
+  "##_COMMENT4": "DOCKERS", 
+  "MuTecT.gatk_docker": "broadinstitute/gatk:4.0.1.0",
+  
+  "##_COMMENT5": "PATHS", 
+  "MuTecT.gatk_path": "/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk",
+
+  "##_COMMENT6": "JAVA OPTIONS", 
+  "##MuTecT.HaplotypeCaller.java_options": "(optional) String?",
+
+  "##_COMMENT7": "MEMORY ALLOCATION", 
+  "##MuTecT.HaplotypeCaller.mem_gb": "(optional) Int?",
+  "##MuTecT.MergeGVCFs.mem_gb": "(optional) Int?",
+
+  "##_COMMENT8": "DISK SIZE ALLOCATION",
+  "##MuTecT.MergeGVCFs.disk_space_gb": "(optional) Int?",
+  "##MuTecT.HaplotypeCaller.disk_space_gb": "(optional) Int?",
+
+  "##_COMMENT9": "PREEMPTION",
+  "##MuTecT.HaplotypeCaller.preemptible_attempts": "(optional) Int?",
+  "##MuTecT.MergeGVCFs.preemptible_attempts": "(optional) Int?"
+
+}
