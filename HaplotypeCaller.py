@@ -100,10 +100,16 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
     dir = args.output_directory + '.HaplotypeCaller/' + '.' + os.path.basename(input_file) + '/'
     os.makedirs(dir, exist_ok=True)
 
+    bam_dir = os.path.dirname(input_file)
+    bam_sample = os.path.basename(input_file)
+
     bai_suffix = '.bai'
-    path = re.sub('.bam', '.bam.bai', input_file)
+    path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
+    print(path)
     if os.path.isfile(path) and os.access(path, os.R_OK):
-        bai_suffix = '.bam.bai'
+        print('yes')
+    else: 
+        path = os.path.join(bam_dir, re.sub('.bam', '.bai', bam_sample))
     
     copyfile(json_file, dir + 'Input.json')
 
@@ -114,7 +120,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         data = f.read()
         d = json.loads(data)
         d["HaplotypeCallerGvcf_GATK4.input_bam"] = input_file
-        d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = re.sub('\.bam', bai_suffix, input_file)
+        d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = path
         d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller')
         d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict')
         d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = args.r
@@ -152,7 +158,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         contents = f.readlines()
         f.close()
 
-        contents.insert(95, "            --account=${account_name} \\ \n")
+        contents.insert(95, "            --account=${account_name} \\\n")
 
         f = open(dir + 'Overrides.config', "w")
         contents = "".join(contents)
