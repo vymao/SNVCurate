@@ -8,6 +8,7 @@
   "HaplotypeCallerGvcf_GATK4.ref_dict": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.dict",
   "HaplotypeCallerGvcf_GATK4.ref_fasta": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta",
   "HaplotypeCallerGvcf_GATK4.ref_fasta_index": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta.fai",
+  "HaplotypeCallerGvcf_GATK4.reference": "b37",
 
   "##_COMMENT3": "DOCKERS", 
   "HaplotypeCallerGvcf_GATK4.gatk_docker": "broadinstitute/gatk:4.0.1.0",
