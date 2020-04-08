@@ -13,7 +13,6 @@ workflow HaplotypeCallerGvcf_GATK4 {
   File ref_dict
   File ref_fasta
   File ref_fasta_index
-  File sample_list
   String output_directory
   
   Boolean? make_gvcf
@@ -23,8 +22,6 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   String gatk_path
   
-  Array[File] scattered_calling = read_lines(sample_list)
-
   String sample_basename = basename(input_bam, ".bam")
   
   String vcf_basename = sample_basename
@@ -44,7 +41,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
       ref_fasta_index = ref_fasta_index,
       make_gvcf = making_gvcf,
       docker = gatk_docker,
-      gatk_path = gatk_path
+      gatk_path = gatk_path,
       cores = cores
   }
     # Merge per-interval GVCFs
@@ -60,12 +57,14 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   call GenotypeGVCFs_single {
     input: 
-      input_vcfs = HaplotypeCaller.output_vcf,
-      input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
+
+      input_bam = HaplotypeCaller.output_vcf,
+      input_bam_index = HaplotypeCaller.output_vcf_index,
       output_filename = vcf_basename + ".vcf",
       docker = gatk_docker,
       gatk_path = gatk_path,
-      output_directory = output_directory
+      output_directory = output_directory,
+      ref_fasta = ref_fasta
   }
 
   # Outputs that will be retained when execution is complete
@@ -83,7 +82,6 @@ workflow HaplotypeCallerGvcf_GATK4 {
 task HaplotypeCaller {
   File input_bam
   File input_bam_index
-  File interval_list
 
   String output_filename
   File ref_dict
@@ -111,7 +109,7 @@ task HaplotypeCaller {
   set -e
   
     ${gatk_path} --java-options "-Xmx${command_mem_gb}G ${java_opt}" \
-      --spark-master local[${cores}]
+      --spark-master local[${cores}] \
       HaplotypeCaller \
       -R ${ref_fasta} \
       -I ${input_bam} \
@@ -177,11 +175,11 @@ task MergeGVCFs {
 
 
 task GenotypeGVCFs_single {
-  Array[File] input_vcfs
-  Array[File] input_vcfs_indexes
+  File input_bam
+  File input_bam_index
   String output_filename
-  String output_directory
-
+  String output_directory  
+  File ref_fasta
   String gatk_path
 
   # Runtime parameters

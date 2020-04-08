@@ -33,5 +33,5 @@
   "##HaplotypeCallerGvcf_GATK4.MergeGVCFs.preemptible_attempts": "(optional) Int?",
 
   "##_COMMENT9": "CORES",
-  "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.cores": 8
+  "HaplotypeCallerGvcf_GATK4.cores": 8
 }

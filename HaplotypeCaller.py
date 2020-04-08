@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('-ct', default="3000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-p', '--queue', default='long', help='slurm job submission option')
     parser.add_argument('--mem_per_cpu', default='15G', help='slurm job submission option')
-    parser.add_argument('-cm', default='5G', help='cromwell cpu memory per core')
+    parser.add_argument('-cm', default='5000', help='cromwell cpu memory per core')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default='victor_mao@hms.harvard.edu', help='slurm job submission option')
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
@@ -113,15 +113,15 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
     with open(dir + 'Input.json') as f:
         data = f.read()
         d = json.loads(data)
-        d["HaplotypeCallerGvcf_GATK4.input_bam"] = [input_file]
-        d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = [re.sub('\.bam', bai_suffix, input_file)]
-        d["HaplotypeCallerGvcf_GATK4.output_directory"] = [os.path.join(args.output_directory,'.HaplotypeCaller')]
-        d["HaplotypeCallerGvcf_GATK4.ref_dict"] = [os.path.join(dict_path, ref + '.dict')]
-        d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = [args.r]
-        d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = [args.r + '.fai']
-        d["HaplotypeCallerGvcf_GATK4.gatk_path"] = [args.gatk]
-        d["HaplotypeCallerGvcf_GATK4.HaplotypeCaller.cores"] = [int(args.cn)]
-    
+        d["HaplotypeCallerGvcf_GATK4.input_bam"] = input_file
+        d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = re.sub('\.bam', bai_suffix, input_file)
+        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller')
+        d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict')
+        d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = args.r
+        d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = args.r + '.fai'
+        d["HaplotypeCallerGvcf_GATK4.gatk_path"] = args.gatk
+        d["HaplotypeCallerGvcf_GATK4.cores"] = int(args.cn)
+   
     with open(dir + 'Input.json', 'w') as f:
         f.write(json.dumps(d))
 
@@ -144,7 +144,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
     with fileinput.FileInput(dir + 'Overrides.config', inplace=True) as file:
         for line in file:
             print(line.replace(
-            "medium", args.queue).replace("2000", args.ct).replace("8000", args.cm).replace("Int cpus = 1", "Int cpus = " + args.cn), end='')
+            "medium", args.queue).replace("!@#$", args.ct).replace("%^&*", args.cm).replace("Int cpus = 1", "Int cpus = " + args.cn), end='')
         
 
     if args.queue == 'park' or args.queue == 'priopark': 
