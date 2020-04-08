@@ -13,6 +13,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
   File ref_dict
   File ref_fasta
   File ref_fasta_index
+  File scattered_calling_intervals_list
   String output_directory
   String reference
 
@@ -40,6 +41,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
             input_bam = input_bam,
             input_bam_index = input_bam_index,
             output_filename = output_filename,
+            interval_list = interval_file,
             ref_dict = ref_dict,
             ref_fasta = ref_fasta,
             ref_fasta_index = ref_fasta_index,
@@ -47,17 +49,18 @@ workflow HaplotypeCallerGvcf_GATK4 {
             docker = gatk_docker,
             gatk_path = gatk_path
         }
-          # Merge per-interval GVCFs
-        call MergeGVCFs {
-          input:
-            input_vcfs = HaplotypeCaller.output_vcf,
-            input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
-            output_filename = output_filename,
-            docker = gatk_docker,
-            gatk_path = gatk_path,
-            output_directory = output_directory
-        }
     }
+          # Merge per-interval GVCFs
+    call MergeGVCFs {
+      input:
+        input_vcfs = HaplotypeCaller.output_vcf,
+        input_vcfs_indexes = HaplotypeCaller.output_vcf_index,
+        output_filename = output_filename,
+        docker = gatk_docker,
+        gatk_path = gatk_path,
+        output_directory = output_directory
+    }
+    
   }
 
   if (reference != "b37") {
@@ -85,7 +88,10 @@ workflow HaplotypeCallerGvcf_GATK4 {
       docker = gatk_docker,
       gatk_path = gatk_path,
       output_directory = output_directory,
-      ref_fasta = ref_fasta
+      ref_dict = ref_dict,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index
+
   }
 
   # Outputs that will be retained when execution is complete
@@ -103,7 +109,8 @@ workflow HaplotypeCallerGvcf_GATK4 {
 # HaplotypeCaller per-sample in GVCF mode
 task HaplotypeCaller {
   File input_bam
-  File input_bam_index
+  File input_bam_index 
+  File interval_list
 
   String output_filename
   File ref_dict
@@ -242,8 +249,8 @@ task MergeGVCFs {
 
 
   output {
-    File output_vcf = "${output_directory}${output_filename}"
-    File output_vcf_index = "${output_directory}${output_filename}.tbi"
+    File output_vcf = "${output_filename}"
+    File output_vcf_index = "${output_filename}.tbi"
   }
 }
 
@@ -253,8 +260,11 @@ task GenotypeGVCFs_single {
   File input_bam_index
   String output_filename
   String output_directory  
-  File ref_fasta
   String gatk_path
+  File ref_dict
+  File ref_fasta
+  File ref_fasta_index
+
 
   # Runtime parameters
   String docker
@@ -288,7 +298,7 @@ task GenotypeGVCFs_single {
 
 
   output {
-    File output_vcf = "${output_directory}${output_filename}"
-    File output_vcf_index = "${output_directory}${output_filename}.tbi"
+    File output_vcf = "${output_directory}/${output_filename}"
+    File output_vcf_index = "${output_directory}/${output_filename}.tbi"
   }
 }
