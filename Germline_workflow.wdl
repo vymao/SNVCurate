@@ -237,7 +237,7 @@ task MergeGVCFs {
     ${gatk_path} --java-options "-Xmx${command_mem_gb}G"  \
       MergeVcfs \
       --INPUT ${sep=' --INPUT ' input_vcfs} \
-      --OUTPUT ${output_directory}${output_filename}
+      --OUTPUT ${output_filename}
   >>>
 
 ##  runtime {
