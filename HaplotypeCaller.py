@@ -106,10 +106,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
 
     bai_suffix = '.bai'
     path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
-    print(path)
-    if os.path.isfile(path) and os.access(path, os.R_OK):
-        print('yes')
-    else: 
+    if not (os.path.isfile(path) and os.access(path, os.R_OK)):
         path = os.path.join(bam_dir, re.sub('.bam', '.bai', bam_sample))
     
     copyfile(json_file, dir + 'Input.json')
