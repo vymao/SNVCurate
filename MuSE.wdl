@@ -35,6 +35,7 @@ workflow MuSE {
     input:
       input_bam = MuSE_call.output_file,
       output_filename = output_filename,
+      output_directory = output_directory,
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,

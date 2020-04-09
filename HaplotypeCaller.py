@@ -60,6 +60,10 @@ def main():
     input_files = sort_by_size(input_files)
     
     for input_file in input_files:
+        sample = os.path.basename(input_file).split('.')[0]
+        print(sample)
+        sample_dir = os.path.join(args.output_directory,'.HaplotypeCaller/' + sample + '/')
+        os.makedirs(sample_dir, exist_ok=True)
 
         input_json, input_config, input_wdl = generate_cromwell_inputs(args, input_file, json, wdl, overrides)
         slurm_command = return_slurm_command(args)
@@ -124,7 +128,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d["HaplotypeCallerGvcf_GATK4.input_bam"] = input_file
         d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = path
         d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller/' + bam_sample.split('.')[0] + '/')
-        d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict').''
+        d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict')
         d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = args.r
         d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = args.r + '.fai'
         d["HaplotypeCallerGvcf_GATK4.gatk_path"] = args.gatk

@@ -21,7 +21,9 @@ import re
 import ntpath
 import glob
 import sys
-from time import sleep
+import fileinput
+from shutil import copyfile
+import json
 
 def parse_args():
     """Uses argparse to enable user to customize script functionality"""
@@ -34,7 +36,7 @@ def parse_args():
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('--mem_per_cpu', default='5G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
-    parser.add_argument('--mail_user', default='victor_mao@hms.harvard.edu', help='slurm job submission option')
+    parser.add_argument('--mail_user', help='slurm job submission option')
     parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
@@ -65,20 +67,20 @@ def main():
     primary_command = return_primary_command(args, output_file_name, input_json, input_config, input_wdl)
 
     sh_file_name = gen_sh_file_name(args, output_file_name)
+    print(output_file_name)
+    print(sh_file_name)
+
     write_out(args, slurm_command, primary_command, sh_file_name)
-    sample_name = ntpath.basename(sh_file_name).split('.bam')[0]
-    muse_path = ntpath.dirname(ntpath.dirname(sh_file_name))
-    #path_to_vcf = os.path.join(mutect_path, sample_name)
-    path_to_vcf = muse_path
-    vcf = ntpath.basename(sh_file_name).split('.sh')[0]
-    dirname = vcf.split('.')[0]
-    path_to_vcf = os.path.join(path_to_vcf, os.path.join(dirname, vcf)) 
-    #path_to_vcf = os.path.join(path_to_vcf, vcf)
-    #print(path_to_vcf)
+    sample_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
+    path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".MuSE", sample_name)), sample_name + '.vcf') 
+    vcf_dir = os.path.join(args.output_directory, os.path.join(".MuSE", sample_name))
+    os.makedirs(vcf_dir, exist_ok=True) 
+   
+
     if not os.path.isfile(path_to_vcf):
-        print(path_to_vcf)
+        #print(path_to_vcf)
         #print(primary_command)
-        #submit_job(sh_file_name)
+        submit_job(sh_file_name)
 
     """
     if args.mode == 'call':
@@ -132,7 +134,7 @@ def return_slurm_command(args):
 
 def gen_output_file_name(args):
     sample = ntpath.basename(args.input_tumor_path).split('.')[0]
-    output_file_name = args.output_directory + '.MuSE/' + sample + '.vcf'
+    output_file_name = args.output_directory + '.MuSE/.' + os.path.basename(args.input_tumor_path).split('.')[0] + '/' + sample + '.vcf'
     """
     if args.mode == 'call':
         output_file_name = args.output_directory + '.MuSE/' + ntpath.basename(args.input_tumor_path) + '_v_' + ntpath.basename(args.input_normal_path)
@@ -144,32 +146,40 @@ def gen_output_file_name(args):
 
 def generate_cromwell_inputs(args, json_file, wdl, overrides):
     input_file = args.input_tumor_path
-    dir = args.output_directory + '.MuSE/' + '.' + os.path.basename(input_file) + '/'
+    normal_file = args.input_normal_path
+    dir = args.output_directory + '.MuSE/' + '.' + os.path.basename(input_file).split('.')[0] + '/'
     os.makedirs(dir, exist_ok=True)
 
     bam_dir = os.path.dirname(input_file)
     bam_sample = os.path.basename(input_file)
+    normal_dir = os.path.dirname(normal_file)
+    normal_sample = os.path.basename(normal_file)
 
     bai_suffix = '.bai'
-    path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
-    if not (os.path.isfile(path) and os.access(path, os.R_OK)):
-        path = os.path.join(bam_dir, re.sub('.bam', '.bai', bam_sample))
+    bam_path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
+    normal_path = os.path.join(normal_dir, re.sub('.bam', '.bam.bai', normal_sample))
+
+    if not (os.path.isfile(bam_path) and os.access(bam_path, os.R_OK)):
+        bam_path = os.path.join(bam_dir, re.sub('.bam', '.bai', bam_sample))
+    if not (os.path.isfile(normal_path) and os.access(normal_path, os.R_OK)):
+        normal_path = os.path.join(normal_dir, re.sub('.bam', '.bai', normal_sample))
     
     copyfile(json_file, dir + 'Input.json')
 
-    dict_path = os.path.dirname(args.r)
-    ref = os.path.basename(args.r).split('.fa')[0]
+    dict_path = os.path.dirname(args.reference_path)
+    ref = os.path.basename(args.reference_path).split('.fa')[0]
     
     with open(dir + 'Input.json') as f:
         data = f.read()
         d = json.loads(data)
         d["MuSE.input_bam"] = input_file
-        d["MuSE.input_bam_index"] = path
+        d["MuSE.input_bam_index"] = bam_path
+        d["MuSE.normal_bam"] = normal_file
+        d["MuSE.normal_bam_index"] = normal_path
         d["MuSE.output_directory"] = os.path.join(args.output_directory,'.MuSE/' + bam_sample.split('.')[0] + '/')
         d["MuSE.ref_dict"] = os.path.join(dict_path, ref + '.dict')
-        d["MuSE.ref_fasta"] = args.r
-        d["MuSE.ref_fasta_index"] = args.r + '.fai'
-        d["MuSE.gatk_path"] = args.gatk
+        d["MuSE.ref_fasta"] = args.reference_path
+        d["MuSE.ref_fasta_index"] = args.reference_path + '.fai'
         d["MuSE.dbSNP"] = args.dbsnp_path
         d["MuSE.data_type"] = args.data_type
 
