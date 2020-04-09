@@ -110,7 +110,6 @@ task MuTecT {
   File ref_fasta_index
 
   String gatk_path
-  String? java_options
 
   # Runtime parameters
   String docker
@@ -155,8 +154,6 @@ task MuTecT_PoN {
   File ref_fasta_index
 
   String gatk_path
-  String? java_options
-  String java_opt = select_first([java_options, "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10"])
 
   # Runtime parameters
   String docker

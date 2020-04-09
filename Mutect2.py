@@ -43,11 +43,45 @@ def parse_args():
     parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
     parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
-    parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf', help='path to dbsnp file')
-    # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
-    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
-    parser.add_argument('-scatter', '--scatter_size', default='50')
+    parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/af-only-gnomad.raw.sites.b37.vcf', help='path to dbsnp file')
+    #parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
+    #parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
+    #parser.add_argument('-scatter', '--scatter_size', default='50')
+    parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
+
+    parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
+    parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
+    parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
+    parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     return parser.parse_args()
+
+def main():
+    args = parse_args()
+    clean_arg_paths(args)
+
+    sample_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
+    path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".MuTecT2", sample_name)), sample_name + '.vcf') 
+    vcf_dir = os.path.join(args.output_directory, os.path.join(".MuTecT2", sample_name))
+    os.makedirs(vcf_dir, exist_ok=True) 
+
+    slurm_command = return_slurm_command(args)
+    output_file_name = gen_output_file_name(args)
+
+    """
+    if args.panel == 'nopath':
+        primary_command = return_new_primary_command(args, output_file_name, region_file)
+    else: 
+        primary_command = return_pon_command(args, output_file_name, region_file)
+    """
+    primary_command = return_primary_command(args, output_file_name, input_json, input_config, input_wdl)
+    
+    sh_file_name = gen_sh_file_name(args, output_file_name)
+    write_out(args, slurm_command, primary_command, sh_file_name)
+
+    if not os.path.isfile(path_to_vcf):
+        #print(path_to_vcf)
+        submit_job(sh_file_name)
+    #submit_job(sh_file_name)
 
 def clean_arg_paths(args):
     """Modifies all user-inputted directory paths such that they end with a '/'"""
@@ -55,18 +89,6 @@ def clean_arg_paths(args):
     for arg in d.keys():
         if 'output_directory' in arg and d[arg]=='./': d[arg] = os.getcwd() + '/.' + ntpath.basename(args.input_tumor_path) + '_v_' + ntpath.basename(args.input_normal_path)
         if 'directory' in arg and d[arg] is not None and d[arg][-1] != '/': d[arg] += '/'
-
-def generate_regions_files(args):
-    os.makedirs(os.path.dirname(args.output_directory + '.Mutect2/.regions/'), exist_ok=True)
-    os.system(args.gatk4_path + ' SplitIntervals' + '\\' + '\n' + \
-     '\t' + '-R ' + args.reference_path + ' \\' + '\n' + \
-     '\t' + '-scatter ' + args.scatter_size + ' \\' + '\n' + \
-     '\t' + '-O ' + args.output_directory + '.Mutect2/.regions/' + ' \\')
-    sleep(15)
-
-def return_region_files(args):
-    region_files = [args.output_directory + '.Mutect2/.regions/' + file for file in os.listdir(args.output_directory + '.Mutect2/.regions/')]
-    return region_files
 
 def return_slurm_command(args):
     """Returns slurm command given args provided"""
@@ -86,6 +108,93 @@ def return_slurm_command(args):
     slurm_command += 'module load java/jdk-1.8u112' + '\n'
     return slurm_command
 
+def generate_cromwell_inputs(args, json_file, wdl, overrides):
+    input_file = args.input_tumor_path
+    normal_file = args.input_normal_path
+    dir = args.output_directory + '.MuTecT2/' + '.' + os.path.basename(input_file).split('.')[0] + '/'
+    os.makedirs(dir, exist_ok=True)
+
+    bam_dir = os.path.dirname(input_file)
+    bam_sample = os.path.basename(input_file)
+    normal_dir = os.path.dirname(normal_file)
+    normal_sample = os.path.basename(normal_file)
+
+    bai_suffix = '.bai'
+    bam_path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
+    normal_path = os.path.join(normal_dir, re.sub('.bam', '.bam.bai', normal_sample))
+
+    if not (os.path.isfile(bam_path) and os.access(bam_path, os.R_OK)):
+        bam_path = os.path.join(bam_dir, re.sub('.bam', '.bai', bam_sample))
+    if not (os.path.isfile(normal_path) and os.access(normal_path, os.R_OK)):
+        normal_path = os.path.join(normal_dir, re.sub('.bam', '.bai', normal_sample))
+    
+    copyfile(json_file, dir + 'Input.json')
+
+    dict_path = os.path.dirname(args.reference_path)
+    ref = os.path.basename(args.reference_path).split('.fa')[0]
+    
+    with open(dir + 'Input.json') as f:
+        data = f.read()
+        d = json.loads(data)
+        d["MuTecT.input_bam"] = input_file
+        d["MuTecT.input_bam_index"] = bam_path
+        d["MuTecT.output_directory"] = os.path.join(args.output_directory,'.MuTecT2/' + bam_sample.split('.')[0] + '/')
+        d["MuTecT.ref_dict"] = os.path.join(dict_path, ref + '.dict')
+        d["MuTecT.ref_fasta"] = args.reference_path
+        d["MuTecT.ref_fasta_index"] = args.reference_path + '.fai'
+        d["MuTecT.gnomad"] = args.gnomad_path
+        d["MuTecT.data_type"] = args.data_type
+        d["MuTecT.gatk_path"] = args.gatk_path_new
+        d["MuTecT.interval_list"] = args.interval_list
+
+        if args.panel = "nopath":
+            d["MuTecT.normal_bam"] = normal_file
+            d["MuTecT.normal_bam_index"] = normal_path
+            d["MuTecT.mode"] = "normal"
+        else: 
+            d["MuTecT.panel"] = args.panel
+            d["MuTecT.panel_bam_index"] = args.panel + '.idx'
+            d["MuTecT.mode"] = "panel"
+
+    with open(dir + 'Input.json', 'w') as f:
+        f.write(json.dumps(d))
+
+    copyfile(overrides, dir + 'Overrides.config')
+
+    with fileinput.FileInput(dir + 'Overrides.config', inplace=True) as file:
+        for line in file:
+            print(line.replace(
+            "medium", args.queue).replace("!@#$", args.ct).replace("%^&*", args.cm).replace("Int cpus = 1", "Int cpus = " + args.cn), end='')
+        
+
+    if args.queue == 'park' or args.queue == 'priopark': 
+        f = open(dir + 'Overrides.config', "r")
+        contents = f.readlines()
+        f.close()
+
+        contents.insert(95, "            --account=${account_name} \\\n")
+
+        f = open(dir + 'Overrides.config', "w")
+        contents = "".join(contents)
+        f.write(contents)
+        f.close()
+
+    copyfile(wdl, os.path.join(dir, 'workflow.wdl'))
+
+    return os.path.join(dir,'Input.json'), os.path.join(dir, 'Overrides.config'), os.path.join(dir, 'workflow.wdl')
+
+
+def return_primary_command(args, output_file_name, input_json, input_config, input_wdl):
+    primary_command = 'java -Dconfig.file=' + input_config + ' -jar ' + args.cromwell_path + ' run ' + input_wdl + ' -i ' + input_json
+    return primary_command
+
+def gen_output_file_name(args):
+    sample = ntpath.basename(args.input_tumor_path).split('.')[0]
+    output_file_name = args.output_directory + '.MuTecT2/.' + os.path.basename(args.input_tumor_path).split('.')[0] + '/' + sample + '.vcf'
+
+    return output_file_name
+
+"""
 def gen_output_file_name(args, region_file):
     if args.panel == 'nopath':
         output_file_name = args.output_directory + '.Mutect2/' + ntpath.basename(args.input_tumor_path) + '_v_' + ntpath.basename(args.input_normal_path) + '_' + ntpath.basename(region_file[1:]) + '.vcf'
@@ -139,7 +248,7 @@ def return_new_pon_command(args, output_file_name, region_file):
      '\t' + '-L ' + args.output_directory + '.Mutect2/.regions/' + ntpath.basename(region_file) + ' \\' + '\n' + \
      '\t' + '-O ' + output_file_name
     return primary_command
-
+"""
 def gen_sh_file_name(args, output_file_name):
     """Generates sh file name"""
     sh_file_name = os.path.dirname(output_file_name) + '/.sh/' + os.path.basename(output_file_name) + '.sh'
@@ -156,46 +265,7 @@ def submit_job(sh_file_name):
     os.system('chmod +x ' + os.path.basename(sh_file_name))
     os.system('sbatch ./' + os.path.basename(sh_file_name))
 
-def main():
-    args = parse_args()
-    clean_arg_paths(args)
 
-    generate_regions_files(args)
-    region_files = return_region_files(args)
 
-    for region_file in region_files:
-        slurm_command = return_slurm_command(args)
-        output_file_name = gen_output_file_name(args, region_file)
-
-        if args.panel == 'nopath':
-            primary_command = return_new_primary_command(args, output_file_name, region_file)
-        else: 
-            primary_command = return_pon_command(args, output_file_name, region_file)
-
-        sh_file_name = gen_sh_file_name(args, output_file_name)
-        write_out(args, slurm_command, primary_command, sh_file_name)
-
-        sample_name = ntpath.basename(sh_file_name).split('.bam')[0]
-        mutect_path = ntpath.dirname(ntpath.dirname(sh_file_name))
-        #path_to_vcf = os.path.join(mutect_path, sample_name)
-        path_to_vcf = mutect_path
-        vcf = ntpath.basename(sh_file_name).split('.sh')[0]
-        dirname = vcf.split('.')[0]
-        #path_to_vcf = os.path.join(path_to_vcf, os.path.join(dirname, vcf)) 
-        path_to_vcf = os.path.join(path_to_vcf, vcf)
-        #print(path_to_vcf)
-        if not os.path.isfile(path_to_vcf):
-            #print(path_to_vcf)
-            submit_job(sh_file_name)
-        #submit_job(sh_file_name)
-"""
-        sample_name = ntpath.basename(sh_file_name).split('.bam')[0]
-        path_to_vcf = os.path.join('/n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams/.Mutect2', sample_name)
-        vcf = ntpath.basename(sh_file_name).split('.sh')[0]
-        path_to_vcf = os.path.join(path_to_vcf, vcf)
-        if not os.path.isfile(path_to_vcf):
-            #print(sh_file_name)
-            submit_job(sh_file_name)
-"""
 if __name__ == "__main__":
     main()
