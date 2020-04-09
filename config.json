@@ -4,7 +4,7 @@
   "Mutect_directory": "/path/to/Mutect_output",
   "MuSE_path": "/path/to/MuSE_output", 
   "MuSE": "True", 
-  "HaplotypeCaller_path": "/path/to/HaplotypeCaller_output",
+  "germline_path": "/path/to/germline_files",
   "normal": "True",
   "output_directory": "/path/to/output_directory",
   "scatter": 50,
@@ -12,7 +12,6 @@
   "gnomAD": "/path/to/gnomAD_database",
   "reference_path": "/path/to/reference",
   "panel_path": "/path/to/panel",
-  "panel": "True",
   "reference": "hg19",
   "mail_type": "FAIL", 
   "data_type": "WES", 
@@ -21,6 +20,11 @@
   "runtime": "1-00:00:00", 
   "queue": "park", 
   "memory": "10G",
-  "database_path": "/path/to/database_directory"
+  "database_path": "/path/to/database_directory",
+  "alt_cut": 2,
+  "tot_cut": 5,
+  "vaf_cut": 0.01, 
+  "maf_cut": 0.01,
+  "filter_with_panel": "True"
 
 }

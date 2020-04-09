@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('-in_file', '--input_file_path', help='path to input file')
     parser.add_argument('-out', '--output_directory', default='./', help='directory to which the output directory "/.HaplotypeCaller/" will be written to')
     parser.add_argument('-n', '--num_cores', default='1', help='slurm job submission option')
-    parser.add_argument('-cn', default="10", help='number of cores for Cromwell jobs')
+    parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
     parser.add_argument('-t', '--runtime', default='2-00:00:00', help='slurm job submission option')
     parser.add_argument('-ct', default="3000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-p', '--queue', default='long', help='slurm job submission option')
@@ -123,8 +123,8 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d = json.loads(data)
         d["HaplotypeCallerGvcf_GATK4.input_bam"] = input_file
         d["HaplotypeCallerGvcf_GATK4.input_bam_index"] = path
-        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller/')
-        d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict')
+        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.join(args.output_directory,'.HaplotypeCaller/' + bam_sample.split('.')[0] + '/')
+        d["HaplotypeCallerGvcf_GATK4.ref_dict"] = os.path.join(dict_path, ref + '.dict').''
         d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = args.r
         d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = args.r + '.fai'
         d["HaplotypeCallerGvcf_GATK4.gatk_path"] = args.gatk
