@@ -7,7 +7,7 @@
 ##
 
 # WORKFLOW DEFINITION 
-workflow HaplotypeCallerGvcf_GATK4 {
+workflow MuTecT {
   File input_bam
   File input_bam_index
   File? normal_bam
@@ -19,6 +19,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
   File ref_fasta_index
   File interval_list
   File gnomad
+  File gnomad_index
   String output_directory
   String mode
 
@@ -41,7 +42,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   if (mode == "normal") {
     scatter (interval_file in scattered_calling_intervals) {
-        call MuTecT {
+        call MuTecT_normal {
           input:
             input_bam = input_bam,
             input_bam_index = input_bam_index,
@@ -55,6 +56,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
             docker = gatk_docker,
             gatk_path = gatk_path, 
             gnomad = gnomad,
+            gnomad_index = gnomad_index,
             regions_list = interval_file
         }
     }
@@ -64,7 +66,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   if (mode == "panel") {
     scatter (interval_file in scattered_calling_intervals) {
-        call MuTecT_panel {
+        call MuTecT_PoN {
           input:
             input_bam = input_bam,
             input_bam_index = input_bam_index,
@@ -78,6 +80,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
             docker = gatk_docker,
             gatk_path = gatk_path, 
             gnomad = gnomad,
+       	    gnomad_index = gnomad_index,
             regions_list = interval_file
         }
     }
@@ -86,23 +89,25 @@ workflow HaplotypeCallerGvcf_GATK4 {
 
   call MergeVCFs {
     input:
-      input_vcfs = if (mode == "normal") then MuTecT.output_vcf else MuTecT_panel.output_vcf,
-      input_vcfs_indexes = if (mode == "normal") then MuTecT.output_vcf_index else MuTecT_panel.output_vcf_index,
+      input_vcfs = if (mode == "normal") then MuTecT_normal.output_vcf else MuTecT_PoN.output_vcf,
+      input_vcfs_indexes = if (mode == "normal") then MuTecT_normal.output_vcf_index else MuTecT_PoN.output_vcf_index,
       output_filename = output_filename,
       output_directory = output_directory
 
   }
+}
 
 
 
 # TASK DEFINITIONS
-task MuTecT {
+task MuTecT_normal {
   File input_bam
   File input_bam_index 
   File normal_bam
   File normal_bam_index 
   File regions_list
   File gnomad
+  File gnomad_index
 
   String output_filename
   File ref_dict
@@ -128,7 +133,7 @@ task MuTecT {
       Mutect2 \
       -R ${ref_fasta} \
       -I ${input_bam} \
-      -normal ${normal_bam} \
+      -I ${normal_bam} \
       --germline-resource ${gnomad} \
       -L ${regions_list} \
       -O ${output_filename} 
@@ -147,6 +152,7 @@ task MuTecT_PoN {
   File panel_index 
   File regions_list
   File gnomad
+  File gnomad_index
 
   String output_filename
   File ref_dict
@@ -172,7 +178,7 @@ task MuTecT_PoN {
       Mutect2 \
       -R ${ref_fasta} \
       -I ${input_bam} \
-      --panel-of-normal ${normal_bam} \
+      --panel-of-normal ${panel} \
       --germline-resource ${gnomad} \
       -L ${regions_list} \
       -O ${output_filename} 

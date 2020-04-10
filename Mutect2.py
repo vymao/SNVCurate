@@ -23,7 +23,9 @@ import re
 import ntpath
 import glob
 import sys
-from time import sleep
+import fileinput
+from shutil import copyfile
+import json
 
 def parse_args():
     """Uses argparse to enable user to customize script functionality"""
@@ -45,7 +47,7 @@ def parse_args():
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/af-only-gnomad.raw.sites.b37.vcf', help='path to dbsnp file')
     #parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
-    #parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
+    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
     #parser.add_argument('-scatter', '--scatter_size', default='50')
     parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
 
@@ -58,6 +60,11 @@ def parse_args():
 def main():
     args = parse_args()
     clean_arg_paths(args)
+
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    overrides = os.path.join(dirname, 'Overrides.config')
+    wdl = os.path.join(dirname, 'MuTecT.wdl')
+    json = os.path.join(dirname, 'MuTecT_Inputs.json') 
 
     sample_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
     path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".MuTecT2", sample_name)), sample_name + '.vcf') 
@@ -73,6 +80,7 @@ def main():
     else: 
         primary_command = return_pon_command(args, output_file_name, region_file)
     """
+    input_json, input_config, input_wdl = generate_cromwell_inputs(args, json, wdl, overrides)
     primary_command = return_primary_command(args, output_file_name, input_json, input_config, input_wdl)
     
     sh_file_name = gen_sh_file_name(args, output_file_name)
@@ -143,11 +151,11 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
         d["MuTecT.ref_fasta"] = args.reference_path
         d["MuTecT.ref_fasta_index"] = args.reference_path + '.fai'
         d["MuTecT.gnomad"] = args.gnomad_path
-        d["MuTecT.data_type"] = args.data_type
         d["MuTecT.gatk_path"] = args.gatk_path_new
         d["MuTecT.interval_list"] = args.interval_list
+        d["MuTecT.gnomad_index"] = args.gnomad_path + '.tbi'
 
-        if args.panel = "nopath":
+        if args.panel == "nopath":
             d["MuTecT.normal_bam"] = normal_file
             d["MuTecT.normal_bam_index"] = normal_path
             d["MuTecT.mode"] = "normal"

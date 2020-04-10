@@ -17,7 +17,7 @@ workflow MuSE {
   
   String vcf_basename = sample_basename
 
-  String output_filename = vcf_basename + ".vcf"
+  String output_filename = vcf_basename
 
   call MuSE_call {
     input:
@@ -86,7 +86,7 @@ task MuSE_call {
   >>>
 
   output {
-    File output_file = "${output_filename}"
+    File output_file = "${output_filename}.MuSE.txt"
   }
 }
 
@@ -130,6 +130,6 @@ task MuSE_sump {
   }
 
   output {
-    File output_vcf = "${output_directory}${output_filename}"
+    File output_vcf = "${output_directory}${output_filename}.vcf"
   }
 }

@@ -13,6 +13,7 @@
   "MuTecT.ref_fasta": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta",
   "MuTecT.ref_fasta_index": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.fasta.fai",
   "MuTecT.gnomad": "/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.raw.sites.b37.vcf",
+  "MuTecT.gnomad_index": "/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.raw.sites.b37.vcf",
   "MuTecT.mode": "normal",
 
   "##_COMMENT3": "INTERVALS",
@@ -22,6 +23,6 @@
   "MuTecT.gatk_docker": "broadinstitute/gatk:4.0.1.0",
   
   "##_COMMENT5": "PATHS", 
-  "MuTecT.gatk_path": "/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk",
+  "MuTecT.gatk_path": "/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk"
 
 }
