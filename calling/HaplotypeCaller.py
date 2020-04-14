@@ -1,19 +1,3 @@
-\
-"""
-Execution test:
-python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_file /n/data1/hms/dbmi/park/victor/other/tests/5817_liver_bulk.bam -out /n/data1/hms/dbmi/park/victor/other/tests/ -t2 2100
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_dir /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_dir /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_file s_DS_bkm_085_N_bc0069_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR.bam -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI -p medium
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/GATK_Germline_SNPs_Indels/HaplotypeCaller.py -in_file /n/data1/hms/dbmi/park/victor/Doga/test/s_DS_bkm_085_N_bc0069_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR.bam -out /n/data1/hms/dbmi/park/victor/Doga/test -p park
-
-
-
-"""
 from time import sleep
 import argparse
 import os
@@ -45,6 +29,8 @@ def parse_args():
     parser.add_argument('-r', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta')
     parser.add_argument('-gatk', default='/home/mk446/BiO/Install/GATK4.1.2.0//gatk', help='path to software')
     parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
+    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
+    parser.add_argument('-read_groups', default='single')
     return parser.parse_args()
 
 def main():
@@ -61,7 +47,6 @@ def main():
     
     for input_file in input_files:
         sample = os.path.basename(input_file).split('.')[0]
-        print(sample)
         sample_dir = os.path.join(args.output_directory,'.HaplotypeCaller/' + sample + '/')
         os.makedirs(sample_dir, exist_ok=True)
 
@@ -91,7 +76,6 @@ def clean_arg_paths(args):
     output_dir = re.sub(" ", "", d["output_directory"])
     if output_dir[len(output_dir) - 1] is not "/":
         d["output_directory"] = output_dir + "/"
-    print(args.output_directory)
 
 def return_input_files(args, ext):
     input_bams = [os.path.realpath(file) for file in glob.glob(args.input_directory + '*.' + ext)]
@@ -106,7 +90,7 @@ def sort_by_size(input_files):
     return input_files
 
 def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
-    dir = args.output_directory + '.HaplotypeCaller/' + '.' + os.path.basename(input_file) + '/'
+    dir = args.output_directory + '.HaplotypeCaller/' + '.' + os.path.basename(input_file).split('.')[0] + '/'
     os.makedirs(dir, exist_ok=True)
 
     bam_dir = os.path.dirname(input_file)
@@ -132,9 +116,17 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d["HaplotypeCallerGvcf_GATK4.ref_fasta"] = args.r
         d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = args.r + '.fai'
         d["HaplotypeCallerGvcf_GATK4.gatk_path"] = args.gatk
+        d["HaplotypeCallerGvcf_GATK4.picard_path"] = args.picard
+        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.dirname(input_file)
+        
+        if args.read_groups == "single":
+            d["HaplotypeCallerGvcf_GATK4.read_groups"] = "single"
+        elif args.read_groups == "multiple":
+            d["HaplotypeCallerGvcf_GATK4.read_groups"] = "multiple"
 
         if args.reference_name.lower() is not "b37":
             d["HaplotypeCallerGvcf_GATK4.reference"] = args.reference_name
+
    
     with open(dir + 'Input.json', 'w') as f:
         f.write(json.dumps(d))
@@ -198,10 +190,12 @@ def return_slurm_command(args):
         '#SBATCH --exclude=compute-p-17-[34-46]' + '\n'
     if args.queue in ['park', 'priopark']:
         slurm_command += '#SBATCH --account=park_contrib' + '\n'
+    slurm_command += 'module load gcc/6.2.0 java/jdk-1.8u112 bcftools/1.9' + '\n'
     return slurm_command
 
 def gen_output_file_name(args, input_file):
-    output_file_name = args.output_directory + '.HaplotypeCaller/' + '.' + os.path.basename(input_file) + '/' + os.path.basename(input_file)
+    sample = os.path.basename(input_file).split('.')[0]
+    output_file_name = args.output_directory + '.HaplotypeCaller/' + '.' + sample + '/' + sample
     return output_file_name
 
 def return_primary_command(args, output_file_name, input_file, input_json, input_config, input_wdl):

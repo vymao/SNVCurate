@@ -9,6 +9,7 @@ workflow MuSE {
   File ref_fasta
   File ref_fasta_index
   File dbSNP
+  File dbSNP_index = "${dbSNP}.tbi" 
 
   String output_directory
   String data_type
@@ -40,6 +41,7 @@ workflow MuSE {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       dbSNP = dbSNP,
+      dbSNP_index = dbSNP_index,
       mode = if (data_type == "WGS") then "-G" else "-E"
   }
 
@@ -104,6 +106,7 @@ task MuSE_sump {
   File ref_fasta_index
 
   File dbSNP
+  File dbSNP_index
 
   # Runtime parameters
   Int? mem_gb
@@ -119,15 +122,11 @@ task MuSE_sump {
 
     MuSE sump \
       -I ${input_bam} \
-      -O ${output_filename} \
+      -O ${output_directory}${output_filename}.vcf \
       -D ${dbSNP} \
       ${mode}
   >>>
 
-  runtime {
-    runtime_minutes: 360
-    cpus: 1
-  }
 
   output {
     File output_vcf = "${output_directory}${output_filename}.vcf"

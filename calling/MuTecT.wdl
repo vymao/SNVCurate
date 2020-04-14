@@ -36,7 +36,7 @@ workflow MuTecT {
   
   String vcf_basename = sample_basename
 
-  String output_suffix = if making_gvcf then ".g.vcf.gz" else ".vcf.gz"
+  String output_suffix = ".vcf"
   String output_filename = vcf_basename + output_suffix
 
 
@@ -86,6 +86,13 @@ workflow MuTecT {
     }
   }
 
+  call MergeMutectStats {
+    input:
+      input_stats = if (mode == "normal") then MuTecT_normal.output_stats else MuTecT_PoN.output_stats,
+      output_filename = output_filename,
+      gatk_path = gatk_path
+  }
+
 
   call MergeVCFs {
     input:
@@ -94,6 +101,22 @@ workflow MuTecT {
       output_filename = output_filename,
       output_directory = output_directory
 
+  }
+
+  call FilterMutectCalls {
+    input:
+      input_vcf = MergeVCFs.output_vcf,
+      output_filename = output_filename,
+      gatk_path = gatk_path,
+      input_stats = MergeMutectStats.output_stats,
+      ref_dict = ref_dict,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,  
+      output_directory = output_directory
+  }
+
+  output {
+    File output_vcf = FilterMutectCalls.output_vcf
   }
 }
 
@@ -141,7 +164,8 @@ task MuTecT_normal {
 
   output {
     File output_vcf = "${output_filename}"
-    File output_vcf_index = "${output_filename}.tbi"
+    File output_vcf_index = "${output_filename}.idx"
+    File output_stats = "${output_filename}.stats"
   }
 }
 
@@ -186,7 +210,8 @@ task MuTecT_PoN {
 
   output {
     File output_vcf = "${output_filename}"
-    File output_vcf_index = "${output_filename}.tbi"
+    File output_vcf_index = "${output_filename}.idx"
+    File output_stats = "${output_filename}.stats"
   }
 }
 
@@ -209,15 +234,86 @@ task MergeVCFs {
   command <<<
   set -e
 
-    bcftools concat ${sep=' ' input_vcfs} -o ${output_directory}${output_filename}
+    bcftools concat ${sep=' ' input_vcfs} -o ${output_filename}
   >>>
 
-  runtime {
-    runtime_minutes: 120
-    cpus: 1
-  }
 
   output {
-    File output_vcf = "$output_directory}${output_filename}"
+    File output_vcf = "${output_filename}"
+  }
+}
+
+task MergeMutectStats {
+  Array[File] input_stats
+  String output_filename
+
+  String gatk_path
+
+  # Runtime parameters
+  Int? mem_gb
+  Int? disk_space_gb
+  Boolean use_ssd = false
+  Int? preemptible_attempts
+
+  Int machine_mem_gb = select_first([mem_gb, 3])
+  Int command_mem_gb = machine_mem_gb - 1
+
+
+  command <<<
+  set -e
+
+    ${gatk_path} \
+      MergeMutectStats \
+      -stats ${sep=' -stats ' input_stats} \
+      -O ${output_filename}.stats
+  >>>
+
+##  runtime {
+##    runtime_minutes: ${runtime}
+##    cpus: ${cores}
+##    requested_memory_mb_per_core: ${memory}
+##    queue: ${queue}
+##  }
+
+
+  output {
+    File output_stats = "${output_filename}.stats"
+  }
+}
+
+task FilterMutectCalls {
+  File input_vcf
+  File input_stats
+
+  String output_filename
+  File ref_dict
+  File ref_fasta
+  File ref_fasta_index
+
+  String gatk_path
+  String output_directory
+
+  # Runtime parameters
+  Int? mem_gb
+  Int? disk_space_gb
+  Boolean use_ssd = false
+  Int? preemptible_attempts
+
+  Int machine_mem_gb = select_first([mem_gb, 7])
+  Int command_mem_gb = machine_mem_gb - 1
+
+  command <<<
+  set -e
+
+    ${gatk_path} \
+      FilterMutectCalls \
+      -R ${ref_fasta} \
+      -V ${input_vcf} \
+      --stats ${input_stats} \
+      -O ${output_directory}${output_filename}
+  >>>
+
+  output {
+    File output_vcf = "${output_directory}${output_filename}"
   }
 }

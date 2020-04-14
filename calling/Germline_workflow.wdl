@@ -15,7 +15,9 @@ workflow HaplotypeCallerGvcf_GATK4 {
   File ref_fasta_index
   File scattered_calling_intervals_list
   String output_directory
+  String bam_directory
   String reference
+  String read_groups
 
   Boolean? make_gvcf
   Boolean making_gvcf = select_first([make_gvcf,true])
@@ -25,6 +27,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
   String gatk_docker
 
   String gatk_path
+  String picard_path
   
   String sample_basename = basename(input_bam, ".bam")
   
@@ -34,12 +37,24 @@ workflow HaplotypeCallerGvcf_GATK4 {
   String output_filename = vcf_basename + output_suffix
 
 
+  if (read_groups == "multiple") {
+    call AddEditReadGroups {
+      input:
+	input_bam = input_bam,
+        input_bam_index = input_bam_index,
+        output_filename = output_filename,
+        picard_path = picard_path,
+        output_directory = bam_directory,
+        new_sample_name = output_filename
+    }
+  }
+
   if (reference == "b37") {
     scatter (interval_file in scattered_calling_intervals) {
         call HaplotypeCaller {
           input:
-            input_bam = input_bam,
-            input_bam_index = input_bam_index,
+            input_bam = if (read_groups == "multiple") then AddEditReadGroups.output_bam else input_bam,
+            input_bam_index = if (read_groups == "multiple") then AddEditReadGroups.output_bam_index else input_bam_index,
             output_filename = output_filename,
             interval_list = interval_file,
             ref_dict = ref_dict,
@@ -66,8 +81,8 @@ workflow HaplotypeCallerGvcf_GATK4 {
   if (reference != "b37") {
     call HaplotypeCaller_other {
       input:
-        input_bam = input_bam,
-        input_bam_index = input_bam_index,
+        input_bam = if (read_groups == "multiple") then AddEditReadGroups.output_bam else input_bam,
+        input_bam_index = if (read_groups == "multiple") then AddEditReadGroups.output_bam_index else input_bam_index,
         output_filename = output_filename,
         ref_dict = ref_dict,
         ref_fasta = ref_fasta,
@@ -301,4 +316,41 @@ task GenotypeGVCFs_single {
     File output_vcf = "${output_directory}${output_filename}"
     File output_vcf_index = "${output_directory}${output_filename}.idx"
   }
+}
+
+task AddEditReadGroups {
+  String picard_path
+  File input_bam
+  File input_bam_index
+  String output_directory
+  String output_filename
+  String new_sample_name  
+
+  Int? mem_gb
+  Int? disk_space_gb
+  Boolean use_ssd = false
+  Int? preemptible_attempts
+
+  Int machine_mem_gb = select_first([mem_gb, 3])
+  Int command_mem_gb = machine_mem_gb - 1
+
+
+  command <<<
+  set -e
+
+    java -jar ${picard_path} \
+      AddOrReplaceReadGroups \
+      I=${input_bam} \
+      O=${output_directory}${output_filename}_SingleRG.bam \
+      RGLB=lib_name \
+      RGPL=illumina \
+      RGPU=SM:${new_sample_name}\
+      RGSM=${new_sample_name} \
+  >>>
+
+  output {
+    File output_bam = "${output_directory}${output_filename}.bam"
+    File output_bam_index = "${output_directory}${output_filename}.bam.bai"
+  }
+
 }

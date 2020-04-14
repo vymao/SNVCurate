@@ -47,7 +47,7 @@ def parse_args():
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/af-only-gnomad.raw.sites.b37.vcf', help='path to dbsnp file')
     #parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
-    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
+    parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.raw.sites.b37.vcf.gz', help='path to cosmic file' )
     #parser.add_argument('-scatter', '--scatter_size', default='50')
     parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
 
@@ -113,7 +113,7 @@ def return_slurm_command(args):
                 '#SBATCH --mail-user=' + args.mail_user + '\n' 
     if args.queue in ['park', 'priopark']:
         slurm_command += '#SBATCH --account=park_contrib' + '\n'
-    slurm_command += 'module load java/jdk-1.8u112' + '\n'
+    slurm_command += 'module load gcc/6.2.0 java/jdk-1.8u112 bcftools/1.9' + '\n'
     return slurm_command
 
 def generate_cromwell_inputs(args, json_file, wdl, overrides):

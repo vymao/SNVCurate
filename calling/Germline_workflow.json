@@ -2,7 +2,9 @@
   "##_COMMENT1": "INPUT BAM",
   "HaplotypeCallerGvcf_GATK4.input_bam": "path/to/bam",
   "HaplotypeCallerGvcf_GATK4.input_bam_index": "path/to/index",
-  "HaplotypeCallerGvcf_GATK4.output_directory": "output_dir/", 
+  "HaplotypeCallerGvcf_GATK4.output_directory": "output_dir/",
+  "HaplotypeCallerGvcf_GATK4.bam_directory": "bam_dir/",
+  "HaplotypeCallerGvcf_GATK4.read_groups": "single", 
 
   "##_COMMENT2": "REFERENCE FILES",
   "HaplotypeCallerGvcf_GATK4.ref_dict": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.dict",
@@ -20,6 +22,7 @@
   "HaplotypeCallerGvcf_GATK4.gatk_path": "/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk",
   "HaplotypeCallerGvcf_GATK4.HaplotypeCaller.make_gvcf": "True",
   "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.contamination": "(optional) Float?",
+  "HaplotypeCallerGvcf_GATK4.picard_path": "/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar",
 
   "##_COMMENT6": "JAVA OPTIONS", 
   "##HaplotypeCallerGvcf_GATK4.HaplotypeCaller.java_options": "(optional) String?",
