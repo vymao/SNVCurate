@@ -82,11 +82,13 @@ for path in ${out}/*; do
 
         dirname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
 
-        /home/mk446/bin/annovar/table_annovar.pl ${path2normal}/${dirname}.vcf '/home/mk446/bin/annovar/humandb/' -out $dirname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+        cd ${dirname}*
+
+        /home/mk446/bin/annovar/table_annovar.pl ${path2normal}/${dirname}/${dirname}.vcf '/home/mk446/bin/annovar/humandb/' -out $dirname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
 
          
         if [ ! -f ${dirname}*.LABELED ]; then
-            python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out $path2normal -in ${dirname}.*txt
+            python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out ${path2normal}/${dirname}* -in ${dirname}.*txt
         fi
         
         if [ ! -f ${dirname}*.LABELED.levels ]; then
@@ -115,7 +117,7 @@ for path in ${out}/*; do
     if ! [ -z "$path2normal" ]; then
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
         if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
-            for file in $path2normal/${normalname}*${Haplo_file}; do
+            for file in ${path2normal}/${normalname}/${normalname}*${Haplo_file}; do
                 cp $file "${out}/${dirname}.germline_combined.csv"
             done
 

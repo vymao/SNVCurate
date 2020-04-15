@@ -52,7 +52,7 @@ for path in ${path2Intersection}/*; do
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
 	base=$(basename $normal)
         dir=$(dirname $normal)
-        normalname=${dir}/${base}/${normalname}.vcf
+        normalname=${dir}/${base}/${normalname}/${normalname}.vcf
     else
         normalname=$normal
     fi

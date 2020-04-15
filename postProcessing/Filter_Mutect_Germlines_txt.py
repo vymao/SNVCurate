@@ -1,27 +1,3 @@
-
-"""
-
-Actual: 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -input_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.PASS.TUMOR.avinput.hg19_multianno.csv -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR -vcf /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.PASS.vcf -t1 5-0:00:00 -r1 21 -file_type anno -cut 0.01 -hap /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/GenotypeGVCFs/test.hg19_multianno.germline_variants_filtered.vcf
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -input_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR -vcf /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf -t1 5-0:00:00 -r1 0 -r2 1000 -file_type vcf -cut 0.01 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -input_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_135_T_bc0035_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_135_T_bc0035_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_135_T_bc0035_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR -vcf /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_135_T_bc0035_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_135_T_bc0035_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf -r1 0 -r2 1000 -file_type vcf -cut 0.01 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -mut /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2 -mode combine -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/somatic_germline_split -hap /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/GenotypeGVCFs
-
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -input_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/GenotypeGVCFs/test.hg19_multianno.csv -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/GenotypeGVCFs -vcf /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/GenotypeGVCFs/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR.vcf -t1 5-0:00:00 -r1 21 -file_type anno -cut 0.01 
-
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -input_path test.csv -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR -vcf s_DS_bkm_095_T_bc0005_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf.PASS.vcf -hap /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/GenotypeGVCFs/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR.vcf.avinput.hg19_multianno.germline_variants_filtered.vcf -t1 5-0:00:00 -file_type anno -cut 0.01 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines.py -input_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf -output_path /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR -vcf /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR/s_DS_bkm_085_T_bc0001_Proj_5065_E_L000_mrg_cl_aln_srt_MD_IR_BR_Combined.vcf -t1 5-0:00:00 -r1 0 -r2 1000 -file_type vcf -cut 0.01 
-
-
-"""
-
 import argparse
 import os
 import re
@@ -178,7 +154,7 @@ def check_germline_risk(vcf_line):
 
 def check_read_levels(vcf_line, args):
     line_list = vcf_line.rstrip().split('\t')
-    tumor_info = line_list[9].split(':')[1].split(',')
+    tumor_info = line_list[10].split(':')[1].split(',')
     vaf_info = line_list[9].split(':')[2]
 
     if len(tumor_info) != 2: 
@@ -266,7 +242,7 @@ def main():
                 for index, line in enumerate(f):
                     if not line.isspace() and index in range(int(args['r1']) + end, int(args['r2']) + end):
                         if not args['panel']:
-                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'germline_risk')
+                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'germline')
                         else: 
                             vcf_examine(line, args, germline_file_path, somatic_file_path, 'panel_of_normals')
         else: 

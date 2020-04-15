@@ -49,7 +49,7 @@ def get_read_levels(args, vcf_line):
     	return
     line_list = vcf_line.rstrip().split('\t')
     #print(line_list)
-    tumor_info = line_list[9].split(':')[1].split(',')
+    tumor_info = line_list[10].split(':')[1].split(',')
     #print(tumor_info)
     if len(tumor_info) != 2: 
         return 
