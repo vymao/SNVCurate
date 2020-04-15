@@ -52,6 +52,9 @@ usage: python3 Mutect2_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTOR
 - `-interval_list`: Interval list used to scatter Cromwell jobs. The default is set to scatter 50 jobs (default = `/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt`) for the b37 reference.
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
 - `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
+- `-cn`: Number of cores per Cromwell job (default = 1). 
+- `-ct`: Runtime per Cromwell job in minutes (default = 1000). 
+- `-cm`: Memory per Cromwell job in MB (default = 7000). 
 - `-cromwell`: Jar file for Cromwell execution (default = `/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar`).
 
 2. `MuSE_read.py`: Wrapper script to run the MuSE pipeline for somatic mutation calling. 
@@ -74,6 +77,9 @@ usage: python3 MuSE_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] 
 - `-data_type`: WGS or WES. 
 - `-r1`: The lower range index bound for BAMs to submit from the csv file (default = 1). Index 1 is the lowest. 
 - `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
+- `-cn`: Number of cores per Cromwell job (default = 1). 
+- `-ct`: Runtime per Cromwell job in minutes (default = 1000). 
+- `-cm`: Memory per Cromwell job in MB (default = 7000). 
 - `-cromwell`: Jar file for Cromwell execution (default = `/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar`).
 
 3. `HaplotypeCaller_read.py`: Wrapper script to run the GATK HaplotypeCaller pipeline for germline mutation calling. 
@@ -97,6 +103,9 @@ usage: python3 HaplotypeCaller_read.py [-input_path INPUT_PATH] [-output_path OU
 - `-r2`: The upper range index bound for BAMs to submit from the csv file (default = 100000).
 - `-reference`: Path to reference FASTA (default = `/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta`).
 - `-reference`: Reference name (b37, hg19, etc.) (default = `b37`).
+- `-cn`: Number of cores per Cromwell job (default = 1). 
+- `-ct`: Runtime per Cromwell job in minutes (default = 1000). 
+- `-cm`: Memory per Cromwell job in MB (default = 7000). 
 - `-cromwell`: Jar file for Cromwell execution (default = `/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar`).
 - `-picard`: Jar file for Picard software (default = `/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar`).
 
