@@ -12,6 +12,7 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 2. Set up the environment using Conda, or download and install the packages individually (see .yml file for dependencies). Other modules available on the cluster will be loaded automatically within the relevant script.
 3. Run `RenameBAMsample.sh` to reconfigure the BAM sample name to single tumor/normal. 
 4. Run `SetupDatabases.sh` to setup links to relevant Annovar databases. 
+5. Activate the environment. 
 
 ### Calling (under SNVCurate/calling/): 
 1. Run Mutect2 on the renamed BAM files using `Mutect2_read.py`. 
@@ -19,11 +20,12 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
 
 ### Running the pipeline (together) (under SNVCurate/postProcessing/): 
-There are two ways to run this pipeline: 
+This is best run on an interactive session with 5G of memory. There are two ways to run this pipeline: 
 1. Create a config file. See `config.json` for details.
 2. Run `runAll.sh`.
 
-### Running the pipeline (individual) (under SNVCurate/postProcessing/): 
+**OR**
+
 1. Run the script `Intersect.sh` to intersect the two calls. 
 2. Run the script `Filter.sh` to filter the intersection.
 3. Run the script `Annotate.sh` to finish. 
