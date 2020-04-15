@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-pathtoSNVCurate=$0
+pathtoSNVCurate="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 path2config=$1
 
 
@@ -28,35 +28,20 @@ filter_with_panel=$(jq -r '.filter_with_panel' $path2config)
 
 set -e 
 
-if [ ${MuSE} == "True"]; then
+if [ ${MuSE} == "True" ]; then
     intersectCode=$(sh ${pathtoSNVCurate}/Intersect.sh $output_directory $Mutect_directory $MuSE_directory)
 else
     intersectCode=$(sh ${pathtoSNVCurate}/Intersect.sh $output_directory $Mutect_directory)
 fi
 
-if [ $intersectCode -eq 1 ]; then
-    echo "Error in Intersecting."
-    exit 1
-fi
-
 filterCode=$(sh ${pathtoSNVCurate}/Filter.sh ${output_directory} $germline_path $normal $csv $alt_cut $tot_cut $vaf_cut $maf_cut $reference $database_path $path2bam $filter_with_panel $panel_path)
 
-
-if [ $filterCode -eq 1 ]; then
-    echo "Error in Filtering."
-    exit 1
-fi
 
 if [ $normal == "True" ]; then
     annotateCode=$(sh ${pathtoSNVCurate}/Annotate.sh $output_directory $Mutect_directory $reference $csv $germline_path)
 else
     annotateCode=$(sh ${pathtoSNVCurate}/Annotate.sh $output_directory $Mutect_directory $reference $csv)
 done
-
-if [ $annotateCode -eq 1 ]; then
-    echo "Error in Annotating."
-    exit 1
-fi
 
 
 
