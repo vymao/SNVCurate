@@ -19,7 +19,7 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 2. If you desire higher specifity for somatic calls (recommended), run MuSE using `MuSE_read.py`. 
 3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
 
-### Running the pipeline (together) (under `SNVCurate/postProcessing/`): 
+### Running the pipeline (under `SNVCurate/postProcessing/`): 
 This is best run on an interactive session with 5G of memory. There are two ways to run this pipeline: 
 1. Create a config file. See `config.json` for details.
 2. Run `runAll.sh`.
