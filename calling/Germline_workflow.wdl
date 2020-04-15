@@ -42,10 +42,10 @@ workflow HaplotypeCallerGvcf_GATK4 {
       input:
 	input_bam = input_bam,
         input_bam_index = input_bam_index,
-        output_filename = output_filename,
+        output_filename = vcf_basename,
         picard_path = picard_path,
         output_directory = bam_directory,
-        new_sample_name = output_filename
+        new_sample_name = vcf_basename
     }
   }
 
@@ -349,8 +349,8 @@ task AddEditReadGroups {
   >>>
 
   output {
-    File output_bam = "${output_directory}${output_filename}.bam"
-    File output_bam_index = "${output_directory}${output_filename}.bam.bai"
+    File output_bam = "${output_directory}${output_filename}_SingleRG.bam"
+    File output_bam_index = "${output_directory}${output_filename}_SingleRG.bam.bai"
   }
 
 }

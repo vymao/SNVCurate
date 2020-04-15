@@ -117,7 +117,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d["HaplotypeCallerGvcf_GATK4.ref_fasta_index"] = args.r + '.fai'
         d["HaplotypeCallerGvcf_GATK4.gatk_path"] = args.gatk
         d["HaplotypeCallerGvcf_GATK4.picard_path"] = args.picard
-        d["HaplotypeCallerGvcf_GATK4.output_directory"] = os.path.dirname(input_file)
+        d["HaplotypeCallerGvcf_GATK4.bam_directory"] = os.path.dirname(input_file)
         
         if args.read_groups == "single":
             d["HaplotypeCallerGvcf_GATK4.read_groups"] = "single"

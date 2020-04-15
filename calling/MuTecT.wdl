@@ -138,6 +138,7 @@ task MuTecT_normal {
   File ref_fasta_index
 
   String gatk_path
+  String normal_name = basename(normal_bam, ".bam")
 
   # Runtime parameters
   String docker
@@ -157,6 +158,7 @@ task MuTecT_normal {
       -R ${ref_fasta} \
       -I ${input_bam} \
       -I ${normal_bam} \
+      -normal ${normal_name} \
       --germline-resource ${gnomad} \
       -L ${regions_list} \
       -O ${output_filename} 
