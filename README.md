@@ -20,7 +20,7 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 
 ### Running the pipeline (together) (under SNVCurate/postProcessing/): 
 There are two ways to run this pipeline: 
-1. Create a config file `parameters.config`. See `parameters_example.config` for details.
+1. Create a config file. See `config.json` for details.
 2. Run `runAll.sh`.
 
 ### Running the pipeline (individual) (under SNVCurate/postProcessing/): 
@@ -146,6 +146,14 @@ usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
 8. `SetupDatabases.sh`: Bash script to create links to relevant databases and set up a space for new accessible databases.  
 ```
 usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE]
+```
 - `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
+
+
+9. `runAll.sh`: Bash script to execute all filtering steps. 
 ```
+usage: sh runAll.sh [CONFIG_PATH] 
+```
+- `[CONFIG_PATH]`: Path to JSON configuration file.
+
