@@ -1,13 +1,3 @@
-"""This script takes in text files of lists of BAM files and executes the GATK Haplotype and Joint Mutation Callers to produce the desired Output."""
-
-"""
-Actual: 
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines_run.py -input_dir /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp/.Mutect2  -mode vcf
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines_Add_Read_Info.py -in_file Sample_DS-bkm-085-T_RECAL.PASS.ANNO.somatic_variants_filtered.hg19_multianno.txt -vcf_path Sample_DS-bkm-085-T_RECAL.PASS.vcf.PASS.RENAMED.vcf
-
-"""
-
 import argparse
 import os
 import re
@@ -16,7 +6,6 @@ import sys
 
 def parse_args():
     """Uses argparse to enable user to customize script functionality""" 
-    #BE SURE TO ADD MULTIPLE TEXT FILE ARGUMENTS Later
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-in_file', help='Path to the input file')
     parser.add_argument('-vcf_path', help='Path to vcf file')
@@ -48,9 +37,9 @@ def get_read_levels(args, vcf_line):
     if vcf_line is None: 
     	return
     line_list = vcf_line.rstrip().split('\t')
-    #print(line_list)
+
     tumor_info = line_list[10].split(':')[1].split(',')
-    #print(tumor_info)
+
     if len(tumor_info) != 2: 
         return 
     ref_level = int(tumor_info[0])
@@ -83,7 +72,6 @@ def main():
 
     new_file = args['in_file'] + '.levels'
     line_diff, body_line_len = get_last_item(args)
-    print(line_diff)
     total_len = body_line_len
 
 
@@ -97,14 +85,10 @@ def main():
                     else: 
                         header = line.rstrip().split(',')
                         header_len = len(header)
-                    '''
-                    for i in range(line_diff): 
-                        header.append('.')
-                    '''
+
                     for i in range(total_len - header_len): 
                         header.append('.')
-                    #print(len(header))
-                    #print('here')
+
                     header.append('RD')
                     header.append('AD')
                     header.append('vaf_level')
@@ -114,9 +98,7 @@ def main():
                         str_data = ','.join(str(i) for i in header)
                     str_data += '\n'
                     new.write(str_data)
-                        #new.write(str_data)
-                        #file.write(word + '\t')
-                        #file.write('\n')
+
                 elif '#' not in line: 
                     if '.txt' in args['in_file']: 
                         vcf_line_list = line.strip().split('\t')
@@ -127,7 +109,7 @@ def main():
                     if not args['hap']:
                         for i in range(total_len - line_len): 
                             vcf_line_list.append('.')
-                        #print(len(vcf_line_list))
+    
                         new_line = find_in_vcf(args, line)
                         read_levels = get_read_levels(args, new_line)
                         if read_levels is not None: 
@@ -152,12 +134,7 @@ def main():
                             str_data = ','.join(str(i) for i in vcf_line_list)
                         str_data += '\n'
                         new.write(str_data)
-                """
-                with open(new_file, 'a') as new:
-                    for word in vcf_line_list:
-                        file.write(word + '\t')
-                        file.write('\n')            
-                """
+
 
 if __name__ == "__main__":
     main()

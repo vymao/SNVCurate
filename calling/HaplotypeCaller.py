@@ -30,7 +30,6 @@ def parse_args():
     parser.add_argument('-gatk', default='/home/mk446/BiO/Install/GATK4.1.2.0//gatk', help='path to software')
     parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
     parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
-    parser.add_argument('-read_groups', default='single')
     return parser.parse_args()
 
 def main():
@@ -72,6 +71,7 @@ def clean_arg_paths(args):
         if 'input_directory' in arg and d[arg]=='./': d[arg] = os.getcwd()
         if 'output_directory' in arg and d[arg]=='./': d[arg] = os.getcwd()    
         if 'directory' in arg and d[arg] is not None and d[arg][-1] != '/': d[arg] += '/'
+
     output_dir = re.sub(" ", "", d["output_directory"])
     if output_dir[len(output_dir) - 1] is not "/":
         d["output_directory"] = output_dir + "/"
@@ -118,11 +118,6 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d["HaplotypeCallerGvcf_GATK4.picard_path"] = args.picard
         d["HaplotypeCallerGvcf_GATK4.bam_directory"] = os.path.dirname(input_file)
         
-        if args.read_groups == "single":
-            d["HaplotypeCallerGvcf_GATK4.read_groups"] = "single"
-        elif args.read_groups == "multiple":
-            d["HaplotypeCallerGvcf_GATK4.read_groups"] = "multiple"
-
         if args.reference_name.lower() is not "b37":
             d["HaplotypeCallerGvcf_GATK4.reference"] = args.reference_name
 

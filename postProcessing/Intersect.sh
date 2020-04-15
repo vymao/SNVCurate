@@ -8,20 +8,15 @@
 # --account=park_contrib
 #SBATCH --mem=1000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
-#SBATCH --mail-user=victor_mao@hms.harvard.edu   # Email to which notifications will be sent
 
 
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
 
-main=$4
-multilane=$(echo "$3" | awk '{print tolower($0)}')
+main=$3
 path2Mutect=$2
 out=$1
 package_path=$(dirname "$(readlink -f "$0")")
-#echo $package_path
-
-
 
 cd $path2Mutect
 for path in ${path2Mutect}/*; do 
@@ -33,32 +28,14 @@ for path in ${path2Mutect}/*; do
     rm *PASS* 
     rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf
 
-    #bcftools concat *.vcf -o ${dirname}.Combined.vcf 2>&1 >/dev/null | grep "not contiguous" 
-
-    if bcftools concat *.vcf -o ${dirname}.Combined.vcf 2>&1 >/dev/null | grep -q "not contiguous"; then
-        echo "There was a problem with MuTecT, and the chromosomes are not contiguous. Please try rerunning MuTecT on sample ${dirname} and then rerun this script."
-        exit $ERRCODE
-
-    fi
-
-    if [ $multilane == "true" ]; then
-        sh ${package_path}/RenameSampleVCF.sh $path
-    fi
-
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
-        if [ $multilane == "true" ]; then
-            for file in ${dirname}.Combined.RENAMED.vcf; do
-                grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
-            done
-        else
-            for file in ${dirname}.Combined.vcf; do
-    	    echo "working" 
-                grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
-            done
-        fi
+        for file in ${dirname}.vcf; do
+	    echo "working" 
+            grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
+        done
     fi
 
-    for file in ${dirname}.Combined.vcf; do 
+    for file in ${dirname}.vcf; do 
         python3 ${package_path}/Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf 
     done
 

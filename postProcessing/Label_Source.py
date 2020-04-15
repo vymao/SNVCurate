@@ -1,12 +1,3 @@
-"""This script takes in text files of lists of BAM files and executes the GATK Haplotype and Joint Mutation Callers to produce the desired Output."""
-
-"""
-Actual: 
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/FMG_Label.py -source Mutect -out /n/data1/hms/dbmi/park/ethan/GERBURG/.PreProcessing/Mutect2_Recalibrated/.Mutect2/Sample_DS-bkm-086-T_RECAL -in /n/data1/hms/dbmi/park/ethan/GERBURG/.PreProcessing/Mutect2_Recalibrated/.Mutect2/Sample_DS-bkm-086-T_RECAL/Sample_DS-bkm-086-T_RECAL.PASS.ANNO.germline_variants_filtered.hg19_multianno.txt.csv.txt
-
-
-"""
-
 import argparse
 import os
 import re
@@ -38,20 +29,16 @@ def get_last_item(args):
     with open(args['input_file'], 'r') as file: 
         for index, line in enumerate(file): 
             if '.txt' in args['input_file']: 
-                #print('yes')
                 line_list = line.strip().split('\t')
             else: 
-                line_list = line.rstrip().split(',')            
+                line_list = line.rstrip().split(',')  
+                          
             if index == 0: 
                 header_line_len = len(line_list)
                 body_line_len = header_line_len
-                #print(header_line_len)
             elif index == 1:   
                 body_line_len = len(line_list)
-                #print(body_line_len)
             else: 
-                #print('here')
-                #print(body_line_len - header_line_len)
                 return body_line_len - header_line_len, body_line_len
     return body_line_len - header_line_len, body_line_len
 

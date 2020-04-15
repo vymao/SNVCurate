@@ -8,7 +8,6 @@
 # --account=park_contrib
 #SBATCH --mem=1000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
-#SBATCH --mail-user=victor_mao@hms.harvard.edu   # Email to which notifications will be sent
 
 
 module load gcc/6.2.0 python/3.6.0 java bcftools
@@ -72,7 +71,7 @@ for path in ${out}/*; do
     done 
 
     for file in *M2_Risk_variants_filtered.*txt.LABELED; do 
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/*.Combined.vcf
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
     done 
 
 
