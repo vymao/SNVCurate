@@ -1,20 +1,3 @@
-
-
-"""
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py -tumor -normal -out -mode call 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py -tumor /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/edited_bams/QRF116304_reordered_contigs.bam -normal /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/edited_bams/normals/wgs_normal.bam -out /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/MuSE -reference /home/mk446/BiO/Install/GATK-bundle/2.8/hg19/ucsc.hg19.fasta -mode call 
-
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py -tumor /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/MuSE/.MuSE/QRF116304_reordered_contigs.bam_v_wgs_normal.bam.MuSE.txt -out /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/MuSE -reference /home/mk446/BiO/Install/GATK-bundle/2.8/hg19/ucsc.hg19.fasta -mode sump 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py -tumor /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/edited_bams/QRF116304_reordered_contigs.bam -normal /n/data1/hms/dbmi/park/vinay/analysis/externalDatasets/SRP145073_lee_etal_nature_2018_glioblastoma_svz_spatial/alignment/20191121_readgroup/SRR7138430.sorted.readgroup.bam -out /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/MuSE -reference /home/mk446/BiO/Install/GATK-bundle/2.8/hg19/ucsc.hg19.fasta -mode call -data_type WES
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py -tumor /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/MuSE/.MuSE/QRF116304_reordered_contigs.bam_v_SRR7138430.sorted.readgroup.bam.MuSE.txt -out /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/MuSE -reference /home/mk446/BiO/Install/GATK-bundle/2.8/hg19/ucsc.hg19.fasta -mode sump -t 0-02:00:00 --mem_per_cpu 1G
-
-"""
-
-
 import argparse
 import os
 import re
@@ -41,9 +24,7 @@ def parse_args():
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
     #parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg19_common_all_20160601.vcf.gz', help='path to dbsnp file')
-    parser.add_argument('-mode')
     parser.add_argument('-data_type', default='WGS')
-
     parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
@@ -67,8 +48,6 @@ def main():
     primary_command = return_primary_command(args, output_file_name, input_json, input_config, input_wdl)
 
     sh_file_name = gen_sh_file_name(args, output_file_name)
-    print(output_file_name)
-    print(sh_file_name)
 
     write_out(args, slurm_command, primary_command, sh_file_name)
     sample_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
@@ -78,33 +57,7 @@ def main():
    
 
     if not os.path.isfile(path_to_vcf):
-        #print(path_to_vcf)
-        #print(primary_command)
         submit_job(sh_file_name)
-
-    """
-    if args.mode == 'call':
-        primary_command = return_primary_call_command(args, output_file_name)
-    else:
-        primary_command = return_primary_sump_command(args, output_file_name)
-
-    sh_file_name = gen_sh_file_name(args, output_file_name)
-    write_out(args, slurm_command, primary_command, sh_file_name)
-
-    sample_name = ntpath.basename(sh_file_name).split('.bam')[0]
-    mutect_path = ntpath.dirname(ntpath.dirname(sh_file_name))
-    #path_to_vcf = os.path.join(mutect_path, sample_name)
-    path_to_vcf = mutect_path
-    vcf = ntpath.basename(sh_file_name).split('.sh')[0]
-    dirname = vcf.split('.')[0]
-    #path_to_vcf = os.path.join(path_to_vcf, os.path.join(dirname, vcf)) 
-    path_to_vcf = os.path.join(path_to_vcf, vcf)
-    #print(path_to_vcf)
-    if not os.path.isfile(path_to_vcf):
-        #print(path_to_vcf)
-        #print(primary_command)
-        submit_job(sh_file_name)
-    """
 
 def clean_arg_paths(args):
     """Modifies all user-inputted directory paths such that they end with a '/'"""
@@ -135,13 +88,7 @@ def return_slurm_command(args):
 def gen_output_file_name(args):
     sample = ntpath.basename(args.input_tumor_path).split('.')[0]
     output_file_name = args.output_directory + '.MuSE/.' + os.path.basename(args.input_tumor_path).split('.')[0] + '/' + sample + '.vcf'
-    """
-    if args.mode == 'call':
-        output_file_name = args.output_directory + '.MuSE/' + ntpath.basename(args.input_tumor_path) + '_v_' + ntpath.basename(args.input_normal_path)
-    else: 
-        sample = ntpath.basename(args.input_tumor_path).split('.')[0]
-        output_file_name = args.output_directory + '.MuSE/' + sample + '.vcf'
-    """
+
     return output_file_name
 
 def generate_cromwell_inputs(args, json_file, wdl, overrides):
@@ -215,33 +162,11 @@ def return_primary_command(args, output_file_name, input_json, input_config, inp
     primary_command = 'java -Dconfig.file=' + input_config + ' -jar ' + args.cromwell_path + ' run ' + input_wdl + ' -i ' + input_json
     return primary_command
 
-"""
-def return_primary_call_command(args, output_file_name):
-    primary_command = 'MuSE call' + \
-    ' -f ' + args.reference_path + \
-    ' -O ' + output_file_name + \
-    ' ' + args.input_tumor_path + \
-    ' ' + args.input_normal_path
-    return primary_command
-
-def return_primary_sump_command(args, output_file_name):
-    primary_command = 'MuSE sump' + \
-    ' -I ' + args.input_tumor_path + \
-    ' -O ' + output_file_name + \
-    ' -D ' + args.dbsnp_path
-    if args.data_type == 'WGS': 
-        primary_command += ' -G'
-    else:
-        primary_command += ' -E'
-    return primary_command
-"""
 def gen_sh_file_name(args, output_file_name):
-    """Generates sh file name"""
     sh_file_name = os.path.dirname(output_file_name) + '/.sh/' + os.path.basename(output_file_name) + '.sh'
     return sh_file_name
 
 def write_out(args, slurm_command, primary_command, sh_file_name):
-    """"""
     os.makedirs(os.path.dirname(sh_file_name), exist_ok=True)
     with open(sh_file_name, 'w') as file:
         file.write(slurm_command + primary_command)

@@ -17,7 +17,6 @@ workflow HaplotypeCallerGvcf_GATK4 {
   String output_directory
   String bam_directory
   String reference
-  String read_groups
 
   Boolean? make_gvcf
   Boolean making_gvcf = select_first([make_gvcf,true])
@@ -37,24 +36,12 @@ workflow HaplotypeCallerGvcf_GATK4 {
   String output_filename = vcf_basename + output_suffix
 
 
-  if (read_groups == "multiple") {
-    call AddEditReadGroups {
-      input:
-	input_bam = input_bam,
-        input_bam_index = input_bam_index,
-        output_filename = vcf_basename,
-        picard_path = picard_path,
-        output_directory = bam_directory,
-        new_sample_name = vcf_basename
-    }
-  }
-
   if (reference == "b37") {
     scatter (interval_file in scattered_calling_intervals) {
         call HaplotypeCaller {
           input:
-            input_bam = if (read_groups == "multiple") then AddEditReadGroups.output_bam else input_bam,
-            input_bam_index = if (read_groups == "multiple") then AddEditReadGroups.output_bam_index else input_bam_index,
+            input_bam = input_bam,
+            input_bam_index = input_bam_index,
             output_filename = output_filename,
             interval_list = interval_file,
             ref_dict = ref_dict,
@@ -81,8 +68,8 @@ workflow HaplotypeCallerGvcf_GATK4 {
   if (reference != "b37") {
     call HaplotypeCaller_other {
       input:
-        input_bam = if (read_groups == "multiple") then AddEditReadGroups.output_bam else input_bam,
-        input_bam_index = if (read_groups == "multiple") then AddEditReadGroups.output_bam_index else input_bam_index,
+        input_bam = input_bam,
+        input_bam_index = input_bam_index,
         output_filename = output_filename,
         ref_dict = ref_dict,
         ref_fasta = ref_fasta,

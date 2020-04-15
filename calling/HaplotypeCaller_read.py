@@ -24,6 +24,8 @@ def parse_args():
     parser.add_argument('-cm', default='5000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
+    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
+
 
     return parser.parse_args()
 
@@ -43,9 +45,12 @@ def main():
     with open(args['input_path'], 'r') as f:
     	for index, line in enumerate(f):
              if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
+                    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
+    parser.add_argument('-read_groups', default='single')
                   os.system('python3 ' + tool + ' -in_file ' + line.strip('\n') + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' --mem_per_cpu ' + args['mem_per_cpu']
                         + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' -gatk ' + args['gatk_path'] + ' -reference ' + args['reference_path'] + ' -n ' + args['num_cores']
-                        + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -reference_name ' + args['reference_name'])
+                        + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -reference_name ' + args['reference_name']
+                        + ' -picard ' + args['picard'])
 
 def arg_clean(args):
     if args['output_path'] == '/n/data1/hms/dbmi/park/victor/other/': output_dir = args['output_path']

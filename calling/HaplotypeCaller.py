@@ -62,7 +62,6 @@ def main():
         path_to_vcf = os.path.join(ntpath.dirname(ntpath.dirname(ntpath.dirname(sh_file_name))), sample_name)
 
         if not os.path.isfile(path_to_vcf):
-            #print(path_to_vcf)
             submit_job(sh_file_name)
 
 
@@ -131,20 +130,6 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
     with open(dir + 'Input.json', 'w') as f:
         f.write(json.dumps(d))
 
-    """
-    with open(dir + 'Input.json', "r") as f:
-        for _ in range(13):
-            line = f.readline()
-    string = line.split(':')[1].split(',')[0].strip(' ').strip('"')
-
-    with fileinput.FileInput(dir + 'input.json', inplace=True) as file:
-        for line in file:
-            print(line.replace(
-            "path/to/bam", input_file).replace(
-            "path/to/bai", re.sub('\.bam', bai_suffix, input_file)).replace(
-            "output_dir/", args.output_directory + '.HaplotypeCaller/').replace(
-            string, args.scattered_calling_intervals_list), end='')
-    """
     copyfile(overrides, dir + 'Overrides.config')
 
     with fileinput.FileInput(dir + 'Overrides.config', inplace=True) as file:
@@ -164,16 +149,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         contents = "".join(contents)
         f.write(contents)
         f.close()
-    """
-    copyfile(overrides, dir + 'overrides.conf')
-    with fileinput.FileInput(dir + 'overrides.conf', inplace=True) as file:
-        for line in file:
-            print(line.replace(
-            "medium", args.queue), end='')
-    with fileinput.FileInput(dir + 'overrides.conf', inplace=True) as file:
-        for line in file:
-            print(re.sub(r"runtime_minutes = [0-9]*", 'runtime_minutes = ' + args.cromruntime, line), end='')
-    """
+
     copyfile(wdl, os.path.join(dir, 'workflow.wdl'))
 
     return os.path.join(dir,'Input.json'), os.path.join(dir, 'Overrides.config'), os.path.join(dir, 'workflow.wdl')
