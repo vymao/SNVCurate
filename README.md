@@ -148,6 +148,4 @@ usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
 usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE]
 - `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
-
-
-    
+```
