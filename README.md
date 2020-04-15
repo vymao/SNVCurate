@@ -14,12 +14,12 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 4. Run `SetupDatabases.sh` to setup links to relevant Annovar databases. 
 5. Activate the environment. 
 
-### Calling (under SNVCurate/calling/): 
+### Calling (under `SNVCurate/calling/`): 
 1. Run Mutect2 on the renamed BAM files using `Mutect2_read.py`. 
 2. If you desire higher specifity for somatic calls (recommended), run MuSE using `MuSE_read.py`. 
 3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
 
-### Running the pipeline (together) (under SNVCurate/postProcessing/): 
+### Running the pipeline (together) (under `SNVCurate/postProcessing/`): 
 This is best run on an interactive session with 5G of memory. There are two ways to run this pipeline: 
 1. Create a config file. See `config.json` for details.
 2. Run `runAll.sh`.
