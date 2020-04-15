@@ -41,7 +41,7 @@ if [ $normal == "True" ]; then
     annotateCode=$(sh ${pathtoSNVCurate}/Annotate.sh $output_directory $Mutect_directory $reference $csv $germline_path)
 else
     annotateCode=$(sh ${pathtoSNVCurate}/Annotate.sh $output_directory $Mutect_directory $reference $csv)
-done
+fi
 
 
 
