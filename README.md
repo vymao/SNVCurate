@@ -147,7 +147,7 @@ usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PA
 - `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
 - `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
 
-7. `RenameBAMsample.sh`: Bash script to rename `SM` tag in the read groups for each sample according to the sample name. 
+7. `RenameBAMsample.sh`: Bash script to rename `SM` tag in the read groups for each sample according to the sample name. Note: this takes quite a bit of memory and computational capacity so running on an interactive session with sufficient memory is recommended.
 ```
 usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
 ```
