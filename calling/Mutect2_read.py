@@ -1,28 +1,3 @@
-"""This script takes in text files of lists of BAM files and executes the GATK Haplotype and Joint Mutation Callers to produce the desired Output."""
-
-"""
-Testing queries:
-python3 /n/data1/hms/dbmi/park/victor/scripts/BAMs_txt.py -input_path /n/data1/hms/dbmi/park/victor/other/random/Testfile.txt -output_path /n/data1/hms/dbmi/park/victor/other/tests/ -pipeline Germline
-python3 /n/data1/hms/dbmi/park/victor/scripts/BAMs_txt.py -input_path /n/data1/hms/dbmi/park/victor/other/random/Testfile.txt -output_path /n/data1/hms/dbmi/park/victor/other/tests/ -pipeline Germline -t1 2-00:00:00 -t2 1000 
-
-
-
-Actual: 
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Mutect2_read.py -tumor /n/data1/hms/dbmi/park/victor/Doga/Gerburg_WES_2 -normal /n/data1/hms/dbmi/park/victor/Doga/Gerburg_WES_2 -csv /n/data1/hms/dbmi/park/victor/Doga/Gerburg_WES_2/Panc_matched_realigned_list.csv -out /n/data1/hms/dbmi/park/victor/Doga/Gerburg_WES_2 -t 4-0:00:00 -r1 40 -p medium 
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Mutect2_read.py -tumor /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK -normal /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK -csv /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK/tumor_bams_cp.csv -out /n/data1/hms/dbmi/park/doga/Gerburg/bam_files_MSK  -t 4-0:00:00 -r1 0 -r2 100 -reference /n/data1/hms/dbmi/park/victor/references/human_g1k_v37.fasta 
-
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Mutect2_read.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI -normal /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/PancSeq_WES_cohort.csv -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/Mutect_recalibrated  -t 4-0:00:00 -r2 10
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Mutect2_read.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -normal /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/Panc_new_matched_samples.csv -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -t 3-0:00:00 -reference /n/data1/hms/dbmi/park/victor/references/human_g1k_v37.fasta -r2 2
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Mutect2_read.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -pon /n/data1/hms/dbmi/park/victor/references/TCGA_1000_PON.b37.vcf -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/Panc_new_matched_samples.csv -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -t 3-0:00:00 -r1 50 -r2 75
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/Mutect2_read.py -tumor /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/edited_bams -pon /n/data1/hms/dbmi/park/victor/references/TCGA_1000_PON.hg19.REORDERED.vcf -csv /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/edited_bams/Tumor_Normal.csv -out /n/data1/hms/dbmi/park/doga/FoundationOne/sourceData/Mutect2_4.1.2.0 -t 3-12:00:00 -reference /home/mk446/BiO/Install/GATK-bundle/2.8/hg19/ucsc.hg19.fasta -p medium
-
-
-"""
 import argparse
 import os
 import re
@@ -31,7 +6,6 @@ import sys
 
 def parse_args():
     """Uses argparse to enable user to customize script functionality""" 
-    #BE SURE TO ADD MULTIPLE TEXT FILE ARGUMENTS Later
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-tumor', '--input_tumor_path', help='path to input tumor file')
     parser.add_argument('-normal', '--input_normal_path', help='path to normal file')
@@ -44,9 +18,6 @@ def parse_args():
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')
-    parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK3.5_160425_g7a7b7cd/GenomeAnalysisTK.jar', help='path to software')
-    # parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/lawrence/bin/GenomeAnalysisTK-3.8-1-0-gf15c1c3ef/GenomeAnalysisTK.jar', help='path to software')
-    parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
     parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf', help='path to dbsnp file')
@@ -55,26 +26,33 @@ def parse_args():
     parser.add_argument('-scatter', '--scatter_size', default='50')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
     parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
-
+    parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
+    parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
+    parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
+    parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
+    parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
+    parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to software')
     return parser.parse_args()
 
 def arg_clean(args):
-    """Cleaning the parsed arguments. Specifically, this function does the following: 
-    1. Finds the host filename
-    2. Finds the desired output directory
-    3. Creates a new output directory within the specified directory
-    4. Specifies the appropriate script, depending on the desired pipeline
-    """
-    if '.csv' in args['csv']:
-        filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
-    else:
-        args['csv'] = args['csv'] + '.csv'
-        filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
-
-    #if args['out'] == './': output_dir = args['out']
     if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd()
     else: output_dir = args['output_directory'] 
+
     return output_dir
+
+def generate_regions_files(args):
+    regions_out_directory = os.path.join(args.output_directory, '.Mutect2/.regions/')
+    os.makedirs(regions_out_directory, exist_ok=True)
+    os.system(args.gatk_path + ' SplitIntervals' + '\\' + '\n' + \
+     '\t' + '-R ' + args.reference_path + ' \\' + '\n' + \
+     '\t' + '-scatter ' + args.scatter_size + ' \\' + '\n' + \
+     '\t' + '-O ' + regions_out_directory + ' \\')
+    sleep(10)
+
+def return_region_files(args):
+    regions_out_directory = os.path.join(args.output_directory, '.Mutect2/.regions/')
+    region_files = [os.path.join(regions_out_directory, file) for file in os.listdir(regions_out_directory)]
+    return region_files
 
 def get_column(csv, sample):
     with open(csv, 'r') as file:
@@ -99,7 +77,8 @@ def get_bam(csv, row, column):
                     return result[column]
 
 def main(): 
-    tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/Mutect2.py'
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    tool = os.path.join(dirname, 'Mutect2.py')
     args = vars(parse_args())
     output_dir = arg_clean(args)
 
@@ -113,7 +92,16 @@ def main():
 
     os.system('module load gcc/6.2.0 python/3.6.0 java perl')
 
-    #Getting the indices
+    if args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta':
+        regions_out_directory = os.path.join(args.output_directory, '.Mutect2/.regions/')
+        intervals_list_file = os.path.join(regions_out_directory, 'scattered_intervals.txt')
+        generate_regions_files(args)
+        region_files = return_region_files(args)
+        with open(intervals_list_file, 'a') as intervals:
+            for file in region_files:
+                intervals.write(file)
+        args['interval_list'] = intervals_list_file
+
     tumor_index = get_column(args['csv'], "T")
     normal_index = get_column(args['csv'], "N")
 
@@ -122,31 +110,22 @@ def main():
             if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
                 current_tumor_sample = get_bam(args['csv'], index, tumor_index)
                 current_normal_sample = get_bam(args['csv'], index, normal_index)
-                #print(current_normal_sample)
 
                 if current_tumor_sample is None or current_normal_sample is None:
-                    #continue
                     if current_normal_sample is None and current_tumor_sample is not None and args['panel'] != 'nopath': 
                         tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
-                        os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
+                        os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
                             ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
-                            + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + args['gnomad_path'])
-                        #print('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
-                        #    ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'])                        
+                            + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'])                    
                     else:
                         continue
                 else: 
                     tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
                     normal_sample = os.path.join(args['input_normal_path'], get_bam(args['csv'], index, normal_index))
 
-                    os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
+                    os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
                         ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
-                        + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'])
-
-                    #print(tumor_sample)
-                    #print(normal_sample)
-                    #print('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
-                     #   ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'])
+                        + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'])
 
 if __name__ == "__main__":
     main()

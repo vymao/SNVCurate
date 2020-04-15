@@ -1,17 +1,3 @@
-"""This script takes in text files of lists of BAM files and executes the GATK Haplotype and Joint Mutation Callers to produce the desired Output."""
-
-"""
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE_run.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/recalibrated_aligned -normal /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/recalibrated_aligned -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/MuSE_v2 -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/recalibrated_aligned/PancSeq_WES_cohort.csv -mode call -r2 20 -data_type WES
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE_run.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/recalibrated_aligned -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/MuSE_v2 -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI/MuSE_v2/PancSeq_WES_cohort/.MuSE/called_list.csv -mode sump -data_type WES -t 0-01:00:00 --mem_per_cpu 5G -r1 0 -r2 1
-
-
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE_run.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -normal /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/MuSE -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/Panc_new_matched_samples_WES.csv -mode call -r1 2 
-python3 /n/data1/hms/dbmi/park/victor/scripts/other/MuSE_run.py -tumor /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/MuSE/Panc_new_matched_samples_WES -out /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/MuSE -csv /n/data1/hms/dbmi/park/DATA/PARP_Panc_DFCI_panel/MuSE/Panc_new_matched_samples_WES/tumor_list.csv -mode sump -t 0-01:00:00 --mem_per_cpu 5G -r1 0 -r2 1
-
-
-
-"""
 import argparse
 import os
 import re
@@ -21,7 +7,6 @@ import glob
 
 def parse_args():
     """Uses argparse to enable user to customize script functionality""" 
-    #BE SURE TO ADD MULTIPLE TEXT FILE ARGUMENTS Later
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-tumor', '--input_tumor_path', help='path to input tumor file')
     parser.add_argument('-normal', '--input_normal_path', help='path to normal file')
@@ -37,28 +22,17 @@ def parse_args():
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
-    parser.add_argument('-mode', default='call')
     parser.add_argument('-data_type', default='WGS')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
     parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
+    parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
+    parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
+    parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
+    parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
 
     return parser.parse_args()
 
 def arg_clean(args):
-    """Cleaning the parsed arguments. Specifically, this function does the following: 
-    1. Finds the host filename
-    2. Finds the desired output directory
-    3. Creates a new output directory within the specified directory
-    4. Specifies the appropriate script, depending on the desired pipeline
-    """
-    if args['csv'] is not None: 
-    	if '.csv' in args['csv']:
-             filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
-    	else:
-             args['csv'] = args['csv'] + '.csv'
-             filename = re.findall('/[A-Za-z0-9_]*\.', args['csv'])[0][1:-1]
-
-    #if args['out'] == './': output_dir = args['out']
     if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd() 
     else: output_dir = args['output_directory']
 
@@ -91,12 +65,13 @@ def get_bam(csv, row, column):
                     return result[column]
 
 def main(): 
-    tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/other/MuSE.py'
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    tool = os.path.join(dirname, 'MuSE.py')
     args = vars(parse_args())
-    if args['mail_user'] is None or (args['csv'] is None and args['mode'] == 'call'): 
+    if args['mail_user'] is None: 
         print('No email given.')
         sys.exit()
-    elif args['csv'] is None and args['mode'] == 'call':
+    elif args['csv'] is None:
         print('No csv given.')
         sys.exit()
     output_dir = arg_clean(args)
@@ -108,38 +83,24 @@ def main():
 
     os.system('module load gcc/6.2.0 python/3.6.0 java perl')
 
-    if args['mode'].lower() == 'call':
-        tumor_index = get_column(args['csv'], "T")
-        normal_index = get_column(args['csv'], "N")
-        with open(args['csv'], 'r') as f:
-            for index, line in enumerate(f):
-                if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
-                    current_tumor_sample = get_bam(args['csv'], index, tumor_index)
-                    current_normal_sample = get_bam(args['csv'], index, normal_index)
-                    #print(current_normal_sample)
+    tumor_index = get_column(args['csv'], "T")
+    normal_index = get_column(args['csv'], "N")
+    with open(args['csv'], 'r') as f:
+        for index, line in enumerate(f):
+            if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
+                current_tumor_sample = get_bam(args['csv'], index, tumor_index)
+                current_normal_sample = get_bam(args['csv'], index, normal_index)
 
-                    if current_tumor_sample is None or current_normal_sample is None:
-                        continue
-                    else: 
-                        tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
-                        normal_sample = os.path.join(args['input_normal_path'], get_bam(args['csv'], index, normal_index))
+                if current_tumor_sample is None or current_normal_sample is None:
+                    continue
+                else: 
+                    tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
+                    normal_sample = os.path.join(args['input_normal_path'], get_bam(args['csv'], index, normal_index))
 
-                        os.system('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
-                            ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] 
-                            + ' -data_type ' + args['data_type'])
+                    os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
+                        ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
+                        + ' -data_type ' + args['data_type'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -dbsnp ' + args['dbsnp_path'])
 
-                        #print('python3 ' + tools_dir + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + 
-                        #    ' -p ' + args['queue'] + ' --mail_user ' + args['mem_per_cpu'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'])
-
-    elif args['mode'].lower() == 'sump':
-        called = collect_called(args['input_tumor_path'])
-        for line in called: 
-                tumor = line.strip();
-                os.system('python3 ' + tools_dir + ' -tumor ' + tumor + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
-                        ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -mode ' + args['mode'] 
-                        + ' -data_type ' + args['data_type'])
-    else: 
-        print('Invalid mode.')
 
 if __name__ == "__main__":
     main()
