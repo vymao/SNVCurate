@@ -1,0 +1,22 @@
+{
+  "email": "victor_mao@hms.harvard.edu",
+  "BAM_path": "/n/data1/hms/dbmi/park/victor/other/pipeline_test/renamed_bams",
+  "Mutect_directory": "/n/data1/hms/dbmi/park/victor/other/pipeline_test/new_wdl/.MuTecT2",
+  "MuSE_path": "/n/data1/hms/dbmi/park/victor/other/pipeline_test/new_wdl/.MuSE", 
+  "MuSE": "True", 
+  "germline_path": "/n/data1/hms/dbmi/park/victor/other/pipeline_test/renamed_bams/.HaplotypeCaller",
+  "normal": "True",
+  "output_directory": "/n/data1/hms/dbmi/park/victor/other/pipeline_test/combined_output",
+  "reference_path": "/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta",
+  "panel_path": "/n/data1/hms/dbmi/park/victor/references/TCGA_1000_PON.b37.vcf",
+  "reference": "hg19",
+  "data_type": "WES", 
+  "csv": "/n/data1/hms/dbmi/park/victor/scripts/SNVCurate/Tumor_Normal_sample.csv",
+  "database_path": "/n/data1/hms/dbmi/park/victor/other/pipeline_test/databases",
+  "alt_cut": 4,
+  "tot_cut": 10,
+  "vaf_cut": 0.05, 
+  "maf_cut": 0.01,
+  "filter_with_panel": "True"
+
+}
