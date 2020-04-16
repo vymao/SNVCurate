@@ -55,7 +55,7 @@ sh Filter.sh /path/to/filtering_output_directory /path/to/HaplotypeCaller_output
 sh Annotate.sh /path/to/filtering_output_directory /path/to/Mutect2_output_directory hg19 /path/to/tumor_normal.csv /path/to/HaplotypeCaller_output_directory 
 ```
 
-**OR
+**OR**
 
 ```
 sh runAll.sh /path/to/sample_config.json
