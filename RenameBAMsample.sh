@@ -17,8 +17,8 @@ output_dir=$2
 
 for file in ${bam_dir}/*.bam; do
 	sample=$(basename $file | cut -d'.' -f1)
-	samtools view -H $file > ${bam_dir}/${sample}_header.sam
-	sed -i -e "s/\tSM:[^[:space:]]*\t/\tSM:${sample}\t/" ${bam_dir}/${sample}_header.sam
-	samtools reheader ${bam_dir}/${sample}_header.sam ${file} > ${output_dir}/${sample}.bam
+	samtools view -H $file > ${output_dir}/${sample}_header.sam
+	sed -i -e "s/\tSM:[^[:space:]]*\t/\tSM:${sample}\t/" ${output_dir}/${sample}_header.sam
+	samtools reheader ${output_dir}/${sample}_header.sam ${file} > ${output_dir}/${sample}.bam
         samtools index ${output_dir}/${sample}.bam 
 done
