@@ -30,6 +30,31 @@ This is best run on an interactive session with 5G of memory. There are two ways
 2. Run the script `Filter.sh` to filter the intersection.
 3. Run the script `Annotate.sh` to finish. 
 
+## Example:
+The files under `SNVCurate/test/` were used for generating the callsets within that folder. The BAM files used for calling are at `/n/data1/hms/dbmi/park/victor/other/pipeline_test/bam_files`, and the steps utilized documented below (the actual file paths should be changed). 
+1. Setup: 
+```
+conda env create -f environment.yml
+conda activate SNVCurate
+sh RenameBAMsample.sh /path/to/bam_files /path/to/empty/directory/for/renamed_bams
+sh SetupDatabases.sh /path/to/empty/directory/for/databases hg19
+```
+
+
+2. Calling:
+```
+python3 Mutect2_read.py -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/Mutect2_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park
+python3 MuSE_read.py -tumor -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/MuSE_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -data_type WES -r1 1 -r2 2 -p medium
+python3 HaplotypeCaller_read.py -tumor /path/to/HaplotypeCaller_samples.csv -out /path/to/HaplotypeCaller_output_directory -csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park -reference_name b37
+```
+
+3. Filtering:
+```
+sh Intersect.sh /path/to/filtering_output_directory /path/to/Mutect2_output_directory /path/to/MuSE_output_directory
+sh Filter.sh /path/to/filtering_output_directory /path/to/HaplotypeCaller_output_directory True /path/to/tumor_normal.csv 4 10 0.05 0.01 hg19 /path/to/databases /path/to/bam_files True /path/to/panel
+sh Annotate.sh /path/to/filtering_output_directory /path/to/Mutect2_output_directory hg19 /path/to/tumor_normal.csv /path/to/HaplotypeCaller_output_directory 
+```
+
 ## Information about relevant scripts: 
 1. `Mutect2_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
 ```
@@ -134,7 +159,7 @@ usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [PANE
 - `[PATH_TO_ANNOVAR_DATABASES]`: A path to a directory for which the script will output soft links to Annovar databases, along with custom filtering BED files. 
 - `[BAM_PATH]`: The full path to the directory of BAM files.
 - `[FILTER_WITH_PANEL]`: True (if PoN filtering is desired), False (otherwise). Currently, panel filtering is only supported for hg19/b37.
-- `[PANEL]` (optional): The path to a Panel of Normals to filter with, if desired.
+- `[PANEL]` (optional): The path to a Panel of Normals to filter with, if desired. For hg19/b37, the TCGA panel located at `/n/data1/hms/dbmi/park/victor/references/` is recommended.
 
 6. `Annotate.sh`: Bash script to annotate the filtering results and merge them into final annotated callsets. 
 ```
