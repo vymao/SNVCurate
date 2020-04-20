@@ -32,6 +32,7 @@ This is best run on an interactive session with 5G of memory. There are two ways
 
 ## Example:
 The files under `SNVCurate/test/` were used for generating the callsets within that folder. The BAM files used for calling are at `/n/data1/hms/dbmi/park/victor/other/pipeline_test/bam_files`, and the steps utilized documented below (the actual file paths should be changed). 
+
 Running an interactive session: 
 ```
 srun --pty -t 0-2:0:0 --mem 5G -p interactive /bin/bash
