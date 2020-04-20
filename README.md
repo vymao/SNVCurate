@@ -1,6 +1,6 @@
 # SNVCurate
 A pipeline for producing a callset of somatic mutations. It also provides a method to curate targeted capture regions in the event that this BED file is not available. 
-This pipeline is used only for running on Orchestra, the Harvard Medical School cluster. 
+This pipeline is used only for running on Orchestra, the Harvard Medical School cluster, with the SLURM job scheduler. 
 
 **Note: This pipeline presumes that the BAM files are formatted properly (demultiplexed and indexed correctly). If no matched normal is available, run this pipeline using another normal of the same sequencing type.**
 
@@ -32,6 +32,10 @@ This is best run on an interactive session with 5G of memory. There are two ways
 
 ## Example:
 The files under `SNVCurate/test/` were used for generating the callsets within that folder. The BAM files used for calling are at `/n/data1/hms/dbmi/park/victor/other/pipeline_test/bam_files`, and the steps utilized documented below (the actual file paths should be changed). 
+Running an interactive session: 
+```
+srun --pty -t 0-2:0:0 --mem 5G -p interactive /bin/bash
+```
 
 For setup and calling: 
 ```
