@@ -33,8 +33,6 @@ def main():
                 new_files.append(os.path.join(path_to_coverage, coverage_sample))
 
 
-    master = {}
-
     for file in new_files: 
         sample = os.path.basename(file).split('.')[0]
 
@@ -50,20 +48,13 @@ def main():
         for chrm in chromosomes: 
             coverage_chr[chrm] = df[df['CHROM'] == chrm]
 
-        master[sample] = coverage_chr
-
-    for key in master.keys():
-        coverage_chr = master[key]
         test = pd.DataFrame([[]])
         for chrom in coverage_chr.keys():
             filtered = coverage_chr[chrom]
             filtered = filtered[filtered['COVERAGE'] >= int(args['cut'])].drop(columns = ['COVERAGE'])
             test = pd.concat([test, filtered])
 
-        master[key] = test.dropna()
-
-    for key in master.keys():
-        cov_cut_bed = master[key]
+        cov_cut_bed = test
         df2 = pd.DataFrame([[]])
         current_chrom = cov_cut_bed.iloc[0][0]
         current_start = cov_cut_bed.iloc[0][1]
@@ -83,7 +74,7 @@ def main():
         df2 = df2.astype({'START': 'int32'})
         df2 = df2.astype({'END': 'int32'})
         
-        output_name = key + '.cov_cut_mergedadjacent.bed'
+        output_name = sample + '.cov_cut_mergedadjacent.bed'
         df2.to_csv(os.path.join(output, output_name), index = False, header = False, sep = '\t')
 
 
