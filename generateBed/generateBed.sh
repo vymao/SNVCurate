@@ -19,10 +19,13 @@ csv=$3
 out=$4
 cut=$5
 
-dir=$(dirname $input_bam)
-sample=$(basename $input_bam | cut -d'.' -f1)
+for file in ${input_bam}/*.bam; do
+    sample=$(basename ${file} | cut -d'.' -f1)
+    if [ ! -f ${out}/${sample}.coverage ]; then
+         bedtools genomecov -bg -ibam ${file} -g ${reference} > ${out}/${sample}.coverage
+    fi
+done
 
-bedtools genomecov -bg -ibam ${input_bam} -g ${reference} > ${out}/${sample}.coverage
 
 python3 ${path2SNVCurate}/analyzeCoverage.py -input_dir ${out} -csv ${csv} -cut ${cut} -out ${out}
 

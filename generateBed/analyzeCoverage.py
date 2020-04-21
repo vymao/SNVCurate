@@ -1,10 +1,8 @@
 import pandas as pd
 import numpy as np
 import glob
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import os
-import seaborn as sbn
+import argparse
 
 
 def parse_args():
@@ -146,3 +144,5 @@ def gen_dummies(vcfs, Genotyped = True):
     return vcfs
 
 
+if __name__ == "__main__":
+    main()
