@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/af-only-gnomad.raw.sites.b37.vcf', help='path to dbsnp file')
     #parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
     parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
-    #parser.add_argument('-scatter', '--scatter_size', default='50')
+    parser.add_argument('-scatter', '--scatter_size', default='50')
     parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
 
     parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
@@ -45,7 +45,7 @@ def main():
     wdl = os.path.join(dirname, 'Mutect2.wdl')
     json = os.path.join(dirname, 'Mutect2_Inputs.json') 
 
-    sample_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
+    sample_name = ntpath.basename(args.input_tumor_path).split('.')[0]
     path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".Mutect2", sample_name)), sample_name + '.vcf') 
     vcf_dir = os.path.join(args.output_directory, os.path.join(".Mutect2", sample_name))
     os.makedirs(vcf_dir, exist_ok=True) 
@@ -89,22 +89,26 @@ def return_slurm_command(args):
 
 def generate_cromwell_inputs(args, json_file, wdl, overrides):
     input_file = args.input_tumor_path
-    normal_file = args.input_normal_path
+    tumor_sample = os.path.basename(input_file).split('.')[0]
     dir = args.output_directory + '.Mutect2/' + '.' + os.path.basename(input_file).split('.')[0] + '/'
     os.makedirs(dir, exist_ok=True)
 
     bam_dir = os.path.dirname(input_file)
     bam_sample = os.path.basename(input_file)
-    normal_dir = os.path.dirname(normal_file)
-    normal_sample = os.path.basename(normal_file)
 
     bai_suffix = '.bai'
     bam_path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
-    normal_path = os.path.join(normal_dir, re.sub('.bam', '.bam.bai', normal_sample))
+
+    if args.panel == "nopath":
+        normal_file = args.input_normal_path
+        normal_sample_name = os.path.basename(normal_file).split('.')[0]
+        normal_dir = os.path.dirname(normal_file)
+        normal_sample = os.path.basename(normal_file)
+        normal_path = os.path.join(normal_dir, re.sub('.bam', '.bam.bai', normal_sample))
 
     if not (os.path.isfile(bam_path) and os.access(bam_path, os.R_OK)):
         bam_path = os.path.join(bam_dir, re.sub('.bam', '.bai', bam_sample))
-    if not (os.path.isfile(normal_path) and os.access(normal_path, os.R_OK)):
+    if not (os.path.isfile(normal_path) and os.access(normal_path, os.R_OK)) and args.panel == "nopath":
         normal_path = os.path.join(normal_dir, re.sub('.bam', '.bai', normal_sample))
     
     copyfile(json_file, dir + 'Input.json')
@@ -130,10 +134,12 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
             d["MuTecT.normal_bam"] = normal_file
             d["MuTecT.normal_bam_index"] = normal_path
             d["MuTecT.mode"] = "normal"
+            d["MuTecT.normal_name"] = normal_sample_name
         else: 
             d["MuTecT.panel"] = args.panel
             d["MuTecT.panel_bam_index"] = args.panel + '.idx'
             d["MuTecT.mode"] = "panel"
+            d["MuTecT.normal_name"] = "NA"
 
     with open(dir + 'Input.json', 'w') as f:
         f.write(json.dumps(d))

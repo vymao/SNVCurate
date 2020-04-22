@@ -22,6 +22,7 @@ workflow MuTecT {
   File gnomad_index
   String output_directory
   String mode
+  String normal_name
 
   Boolean? make_gvcf
   Boolean making_gvcf = select_first([make_gvcf,true])
@@ -57,7 +58,8 @@ workflow MuTecT {
             gatk_path = gatk_path, 
             gnomad = gnomad,
             gnomad_index = gnomad_index,
-            regions_list = interval_file
+            regions_list = interval_file,
+            normal_name = normal_name
         }
     }
 
@@ -131,6 +133,7 @@ task MuTecT_normal {
   File regions_list
   File gnomad
   File gnomad_index
+  String normal_name
 
   String output_filename
   File ref_dict
@@ -138,7 +141,6 @@ task MuTecT_normal {
   File ref_fasta_index
 
   String gatk_path
-  String normal_name = basename(normal_bam, ".bam")
 
   # Runtime parameters
   String docker

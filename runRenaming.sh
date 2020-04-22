@@ -12,14 +12,15 @@
 
 module load gcc/6.2.0 samtools
 
-path2SNVCurate="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-bam_dir=$1
+file=$1
 output_dir=$2
 
-for file in ${bam_dir}/*.bam; do
-	sample=$(basename $file | cut -d'.' -f1)
-        if [ ! -f ${output_dir}/${sample}.bam ]; then
-              sbatch ${path2SNVCurate}/runRenaming.sh ${file} ${output_dir}
-              #echo $path2SNVCurate
-        fi 
-done
+sample=$(basename $file | cut -d'.' -f1)
+if [ ! -f ${output_dir}/${sample}.bam ]; then
+      samtools view -H $file > ${output_dir}/${sample}_header.sam
+      sed -i -e "s/\tSM:[^[:space:]]*\t/\tSM:${sample}\t/" ${output_dir}/${sample}_header.sam
+      samtools reheader ${output_dir}/${sample}_header.sam ${file} > ${output_dir}/${sample}.bam
+      samtools index ${output_dir}/${sample}.bam
+fi
+
+
