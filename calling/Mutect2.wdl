@@ -116,17 +116,20 @@ workflow MuTecT {
 
 
   call MergeVCFs {
-    input:
-      if (mode == "normal") {
+    if (mode == "normal") {
+      input:
         input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf,
         input_vcfs_indexes = if (parallel == "True") then MuTecT_normal.output_vcf_index else MuTecT_single.output_vcf_index,
-      } 
-      if (mode == "panel") {
+        output_filename = output_filename,
+        output_directory = output_directory
+    }
+    if (mode == "panel") { 
+      input:
         input_vcfs = MuTecT_PoN.output_vcf,
- 	input_vcfs_indexes = MuTecT_PoN.output_vcf_index,
-      }
-      output_filename = output_filename,
-      output_directory = output_directory
+        input_vcfs_indexes = MuTecT_PoN.output_vcf_index,
+        output_filename = output_filename,
+        output_directory = output_directory
+    }
 
   }
 
