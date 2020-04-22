@@ -13,7 +13,7 @@
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
 
-main=$3
+path2MuSE=$3
 path2Mutect=$2
 out=$1
 package_path=$(dirname "$(readlink -f "$0")")
@@ -49,9 +49,9 @@ for path in ${path2Mutect}/*; do
     mv ${dirname}.PASS_MuTecT.vcf ${test_dir}/intersection_files
 done
 
-if ! [ -z "$main" ]; then
-    cd $main 
-    for path in ${main}/*; do 
+if ! [ -z "$path2MuSE" ]; then
+    cd $path2MuSE 
+    for path in ${path2MuSE}/*; do 
         [ -d "${path}" ] || continue 
         cd $path
 
