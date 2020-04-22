@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('-gnomad', '--gnomad_path', default='/n/data1/hms/dbmi/park/victor/software/GATK_bundle/af-only-gnomad.hg19.vcf', help='path to cosmic file' )
     parser.add_argument('-scatter', '--scatter_size', default='50')
     parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
-
+    parser.add_argument('-parallel', default='False')
     parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
@@ -135,6 +135,8 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
             d["MuTecT.normal_bam_index"] = normal_path
             d["MuTecT.mode"] = "normal"
             d["MuTecT.normal_name"] = normal_sample_name
+            if args.parallel == "False":
+                d["MuTecT.scatter"] = "False"
         else: 
             d["MuTecT.panel"] = args.panel
             d["MuTecT.panel_bam_index"] = args.panel + '.idx'
