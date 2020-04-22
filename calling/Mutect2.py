@@ -84,7 +84,7 @@ def return_slurm_command(args):
                 '#SBATCH --mail-user=' + args.mail_user + '\n' 
     if args.queue in ['park', 'priopark']:
         slurm_command += '#SBATCH --account=park_contrib' + '\n'
-    slurm_command += 'module load java/jdk-1.8u112' + '\n'
+    slurm_command += 'module load gcc java/jdk-1.8u112 bcftools' + '\n'
     return slurm_command
 
 def generate_cromwell_inputs(args, json_file, wdl, overrides):

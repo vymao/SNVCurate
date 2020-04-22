@@ -90,7 +90,7 @@ def main():
         print("Invalid r1 parameter. r1 must be greater than 0 to account for headers")
         sys.exit()
 
-    os.system('module load gcc/6.2.0 python/3.6.0 java perl')
+    os.system('module load gcc/6.2.0 python/3.6.0 java bcftools')
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
     if (args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta') and args['parallel'].lower() == "true":
@@ -130,7 +130,7 @@ def main():
                     os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
                         ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
                         + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] 
-                        + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'])
+                        + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'])
 
 if __name__ == "__main__":
     main()

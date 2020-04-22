@@ -31,7 +31,7 @@ workflow MuTecT {
 
   String gatk_path
   
-  String sample_basename =e basename(input_bam, ".bam")
+  String sample_basename = basename(input_bam, ".bam")
   
   String vcf_basename = sample_basename
 
@@ -125,10 +125,10 @@ workflow MuTecT {
 
   call FilterMutectCalls {
     input:
-      input_vcf = if (parallel == "True") then MergeVCFs.output_vcf else MuTect_single.output_vcf,
+      input_vcf = if (parallel == "True") then MergeVCFs.output_vcf else MuTecT_single.output_vcf,
       output_filename = output_filename,
       gatk_path = gatk_path,
-      input_stats = if (parallel == "True") then MergeMutectStats.output_stats else MuTect_single.output_stats,
+      input_stats = if (parallel == "True") then MergeMutectStats.output_stats else MuTecT_single.output_stats,
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,  
@@ -301,7 +301,7 @@ task MergeVCFs {
 
   command <<<
   set -e
-
+    module load bcftools
     bcftools concat ${sep=' ' input_vcfs} -o ${output_filename}
   >>>
 
