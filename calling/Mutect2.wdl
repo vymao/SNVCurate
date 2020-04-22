@@ -23,10 +23,7 @@ workflow MuTecT {
   String output_directory
   String mode
   String normal_name
-  String scatter
-
-  Boolean? make_gvcf
-  Boolean making_gvcf = select_first([make_gvcf,true])
+  String parallel
 
   Array[File] scattered_calling_intervals = read_lines(interval_list)
 
@@ -43,7 +40,7 @@ workflow MuTecT {
 
 
   if (mode == "normal") {
-    if (scatter == "True") {
+    if (parallel  == "True") {
       scatter (interval_file in scattered_calling_intervals) {
           call MuTecT_normal {
             input:
@@ -65,7 +62,7 @@ workflow MuTecT {
       }
     } 
 
-    if (scatter = "False") {
+    if (parallel == "False") {
       call MuTecT_single {
         input:
           input_bam = input_bam,
@@ -120,8 +117,14 @@ workflow MuTecT {
 
   call MergeVCFs {
     input:
-      input_vcfs = if (mode == "normal") then MuTecT_normal.output_vcf else MuTecT_PoN.output_vcf,
-      input_vcfs_indexes = if (mode == "normal") then MuTecT_normal.output_vcf_index else MuTecT_PoN.output_vcf_index,
+      if (mode == "normal") {
+        input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf,
+        input_vcfs_indexes = if (parallel == "True") then MuTecT_normal.output_vcf_index else MuTecT_single.output_vcf_index,
+      } 
+      if (mode == "panel") {
+        input_vcfs = MuTecT_PoN.output_vcf,
+ 	input_vcfs_indexes = MuTecT_PoN.output_vcf_index,
+      }
       output_filename = output_filename,
       output_directory = output_directory
 

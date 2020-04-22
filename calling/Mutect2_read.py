@@ -93,7 +93,7 @@ def main():
     os.system('module load gcc/6.2.0 python/3.6.0 java perl')
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
-    if args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta' :
+    if (args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta') and args['parallel'].lower() == "true":
         regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
         intervals_list_file = os.path.join(regions_out_directory, reference_name + '.scattered_intervals.list')
         if os.path.isfile(intervals_list_file):
