@@ -57,9 +57,9 @@ def main():
         sh_file_name = gen_sh_file_name(args, output_file_name)
         write_out(args, slurm_command, primary_command, sh_file_name)
 
-        sample_name = ntpath.basename(sh_file_name).split('.bam')[0] + '.vcf'  
-        path_to_vcf = os.path.join(ntpath.dirname(ntpath.dirname(ntpath.dirname(sh_file_name))), sample_name)
-
+        sample_name = ntpath.basename(sh_file_name).split('.')[0] + '.vcf'
+        sample_dir = os.path.join(ntpath.basename(sh_file_name).split('.')[0], sample_name)  
+        path_to_vcf = os.path.join(ntpath.dirname(ntpath.dirname(ntpath.dirname(sh_file_name))), sample_dir)
         if not os.path.isfile(path_to_vcf):
             submit_job(sh_file_name)
 

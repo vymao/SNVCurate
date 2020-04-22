@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument('-output_path', default='/n/data1/hms/dbmi/park/victor/other/', help='Path to where the final pipeline output will be written to. Default output will be to /n/data1/hms/dbmi/park/victor/other/.')
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('-t', '--runtime', default='0-15:0:0', help='slurm job submission option')
-    parser.add_argument('-r1', default=0, help='Lower range bound of indices of BAMs to run')
+    parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
     parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
@@ -35,6 +35,10 @@ def main():
     dirname = os.path.dirname(os.path.abspath(__file__))
     tool = os.path.join(dirname, 'HaplotypeCaller.py')
     args = vars(parse_args())
+
+    if int(args['r1']) == 0:
+        print("Invalid r1 parameter. r1 must be greater than 0 to account for headers")
+        sys.exit()
 
     if args['mail_user'] is None:
         print('No email given.')

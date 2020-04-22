@@ -99,7 +99,7 @@ def main():
 
                     os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
                         ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
-                        + ' -data_type ' + args['data_type'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -dbsnp ' + args['dbsnp_path'])
+                        + ' -data_type ' + args['data_type'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell_path'] + ' -dbsnp ' + args['dbsnp_path'])
 
 
 if __name__ == "__main__":
