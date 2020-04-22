@@ -42,23 +42,23 @@ workflow MuTecT {
   if (mode == "normal") {
     if (parallel  == "True") {
       scatter (interval_file in scattered_calling_intervals) {
-          call MuTecT_normal {
-            input:
-              input_bam = input_bam,
-              input_bam_index = input_bam_index,
-              normal_bam = normal_bam,
-              normal_bam_index = normal_bam_index,
-              output_filename = output_filename,
-              ref_dict = ref_dict,
-              ref_fasta = ref_fasta,
-              ref_fasta_index = ref_fasta_index,
-              docker = gatk_docker,
-              gatk_path = gatk_path, 
-              gnomad = gnomad,
-              gnomad_index = gnomad_index,
-              regions_list = interval_file,
-              normal_name = normal_name
-          }
+        call MuTecT_normal {
+          input:
+            input_bam = input_bam,
+            input_bam_index = input_bam_index,
+            normal_bam = normal_bam,
+            normal_bam_index = normal_bam_index,
+            output_filename = output_filename,
+            ref_dict = ref_dict,
+            ref_fasta = ref_fasta,
+            ref_fasta_index = ref_fasta_index,
+            docker = gatk_docker,
+            gatk_path = gatk_path, 
+            gnomad = gnomad,
+            gnomad_index = gnomad_index,
+            regions_list = interval_file,
+            normal_name = normal_name
+        }
       }
     } 
 
@@ -80,30 +80,28 @@ workflow MuTecT {
           normal_name = normal_name
       }
     } 
-
-
   }
 
 
   if (mode == "panel") {
     scatter (interval_file in scattered_calling_intervals) {
       call MuTecT_PoN {
-          input:
-            input_bam = input_bam,
-            input_bam_index = input_bam_index,
-            panel = panel,
-            panel_index = panel_index,
-            output_filename = output_filename,
-            regions_list = interval_file,
-            ref_dict = ref_dict,
-            ref_fasta = ref_fasta,
-            ref_fasta_index = ref_fasta_index,
-            docker = gatk_docker,
-            gatk_path = gatk_path, 
-            gnomad = gnomad,
-       	    gnomad_index = gnomad_index,
-            regions_list = interval_file
-        }
+        input:
+          input_bam = input_bam,
+          input_bam_index = input_bam_index,
+          panel = panel,
+          panel_index = panel_index,
+          output_filename = output_filename,
+          regions_list = interval_file,
+          ref_dict = ref_dict,
+          ref_fasta = ref_fasta,
+          ref_fasta_index = ref_fasta_index,
+          docker = gatk_docker,
+          gatk_path = gatk_path, 
+          gnomad = gnomad,
+     	    gnomad_index = gnomad_index,
+          regions_list = interval_file
+      }
     }
   }
 
@@ -112,8 +110,8 @@ workflow MuTecT {
   File input_vcfs_indexes
 
   if (mode == "normal") {
-    input_stats = if (parallel == "True") then MuTecT_normal.output_stats else MuTecT_single.output_stats,
-    input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf,
+    input_stats = if (parallel == "True") then MuTecT_normal.output_stats else MuTecT_single.output_stats
+    input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf
     input_vcfs_indexes = if (parallel == "True") then MuTecT_normal.output_vcf_index else MuTecT_single.output_vcf_index
   }
 
