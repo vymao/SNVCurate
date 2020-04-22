@@ -31,7 +31,7 @@ workflow MuTecT {
 
   String gatk_path
   
-  String sample_basename = basename(input_bam, ".bam")
+  String sample_basename =e basename(input_bam, ".bam")
   
   String vcf_basename = sample_basename
 
@@ -105,38 +105,30 @@ workflow MuTecT {
     }
   }
 
-  File input_stats
-  File input_vcfs
-  File input_vcfs_indexes
+  if (parallel == "True") {
+    call MergeMutectStats {
+      input:
+        input_stats = if (mode == "normal") then MuTecT_normal.output_stats else MuTecT_PoN.output_stats,
+        output_filename = output_filename,
+        gatk_path = gatk_path
+    }
 
-  if (mode == "normal") {
-    input_stats = if (parallel == "True") then MuTecT_normal.output_stats else MuTecT_single.output_stats
-    input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf
-    input_vcfs_indexes = if (parallel == "True") then MuTecT_normal.output_vcf_index else MuTecT_single.output_vcf_index
-  }
-
-  call MergeMutectStats {
-    input:
-      input_stats = if (mode == "normal") then input_stats else MuTecT_PoN.output_stats,
-      output_filename = output_filename,
-      gatk_path = gatk_path
-  }
-
-  call MergeVCFs { 
-    input:
-      input_vcfs = if (mode == "normal") then input_vcfs else MuTecT_PoN.output_vcf,
-      input_vcfs_indexes = if (mode == "normal") then input_vcfs_indexes else MuTecT_PoN.output_vcf_index,
-      output_filename = output_filename,
-      output_directory = output_directory
-    
+    call MergeVCFs { 
+      input:
+        input_vcfs = if (mode == "normal") then MuTecT_normal.output_vcf else MuTecT_PoN.output_vcf,
+        input_vcfs_indexes = if (mode == "normal") then MuTecT_normal.output_vcf_index else MuTecT_PoN.output_vcf_index,
+        output_filename = output_filename,
+        output_directory = output_directory
+      
+    }
   }
 
   call FilterMutectCalls {
     input:
-      input_vcf = MergeVCFs.output_vcf,
+      input_vcf = if (parallel == "True") then MergeVCFs.output_vcf else MuTect_single.output_vcf,
       output_filename = output_filename,
       gatk_path = gatk_path,
-      input_stats = MergeMutectStats.output_stats,
+      input_stats = if (parallel == "True") then MergeMutectStats.output_stats else MuTect_single.output_stats,
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,  
