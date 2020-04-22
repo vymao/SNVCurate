@@ -45,11 +45,9 @@ def main():
     with open(args['input_path'], 'r') as f:
     	for index, line in enumerate(f):
              if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
-                    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
-    parser.add_argument('-read_groups', default='single')
                   os.system('python3 ' + tool + ' -in_file ' + line.strip('\n') + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' --mem_per_cpu ' + args['mem_per_cpu']
-                        + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' -gatk ' + args['gatk_path'] + ' -reference ' + args['reference_path'] + ' -n ' + args['num_cores']
-                        + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -reference_name ' + args['reference_name']
+                        + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' -gatk ' + args['gatk_path'] + ' -r ' + args['reference_path'] + ' -n ' + args['num_cores']
+                        + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell_path'] + ' -reference_name ' + args['reference_name']
                         + ' -picard ' + args['picard'])
 
 def arg_clean(args):
