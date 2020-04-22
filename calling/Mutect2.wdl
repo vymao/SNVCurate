@@ -99,7 +99,7 @@ workflow MuTecT {
           docker = gatk_docker,
           gatk_path = gatk_path, 
           gnomad = gnomad,
-     	    gnomad_index = gnomad_index,
+     	  gnomad_index = gnomad_index,
           regions_list = interval_file
       }
     }
