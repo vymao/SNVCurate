@@ -87,7 +87,7 @@ workflow MuTecT {
 
   if (mode == "panel") {
     scatter (interval_file in scattered_calling_intervals) {
-        call MuTecT_PoN {
+      call MuTecT_PoN {
           input:
             input_bam = input_bam,
             input_bam_index = input_bam_index,
@@ -107,30 +107,30 @@ workflow MuTecT {
     }
   }
 
+  File input_stats
+  File input_vcfs
+  File input_vcfs_indexes
+
+  if (mode == "normal") {
+    input_stats = if (parallel == "True") then MuTecT_normal.output_stats else MuTecT_single.output_stats,
+    input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf,
+    input_vcfs_indexes = if (parallel == "True") then MuTecT_normal.output_vcf_index else MuTecT_single.output_vcf_index
+  }
+
   call MergeMutectStats {
     input:
-      input_stats = if (mode == "normal") then MuTecT_normal.output_stats else MuTecT_PoN.output_stats,
+      input_stats = if (mode == "normal") then input_stats else MuTecT_PoN.output_stats,
       output_filename = output_filename,
       gatk_path = gatk_path
   }
 
-
-  call MergeVCFs {
-    if (mode == "normal") {
-      input:
-        input_vcfs = if (parallel == "True") then MuTecT_normal.output_vcf else MuTecT_single.output_vcf,
-        input_vcfs_indexes = if (parallel == "True") then MuTecT_normal.output_vcf_index else MuTecT_single.output_vcf_index,
-        output_filename = output_filename,
-        output_directory = output_directory
-    }
-    if (mode == "panel") { 
-      input:
-        input_vcfs = MuTecT_PoN.output_vcf,
-        input_vcfs_indexes = MuTecT_PoN.output_vcf_index,
-        output_filename = output_filename,
-        output_directory = output_directory
-    }
-
+  call MergeVCFs { 
+    input:
+      input_vcfs = if (mode == "normal") then input_vcfs else MuTecT_PoN.output_vcf,
+      input_vcfs_indexes = if (mode == "normal") then input_vcfs_indexes else MuTecT_PoN.output_vcf_index,
+      output_filename = output_filename,
+      output_directory = output_directory
+    
   }
 
   call FilterMutectCalls {
