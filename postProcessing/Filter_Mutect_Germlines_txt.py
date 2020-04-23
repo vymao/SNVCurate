@@ -82,7 +82,7 @@ def main():
                     normal_vcf = normal.split('.bam')[0] + '.vcf'
                     args['hap_path'] = os.path.join(args['hap_path'], normal_vcf)
 
-            tumor_index = get_tumor_column(args['input_path'])
+            tumor_index = get_tumor_column(args['vcf_path'])
             with open(args['input_path'], 'r') as f:
                 for index, line in enumerate(f):
                     if not line.isspace() and index in range(int(args['r1']) + 1, int(args['r2']) + 1):
@@ -214,6 +214,8 @@ def check_germline_risk(vcf_line):
 
 def check_read_levels(vcf_line, args, index):
     line_list = vcf_line.rstrip().split('\t')
+    print(index)
+    print(line_list)
     tumor_info = line_list[index].split(':')[1].split(',')
 
     if len(tumor_info) != 2: 
@@ -266,15 +268,17 @@ def add_vcf_header(args, file_path, write):
     return end
 
 def get_tumor_column(file_path):
-    blacklist = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    blacklist = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
     normal_sample = ""
     normal_column = 0
     with open(file_path, 'r') as vcf: 
         for index, line in enumerate(vcf):
             if "##normal_sample" in line: 
                 normal_sample = line.rstrip().split('=')[1]
+                print(normal_sample)
             if "#CHROM" in line: 
                 line_list = line.rstrip().split('\t')
+                print(line_list)
                 for i in range(len(line_list)): 
                     if line_list[i] != normal_sample and line_list[i] not in blacklist: 
                         return i

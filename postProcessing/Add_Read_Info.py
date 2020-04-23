@@ -67,7 +67,7 @@ def get_last_item(args):
     return (body_line_len - header_line_len, body_line_len)
 
 def get_tumor_column(file_path):
-    blacklist = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    blacklist = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
     normal_sample = ""
     normal_column = 0
     with open(file_path, 'r') as vcf: 
