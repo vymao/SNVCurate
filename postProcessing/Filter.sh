@@ -57,9 +57,9 @@ for path in ${path2Intersection}/*; do
     fi
 
     if [ $filterwithPanel == "false" ]; then
-        sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database 
+        sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate
     else
-        sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel
+        sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate
     fi
 done
 

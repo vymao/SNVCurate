@@ -12,7 +12,7 @@
 
 #module load gcc/6.2.0 python/3.6.0 java bcftools
 
-path2SNVCurate="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+path2SNVCurate=${12}
 echo $0
 
 path2Intersection=$1
@@ -56,7 +56,7 @@ done
 mv ${dirname}.*.ANNO.somatic_variants_filtered* ${dirname}.somatic_variants_filtered_1.vcf
 mv ${dirname}.*.ANNO.germline_variants_filtered* ${dirname}.germline_variants_filtered.vcf
 
-if ! [ -z "$panelfilter" ]; then
+if [ ${panelfilter} != "False"]; then
     cd ${sampledir}/cut_filtering
     python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter
     
