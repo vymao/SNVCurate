@@ -65,7 +65,6 @@ def arg_clean(args):
     args['alt_cut'] = int(args['alt_cut'])
     args['tot_cut'] = int(args['tot_cut'])
     args['vaf_cut'] = float(args['vaf_cut'])
-    print(args['vaf_cut'])
 
     return output_dir, base_name
 
@@ -228,7 +227,7 @@ def main():
 
         if not os.path.exists(germline_file_path):
             end = add_vcf_header(args, germline_file_path, True)
-        if not os.path.exists(somatic_file_path):
+        if not os.path.exists(somatic_file_path) and args['file_type'].lower() == 'anno':
             end = add_vcf_header(args, somatic_file_path, True)
         if args['file_type'].lower() == 'anno':
             if not os.path.exists(bad_read_path): 
