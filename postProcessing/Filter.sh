@@ -44,7 +44,12 @@ fi
 normalname="null"
 
 for path in ${path2Intersection}/*; do
+    cd $path
     [ -d $path ] || continue
+    rm -R slurm_submissions
+    mkdir -p slurm_submissions
+    cd slurm_submissions
+
     dirname=$(basename $path)
 
     if [ $matchedNormal == "true" ]; then
