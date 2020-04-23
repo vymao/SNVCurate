@@ -25,8 +25,8 @@ for path in ${path2Mutect}/*; do
 
     dirname="$(basename "${path}")"
 
-    rm *PASS* 
-    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf *filtered.vcf
+    rm -f *PASS* 
+    rm -f *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf *filtered.vcf
 
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
         for file in ${dirname}.vcf; do
@@ -59,8 +59,8 @@ if ! [ -z "$path2MuSE" ]; then
 
         dirname="$(basename "${path}")"
 
-        rm *PASS* 
-        rm *INTERSECTION* *TIER* 000* *MUTECT*
+        rm -f *PASS* 
+        rm -f *INTERSECTION* *TIER* 000* *MUTECT*
 
         if [ ! -f ${dirname}.PASS_MuSE.vcf ]; then
             for file in ${dirname}.vcf; do 
