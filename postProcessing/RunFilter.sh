@@ -31,6 +31,7 @@ sampledir=$(dirname $path2Intersection)
 dirname=$(basename $sampledir)
 
 cd $sampledir
+rm -R cut_filtering
 mkdir -p cut_filtering
 #mkdir pon_filtering
 

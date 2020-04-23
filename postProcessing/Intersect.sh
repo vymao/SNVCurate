@@ -26,7 +26,7 @@ for path in ${path2Mutect}/*; do
     dirname="$(basename "${path}")"
 
     rm *PASS* 
-    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf
+    rm *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf *filtered.vcf
 
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
         for file in ${dirname}.vcf; do
@@ -108,7 +108,7 @@ else
     	[ -d "${path}" ] || continue 
     	cd ${path}/intersection_files
 
- 	dirname="$(basename "${path}")"
+        dirname="$(basename "${path}")"
     	intersected_file=${dirname}.INTERSECTION.vcf
 
     	mv ${dirname}.PASS_MuTecT.vcf $intersected_file
