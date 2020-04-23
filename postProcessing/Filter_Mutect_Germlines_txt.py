@@ -33,6 +33,67 @@ def parse_args():
 
     return parser.parse_args()
 
+def main(): 
+    tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/'
+    args = vars(parse_args())
+    output_dir, base_name = arg_clean(args)
+
+
+    os.system('module load gcc/6.2.0 python/3.6.0 java') 
+
+    levels = str(args['alt_cut']) + '_' + str(args['tot_cut']) + '_' + str(args['vaf_cut'])
+
+    if args['mode'].lower() == 'annotate':
+        if args['file_type'].lower() == 'anno':
+            germline_file_path = os.path.join(output_dir, base_name + '.ANNO.germline_variants_filtered.' + levels + '.vcf')
+            somatic_file_path = os.path.join(output_dir, base_name + '.ANNO.somatic_variants_filtered.' + levels + '.vcf')
+            bad_read_path = os.path.join(output_dir, base_name + '.ANNO.bad_somatic_quality.' + levels + '.vcf')
+        else: 
+            germline_file_path = os.path.join(output_dir, base_name + '.M2_RISK.germline_variants_filtered.vcf')
+            somatic_file_path = os.path.join(output_dir, base_name + '.M2_RISK.somatic_variants_filtered.vcf')
+
+        if not os.path.exists(germline_file_path):
+            end = add_vcf_header(args, germline_file_path, True)
+        if not os.path.exists(somatic_file_path) and args['file_type'].lower() == 'anno':
+            end = add_vcf_header(args, somatic_file_path, True)
+        if args['file_type'].lower() == 'anno':
+            if not os.path.exists(bad_read_path): 
+                end = add_vcf_header(args, bad_read_path, True)
+
+        else: 
+            end = add_vcf_header(args, germline_file_path, False)
+
+        if args['file_type'].lower() == 'vcf':
+            with open(args['input_path'], 'r') as f:
+                for index, line in enumerate(f):
+                    if not line.isspace() and index in range(int(args['r1']) + end, int(args['r2']) + end):
+                        if not args['panel']:
+                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'germline')
+                        else: 
+                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'panel_of_normals')
+        else: 
+            if args['hap'] is not None: 
+                args['hap_path'] = args['hap']
+            else: 
+                normal = get_normal(args)
+                if normal is None: 
+                    args['hap_path'] = args['pon']
+                else: 
+                    normal_vcf = normal.split('.bam')[0] + '.vcf'
+                    args['hap_path'] = os.path.join(args['hap_path'], normal_vcf)
+
+            tumor_index = get_tumor_column(args['input_path'])
+            with open(args['input_path'], 'r') as f:
+                for index, line in enumerate(f):
+                    if not line.isspace() and index in range(int(args['r1']) + 1, int(args['r2']) + 1):
+                        anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_path, tumor_index)
+
+    elif args['mode'].lower() == 'combine':
+        path_to_combine = '/n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines_CombineAnno.sh'
+        os.system('sbatch ' + path_to_combine + ' ' + args['hap_path'] + ' ' + args['mut'] + ' ' + args['output_path'])
+    else: 
+        print('Invalid mode.')
+
 def arg_clean(args):
     """Cleaning the parsed arguments. Specifically, this function does the following: 
     1. Finds the host filename
@@ -105,7 +166,7 @@ def vcf_examine(line, args, germline_file_path, somatic_file_path, examine_phras
             f.write(line)
 
 
-def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_path): 
+def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_path, tumor_index): 
     line_list = line.strip().split('\t')
     germline = False
     #print(line_list[4])
@@ -136,7 +197,7 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
         with open(somatic_file_path, 'a') as f:
             
             if check_germline_risk(vcf_line) and find_in_vcf(args, line, 'hap_path') is None and vcf_line is not None:
-                if check_read_levels(vcf_line, args): 
+                if check_read_levels(vcf_line, args, tumor_index): 
                     f.write(vcf_line)
                     return 
                 else: 
@@ -151,10 +212,9 @@ def check_germline_risk(vcf_line):
     else: 
         return True
 
-def check_read_levels(vcf_line, args):
+def check_read_levels(vcf_line, args, index):
     line_list = vcf_line.rstrip().split('\t')
-    tumor_info = line_list[10].split(':')[1].split(',')
-    vaf_info = line_list[9].split(':')[2]
+    tumor_info = line_list[index].split(':')[1].split(',')
 
     if len(tumor_info) != 2: 
         return False
@@ -162,7 +222,6 @@ def check_read_levels(vcf_line, args):
     alt_level = int(tumor_info[1])
     if ref_level == 0 and alt_level == 0: 
         return False
-    #vaf_level = float(vaf_info)
     vaf_level = alt_level / (ref_level + alt_level)
     if alt_level < args['alt_cut'] or (ref_level + alt_level) < args['tot_cut'] or vaf_level <= args['vaf_cut']:
         return False
@@ -206,64 +265,22 @@ def add_vcf_header(args, file_path, write):
                 end += 1
     return end
 
-def main(): 
-    tools_dir = '/n/data1/hms/dbmi/park/victor/scripts/'
-    args = vars(parse_args())
-    output_dir, base_name = arg_clean(args)
+def get_tumor_column(file_path):
+    blacklist = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    normal_sample = ""
+    normal_column = 0
+    with open(file_path, 'r') as vcf: 
+        for index, line in enumerate(vcf):
+            if "##normal_sample" in line: 
+                normal_sample = line.rstrip().split('=')[1]
+            if "##CHROM" in line: 
+                line_list = line.rstrip().split('\t')
+                for i in range(len(line_list)): 
+                    if line_list[i] != normal_sample and line_list[i] not in blacklist: 
+                        return i
 
+    return 10
 
-    os.system('module load gcc/6.2.0 python/3.6.0 java') 
-
-    levels = str(args['alt_cut']) + '_' + str(args['tot_cut']) + '_' + str(args['vaf_cut'])
-
-    if args['mode'].lower() == 'annotate':
-        if args['file_type'].lower() == 'anno':
-            germline_file_path = os.path.join(output_dir, base_name + '.ANNO.germline_variants_filtered.' + levels + '.vcf')
-            somatic_file_path = os.path.join(output_dir, base_name + '.ANNO.somatic_variants_filtered.' + levels + '.vcf')
-            bad_read_path = os.path.join(output_dir, base_name + '.ANNO.bad_somatic_quality.' + levels + '.vcf')
-        else: 
-            germline_file_path = os.path.join(output_dir, base_name + '.M2_RISK.germline_variants_filtered.vcf')
-            somatic_file_path = os.path.join(output_dir, base_name + '.M2_RISK.somatic_variants_filtered.vcf')
-
-        if not os.path.exists(germline_file_path):
-            end = add_vcf_header(args, germline_file_path, True)
-        if not os.path.exists(somatic_file_path) and args['file_type'].lower() == 'anno':
-            end = add_vcf_header(args, somatic_file_path, True)
-        if args['file_type'].lower() == 'anno':
-            if not os.path.exists(bad_read_path): 
-                end = add_vcf_header(args, bad_read_path, True)
-
-        else: 
-            end = add_vcf_header(args, germline_file_path, False)
-
-        if args['file_type'].lower() == 'vcf':
-            with open(args['input_path'], 'r') as f:
-                for index, line in enumerate(f):
-                    if not line.isspace() and index in range(int(args['r1']) + end, int(args['r2']) + end):
-                        if not args['panel']:
-                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'germline')
-                        else: 
-                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'panel_of_normals')
-        else: 
-            if args['hap'] is not None: 
-                args['hap_path'] = args['hap']
-            else: 
-                normal = get_normal(args)
-                if normal is None: 
-                    args['hap_path'] = args['pon']
-                else: 
-                    normal_vcf = normal.split('.bam')[0] + '.vcf'
-                    args['hap_path'] = os.path.join(args['hap_path'], normal_vcf)
-
-            with open(args['input_path'], 'r') as f:
-                for index, line in enumerate(f):
-                    if not line.isspace() and index in range(int(args['r1']) + 1, int(args['r2']) + 1):
-                        anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_path)
-    elif args['mode'].lower() == 'combine':
-        path_to_combine = '/n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines_CombineAnno.sh'
-        os.system('sbatch ' + path_to_combine + ' ' + args['hap_path'] + ' ' + args['mut'] + ' ' + args['output_path'])
-    else: 
-        print('Invalid mode.')
 
 if __name__ == "__main__":
     main()

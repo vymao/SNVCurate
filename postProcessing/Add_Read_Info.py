@@ -33,12 +33,12 @@ def find_in_vcf(args, line):
                 if int(pos) == int(vcf_line_list[1]) or int(pos) == int(vcf_line_list[1]) - 1 or int(pos) == int(vcf_line_list[1]) + 1:
                     return vcf_line
 
-def get_read_levels(args, vcf_line):
+def get_read_levels(args, vcf_line, index):
     if vcf_line is None: 
     	return
     line_list = vcf_line.rstrip().split('\t')
 
-    tumor_info = line_list[10].split(':')[1].split(',')
+    tumor_info = line_list[index].split(':')[1].split(',')
 
     if len(tumor_info) != 2: 
         return 
@@ -66,6 +66,22 @@ def get_last_item(args):
                 return body_line_len - header_line_len, body_line_len
     return (body_line_len - header_line_len, body_line_len)
 
+def get_tumor_column(file_path):
+    blacklist = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    normal_sample = ""
+    normal_column = 0
+    with open(file_path, 'r') as vcf: 
+        for index, line in enumerate(vcf):
+            if "##normal_sample" in line: 
+                normal_sample = line.rstrip().split('=')[1]
+            if "##CHROM" in line: 
+                line_list = line.rstrip().split('\t')
+                for i in range(len(line_list)): 
+                    if line_list[i] != normal_sample and line_list[i] not in blacklist: 
+                        return i
+
+    return 10
+
 def main(): 
     args = vars(parse_args())
     os.system('module load gcc/6.2.0 python/3.6.0 java')
@@ -73,6 +89,7 @@ def main():
     new_file = args['in_file'] + '.levels'
     line_diff, body_line_len = get_last_item(args)
     total_len = body_line_len
+    tumor_index = get_tumor_column(args['in_file'])
 
 
     with open(args['in_file'], 'r') as in_file:
@@ -111,7 +128,7 @@ def main():
                             vcf_line_list.append('.')
     
                         new_line = find_in_vcf(args, line)
-                        read_levels = get_read_levels(args, new_line)
+                        read_levels = get_read_levels(args, new_line, tumor_index)
                         if read_levels is not None: 
                             vcf_line_list.append(read_levels[0])
                             vcf_line_list.append(read_levels[1])
