@@ -12,7 +12,7 @@
 
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
-path2SNVCurate=$(dirname "$(readlink -f "$0")")
+path2SNVCurate="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 out=$1
 path2Mutect=$2
 reference=$3

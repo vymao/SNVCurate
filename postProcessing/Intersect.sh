@@ -16,7 +16,7 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 path2MuSE=$3
 path2Mutect=$2
 out=$1
-package_path=$(dirname "$(readlink -f "$0")")
+package_path="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 cd $path2Mutect
 for path in ${path2Mutect}/*; do 
@@ -42,6 +42,8 @@ for path in ${path2Mutect}/*; do
     test_dir=${out}/${dirname}
     mkdir -p $test_dir
     mkdir -p ${test_dir}/annotation_files
+
+
     mv ${dirname}.*M2_RISK.germline_variants_filtered.vcf ${dirname}.M2_Risk_variants_filtered.vcf
     mv ${dirname}.M2_Risk_variants_filtered.vcf ${test_dir}/annotation_files
 
