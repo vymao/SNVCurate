@@ -13,6 +13,7 @@
 #module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2SNVCurate="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+echo $0
 
 path2Intersection=$1
 normal=$2
