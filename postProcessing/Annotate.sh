@@ -29,6 +29,7 @@ for path in ${out}/*; do
         sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
     else
         sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference False $csv $path2SNVCurate
+    fi
 done
 
 

@@ -89,7 +89,7 @@ def main():
     new_file = args['in_file'] + '.levels'
     line_diff, body_line_len = get_last_item(args)
     total_len = body_line_len
-    tumor_index = get_tumor_column(args['in_file'])
+    tumor_index = get_tumor_column(args['vcf_path'])
 
 
     with open(args['in_file'], 'r') as in_file:
