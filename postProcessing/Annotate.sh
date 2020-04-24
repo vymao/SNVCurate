@@ -21,6 +21,8 @@ csv=$4
 
 cd $out
 
+rm -f *reads.vcf *somatic.csv *combined.csv
+
 
 for path in ${out}/*; do 
     [ -d $path ] || continue
