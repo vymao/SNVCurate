@@ -73,19 +73,19 @@ done
 if [ $path2normal != "False" ]; then
     cd $path2normal
 
-    dirname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
+    normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
 
-    cd ${dirname}*
+    cd ${normalname}*
 
-    /home/mk446/bin/annovar/table_annovar.pl ${path2normal}/${dirname}/${dirname}.vcf '/home/mk446/bin/annovar/humandb/' -out $dirname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    /home/mk446/bin/annovar/table_annovar.pl ${path2normal}/${normalname}/${normalname}.vcf '/home/mk446/bin/annovar/humandb/' -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
 
      
-    if [ ! -f ${dirname}*.LABELED ]; then
-        python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out ${path2normal}/${dirname}* -in ${dirname}.*txt
+    if [ ! -f ${normalname}*.LABELED ]; then
+        python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out ${path2normal}/${normalname}* -in ${normalname}.*txt
     fi
     
-    if [ ! -f ${dirname}*.LABELED.levels ]; then
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file ${dirname}*.LABELED -vcf_path ${path2normal}/${dirname}.vcf -hap True
+    if [ ! -f ${normalname}*.LABELED.levels ]; then
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file ${normalname}*.LABELED -vcf_path ${path2normal}/${normalname}.vcf -hap True
     fi
    
 fi

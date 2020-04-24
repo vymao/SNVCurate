@@ -34,6 +34,7 @@ def main():
 
 
     for file in new_files: 
+        print(file)
         sample = os.path.basename(file).split('.')[0]
 
         df = pd.read_csv(file, sep='\t', names = ['CHROM', 'START', 'END', 'COVERAGE'])
@@ -47,13 +48,15 @@ def main():
         coverage_chr = {}
         for chrm in chromosomes: 
             coverage_chr[chrm] = df[df['CHROM'] == chrm]
-
+        print("Finished chrom splitting")
         test = pd.DataFrame([[]])
         for chrom in coverage_chr.keys():
             filtered = coverage_chr[chrom]
             filtered = filtered[filtered['COVERAGE'] >= int(args['cut'])].drop(columns = ['COVERAGE'])
-            test = pd.concat([test, filtered])
+            test = pd.concat([test, filtered]) 
+            print(chrom)
 
+        print("Finished chromosome merging")
         cov_cut_bed = test
         df2 = pd.DataFrame([[]])
         current_chrom = cov_cut_bed.iloc[0][0]
@@ -75,7 +78,7 @@ def main():
         df2 = df2.astype({'END': 'int32'})
         
         output_name = sample + '.cov_cut_mergedadjacent.bed'
-        df2.to_csv(os.path.join(output, output_name), index = False, header = False, sep = '\t')
+        df2.to_csv(os.path.join(args['out'], output_name), index = False, header = False, sep = '\t')
 
 
 def return_files_in_dir(path, ext='/*.coverage'):
