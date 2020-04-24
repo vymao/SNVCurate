@@ -44,8 +44,11 @@ def main():
         chromosomes = [x for x in chromosomes if 'MT' not in x]
         chromosomes = [x for x in chromosomes if 'NC' not in x]
         df['CHROM'] = df['CHROM'].astype(str)
-
-        coverage_chr = {}
+        df = df[~df["CHROM"].str.contains('GL')]
+        df = df[~df["CHROM"].str.contains('MT')]
+        df = df[~df["CHROM"].str.contains('NC')]
+        df = df[df["COVERAGE"] >= int(args['cut'])].drop(columns = ['COVERAGE'])
+        """
         for chrm in chromosomes: 
             coverage_chr[chrm] = df[df['CHROM'] == chrm]
         print("Finished chrom splitting")
@@ -58,19 +61,20 @@ def main():
 
         print("Finished chromosome merging")
         cov_cut_bed = test
+        """
         df2 = pd.DataFrame([[]])
-        current_chrom = cov_cut_bed.iloc[0][0]
-        current_start = cov_cut_bed.iloc[0][1]
-        current_end = cov_cut_bed.iloc[0][2]
-        for i in range(1, len(cov_cut_bed)):
-            if current_end == cov_cut_bed.iloc[i][1]:
-                current_end = cov_cut_bed.iloc[i][2]
+        current_chrom = df.iloc[0][0]
+        current_start = df.iloc[0][1]
+        current_end = df.iloc[0][2]
+        for i in range(1, len(df)):
+            if current_end == df.iloc[i][1]:
+                current_end = df.iloc[i][2]
             else: 
                 grouped_bin = pd.DataFrame([[current_chrom, current_start, current_end]])
                 df2 = pd.concat([df2, grouped_bin], ignore_index = True)
-                current_chrom = cov_cut_bed.iloc[i][0]
-                current_start = cov_cut_bed.iloc[i][1]
-                current_end = cov_cut_bed.iloc[i][2]
+                current_chrom = df.iloc[i][0]
+                current_start = df.iloc[i][1]
+                current_end = df.iloc[i][2]
                 
         df2 = df2.dropna()
         df2.columns = ['CHROM', 'START', 'END']        
