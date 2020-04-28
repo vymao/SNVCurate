@@ -294,8 +294,6 @@ def annotate_clipped_reads(vcfs, hg19, path_bams):
 def merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff, path_vcfs_intersection):
      vcfs['sampleId'] = vcfs['sampleId'].astype(str)
      names = [ntpath.basename(file) for file in return_files_in_dir(path_vcfs_intersection)]
-     print(len(names))
-     print(len(soft_clipped_cutoff))
      soft_clipped_cutoff['sampleId'] = [ntpath.basename(file) for file in return_files_in_dir(path_vcfs_intersection)]
      soft_clipped_cutoff[['sampleId']] = soft_clipped_cutoff[['sampleId']].astype(str)
      vcfs = vcfs.merge(soft_clipped_cutoff, how='left', on='sampleId')

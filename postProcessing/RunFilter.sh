@@ -6,7 +6,7 @@
 #SBATCH -t 0-06:00:00                        # Runtime in D-HH:MM format
 #SBATCH -p park                 # Partition to run in
 #SBATCH --account=park_contrib
-#SBATCH --mem=5000                          # Memory total in MB (for all cores)
+#SBATCH --mem=10000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
 
 

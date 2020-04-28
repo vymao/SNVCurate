@@ -30,7 +30,7 @@ for path in ${path2Mutect}/*; do
 
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
         for file in ${dirname}.vcf; do
-	    echo "working" 
+	    echo "Cleaning Mutect2 sample ${dirname}..." 
             grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
         done
     fi
@@ -58,6 +58,7 @@ if ! [ -z "$path2MuSE" ]; then
         cd $path
 
         dirname="$(basename "${path}")"
+        echo "Cleaning MuSE sample ${dirname}..."
 
         rm -f *PASS* 
         rm -f *INTERSECTION* *TIER* 000* *MUTECT*
@@ -86,6 +87,7 @@ if ! [ -z "$path2MuSE" ]; then
         cd $path
         dirname=$(basename $path)
         cd intersection_files
+        echo "Intersecting calls for sample ${dirname}..."
 
         bcftools sort ${dirname}.PASS_MuSE.vcf > ${dirname}.PASS_MuSE.sorted.vcf
         cp ${dirname}.PASS_MuSE.sorted.vcf ${dirname}.PASS_MuSE.vcf

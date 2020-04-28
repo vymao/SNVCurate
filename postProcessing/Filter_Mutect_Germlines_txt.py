@@ -275,10 +275,8 @@ def get_tumor_column(file_path):
         for index, line in enumerate(vcf):
             if "##normal_sample" in line: 
                 normal_sample = line.rstrip().split('=')[1]
-                print(normal_sample)
             if "#CHROM" in line: 
                 line_list = line.rstrip().split('\t')
-                print(line_list)
                 for i in range(len(line_list)): 
                     if line_list[i] != normal_sample and line_list[i] not in blacklist: 
                         return i

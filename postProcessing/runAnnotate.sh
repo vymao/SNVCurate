@@ -103,17 +103,17 @@ if [ $path2normal != "False" ]; then
     normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
     if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
         for file in ${path2normal}/${normalname}/${normalname}*${Haplo_file}; do
-            cp $file "${out}/${dirname}.germline_combined.csv"
+            cp $file "${out}/${dirname}.germline_combined.txt"
         done
 
         for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
             #cp $file "${Output_path}/${dirname}.germline_combined.csv"
-            tail -n +2 $file >> "${out}/${dirname}.germline_combined.csv"
+            tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
         done
         
 
         for file in ${path}/annotation_files/*${Filtered_file}; do
-            tail -n +2 $file >> "${out}/${dirname}.germline_combined.csv"
+            tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
         done
     fi
 
@@ -121,12 +121,12 @@ else
     normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
     if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
         for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
-            cp $file "${out}/${dirname}.germline_combined.csv"
+            cp $file "${out}/${dirname}.germline_combined.txt"
        done
         
 
         for file in ${path}/annotation_files/*${Filtered_file}; do
-            tail -n +2 $file >> "${out}/${dirname}.germline_combined.csv"
+            tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
         done
     fi
 fi
@@ -134,7 +134,7 @@ fi
 
 if [ ! -f ${out}/${dirname}.somatic.csv ]; then
     for file in ${path}/annotation_files/*${Somatic_file}; do
-        cp $file "${out}/${dirname}.somatic.csv"
+        cp $file "${out}/${dirname}.somatic.txt"
     done
 fi
 
