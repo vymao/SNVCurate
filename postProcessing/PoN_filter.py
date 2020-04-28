@@ -78,6 +78,9 @@ def main():
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['CE_Indel']==False) & (vcfs['PON']!=True)]
      else:
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
+     print("vcfs length: " + str(len(vcfs)))
+     print(vcfs['#CHROM'].to_numpy())
+
 
      path_bedtools_intersect = '/n/data1/hms/dbmi/park/alon/command_line_tools/Bedtools/Intersect.py'
      path_exome_capture_bed = '/n/data1/hms/dbmi/park/alon/files/FCD/Reference_Files/TruSeq_Exome_Targeted_Regions_Manifest/truseq-exome-targeted-regions-manifest-v1-2.bed'

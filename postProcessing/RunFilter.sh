@@ -58,6 +58,12 @@ mv ${dirname}.*.ANNO.germline_variants_filtered* ${dirname}.germline_variants_fi
 
 if [ ${panelfilter} != "False" ]; then
     cd ${sampledir}/cut_filtering
+    echo "Running with parameters:"
+    echo "alt_cut: ${alt_cut}"
+    echo "total_cut: ${tot_cut}"
+    echo "VAF_cut: ${vaf_cut}"
+    echo "MAF_cut: ${maf_cut}"
+
     python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter
     
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
