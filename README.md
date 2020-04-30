@@ -54,10 +54,6 @@ sh Intersect.sh /path/to/filtering_output_directory /path/to/Mutect2_output_dire
 sh Filter.sh /path/to/filtering_output_directory /path/to/HaplotypeCaller_output_directory True /path/to/tumor_normal.csv 4 10 0.05 0.01 hg19 /path/to/databases /path/to/bam_files True /path/to/panel
 sh Annotate.sh /path/to/filtering_output_directory /path/to/Mutect2_output_directory hg19 /path/to/tumor_normal.csv /path/to/HaplotypeCaller_output_directory 
 ```
-or
-```
-sh runAll.sh /path/to/sample_config.json
-```
 
 ## Information about relevant scripts: 
 
