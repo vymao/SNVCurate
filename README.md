@@ -6,6 +6,8 @@ This pipeline is used only for running on Orchestra, the Harvard Medical School 
 
 The pipeline is split into two parts: one to generate callsets from Mutect2 (and MuSE + HaplotypeCaller if normals are available), and one to filter those calls. Callset generation is automated on the cluster using the Cromwell execution engine and customized .wdl scripts produced from the datasets inputted. Post-processing is automated using bash wrapper scripts utilizing various software pre-loaded in the environment. It is split this way to prevent overloading of the job partitions, so you can continue submitting jobs as they complete.
 
+If you have some samples with matched normals and some without that you would like to call, you should create separate .csv files for each of these datasets and run this pipeline on each set individually. 
+
 ## Running the SNV curating pipeline (see below for more information on individual scripts): 
 ### Environment/file setup:
 1. Create two files: One csv with tumor/normal matched pairs (leave `N/A` if no normal) and one text file with each normal sample (if applicable). See `Tumor_Normal_sample.csv` and `HaplotypeCaller_sample.txt` for formatting.
@@ -20,11 +22,7 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 3. If there are matched normals, run HaplotypeCaller on these normals using `HaplotypeCaller_read.py`.
 
 ### Post-Processing (under `SNVCurate/postProcessing/`): 
-This is best run on an interactive session with 5G of memory. There are two ways to run this pipeline: 
-1. Create a config file. See `config.json` for details.
-2. Run `runAll.sh`.
-
-**OR**
+This is best run on an interactive session with 5G of memory. 
 
 1. Run the script `Intersect.sh` to intersect the two calls. 
 2. Run the script `Filter.sh` to filter the intersection.
@@ -62,13 +60,28 @@ sh runAll.sh /path/to/sample_config.json
 ```
 
 ## Information about relevant scripts: 
-1. `Mutect2_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
+
+1. `RenameBAMsample.sh`: Bash script to rename `SM` tag in the read groups for each sample according to the sample name. Note: this takes quite a bit of memory and computational capacity so running on an interactive session with sufficient memory is recommended.
+```
+usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
+```
+- `[BAM_DIRECTORY]`: Directory for BAM files. 
+- `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
+
+2. `SetupDatabases.sh`: Bash script to create links to relevant databases and set up a space for new accessible databases.  
+```
+usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE]
+```
+- `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
+- `[REFERENCE]`: hg19 or hg38 (for Annovar). 
+
+3. `Mutect2_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
 ```
 usage: python3 Mutect2_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] [-out OUTPUT_DIRECTORY] [-csv TUMOR/NORMAL_CSV] 
                      [-pon PANEL_OF_NORMALS] [-n NUM_CORES] [-t RUNTIME] [-p QUEUE] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE]
                      [--mail_user MAIL_USER] [-gatk PATH_TO_GATK4] [-reference REFERENCE.FASTA] [-dbsnp dbSNP.vcf] [-gnomad GNOMAD.vcf] 
                      [-scatter COUNT] [-cn CROMWELL_CORES] [-ct CROMWELL_RUNTIME] [-cm CROMWELL_MEMORY] [-cromwell CROMWELL_JAR] 
-                     [-interval_list INTERVAL_LIST] [-r1 START] [-r2 END]
+                     [-interval_list INTERVAL_LIST] [-parallel RUN_IN_PARALLEL] [-r1 START] [-r2 END]
 ```
 - `-pon`: Used when there are no matched normals. 
 - `-csv`: A csv file containing information about matched tumor/normal pairs. See `MuTect2_sample.csv` for proper formatting.
@@ -89,8 +102,9 @@ usage: python3 Mutect2_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTOR
 - `-ct`: Runtime per Cromwell job in minutes (default = 1000). 
 - `-cm`: Memory per Cromwell job in MB (default = 7000). 
 - `-cromwell`: Jar file for Cromwell execution (default = `/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar`).
+- `-parallel`: Parallelize the pipeline for calling in parallel. Only available for matched normal calling (default = `True`).
 
-2. `MuSE_read.py`: Wrapper script to run the MuSE pipeline for somatic mutation calling. 
+4. `MuSE_read.py`: Wrapper script to run the MuSE pipeline for somatic mutation calling. 
 ```
 usage: python3 MuSE_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] [-out OUTPUT_DIRECTORY] [-csv TUMOR/NORMAL_CSV] 
                             [-n NUM_CORES] [-t RUNTIME] [-p QUEUE] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] 
@@ -115,15 +129,15 @@ usage: python3 MuSE_read.py [-tumor INPUT_DIRECTORY] [-normal NORMAL_DIRECTORY] 
 - `-cm`: Memory per Cromwell job in MB (default = 7000). 
 - `-cromwell`: Jar file for Cromwell execution (default = `/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar`).
 
-3. `HaplotypeCaller_read.py`: Wrapper script to run the GATK HaplotypeCaller pipeline for germline mutation calling. 
+5. `HaplotypeCaller_read.py`: Wrapper script to run the GATK HaplotypeCaller pipeline for germline mutation calling. 
 ```
-usage: python3 HaplotypeCaller_read.py [-input_path INPUT_PATH] [-output_path OUTPUT_PATH] [-p QUEUE] [-t RUNTIME] [-r1] [-r2] 
-                                       [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] [--mail_user MAIL_USER] [-gatk PATH_TO_GATK]
-                                       [-scatter COUNT] [-reference REFERENCE.FASTA] [-reference_name REFERENCE] [-n NUM_CORES] 
-                                       [-cn CROMWELL_CORES] [-ct CROMWELL_RUNTIME] [-cm CROMWELL_MEMORY] [-cromwell CROMWELL_JAR] 
-                                       [-picard PICARD_PATH]  
+usage: python3 HaplotypeCaller_read.py [-csv TUMOR/NORMAL_CSV] [-normal NORMAL_DIRECTORY] [-output_path OUTPUT_PATH] [-p QUEUE] 
+                                       [-t RUNTIME] [-r1] [-r2] [--mem_per_cpu MEM_PER_CPU] [--mail_type MAIL_TYPE] 
+                                       [--mail_user MAIL_USER] [-gatk PATH_TO_GATK] [-scatter COUNT] [-reference REFERENCE.FASTA] 
+                                       [-reference_name REFERENCE] [-n NUM_CORES] [-cn CROMWELL_CORES] [-ct CROMWELL_RUNTIME] 
+                                       [-cm CROMWELL_MEMORY] [-cromwell CROMWELL_JAR] [-picard PICARD_PATH]  
 ``` 
-- `-input_path`: Path to a text file that lists the full path to each matched normal. See `HaplotypeCaller_sample.txt` as an example.
+- `-csv`: A csv file containing information about matched tumor/normal pairs. See `MuTect2_sample.csv` for proper formatting.
 - `-n`: Number of cores (default = 1).
 - `-t`: Slurm job runtime. Note that this is the runtime per interval job (default = 0-12:0:0).
 - `-p`: Slurm queue (default = park).
@@ -142,14 +156,14 @@ usage: python3 HaplotypeCaller_read.py [-input_path INPUT_PATH] [-output_path OU
 - `-cromwell`: Jar file for Cromwell execution (default = `/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar`).
 - `-picard`: Jar file for Picard software (default = `/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar`).
 
-4. `Intersect.sh`: Bash script to organize and intersect the calls by MuTecT and MuSE. 
+6. `Intersect.sh`: Bash script to organize and intersect the calls by MuTecT and MuSE. 
 ```
 usage: sh Intersect.sh [OUTPUT_DIRECTORY] [MUTECT2_PATH] [MUSE_PATH]
 ``` 
 - Both the MuTecT2 and MuSE paths should be paths to the list of files directly outputted by MuTecT2 and MuSE. The script will create and organize and manipulate files on its own. 
 - The MuSE path is optional, but recommended.  
 
-5. `Filter.sh`: Bash script to filter the intersection of the calls. 
+7. `Filter.sh`: Bash script to filter the intersection of the calls. 
 ```
 usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [PANEL] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]                                   [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [BAM_PATH] [FILTER_WITH_PANEL] [PANEL]
 ```
@@ -167,7 +181,7 @@ usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [PANE
 - `[FILTER_WITH_PANEL]`: True (if PoN filtering is desired), False (otherwise). Currently, panel filtering is only supported for hg19/b37.
 - `[PANEL]` (optional): The path to a Panel of Normals to filter with, if desired. For hg19/b37, the TCGA panel located at `/n/data1/hms/dbmi/park/victor/references/` is recommended.
 
-6. `Annotate.sh`: Bash script to annotate the filtering results and merge them into final annotated callsets. 
+8. `Annotate.sh`: Bash script to annotate the filtering results and merge them into final annotated callsets. 
 ```
 usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PATH_TO_NORMAL]
 ```
@@ -178,22 +192,7 @@ usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PA
 - `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
 - `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
 
-7. `RenameBAMsample.sh`: Bash script to rename `SM` tag in the read groups for each sample according to the sample name. Note: this takes quite a bit of memory and computational capacity so running on an interactive session with sufficient memory is recommended.
-```
-usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
-```
-- `[BAM_DIRECTORY]`: Directory for BAM files. 
-- `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
-
-8. `SetupDatabases.sh`: Bash script to create links to relevant databases and set up a space for new accessible databases.  
-```
-usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE]
-```
-- `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
-- `[REFERENCE]`: hg19 or hg38 (for Annovar). 
-
-
-9. `runAll.sh`: Bash script to execute all filtering steps. 
+9. `runAll.sh`: Bash script to execute all filtering steps. **NOTE: This feature is not yet available. Please follow the steps in the instructions instead**.
 ```
 usage: sh runAll.sh [CONFIG_PATH] 
 ```
