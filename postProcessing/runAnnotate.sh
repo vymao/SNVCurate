@@ -139,6 +139,7 @@ if [ ! -f ${out}/${dirname}.somatic.csv ]; then
 fi
 
 if [ ! -f ${out}/${dirname}.bad_somatic_reads.vcf ]; then
+    echo "Yes"
     for file in ${path}/cut_filtering/*${bad_file}; do
         cp $file "${out}/${dirname}.bad_somatic_reads.vcf"
     done

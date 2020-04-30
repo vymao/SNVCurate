@@ -108,14 +108,14 @@ if ! [ -z "$path2MuSE" ]; then
         mv 0003.vcf $intersected_file
     done
 else
-    for path in ${path2Mutect}/*; do 
+    for path in ${out}/*; do 
     	[ -d "${path}" ] || continue 
     	cd ${path}/intersection_files
 
         dirname="$(basename "${path}")"
     	intersected_file=${dirname}.INTERSECTION.vcf
 
-    	mv ${dirname}.PASS_MuTecT.vcf $intersected_file
+    	cp ${dirname}.PASS_MuTecT.vcf $intersected_file
     done
 fi
 
