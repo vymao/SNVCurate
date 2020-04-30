@@ -45,7 +45,7 @@ sh SetupDatabases.sh /path/to/empty/directory/for/databases hg19
 
 python3 Mutect2_read.py -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/Mutect2_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park
 python3 MuSE_read.py -tumor -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/MuSE_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -data_type WES -r1 1 -r2 2 -p medium
-python3 HaplotypeCaller_read.py -csv /path/to/tumor_normal.csv -normal /path/to/bam_files -out /path/to/HaplotypeCaller_output_directory -csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park -reference_name b37
+python3 HaplotypeCaller_read.py -csv /path/to/tumor_normal.csv -normal /path/to/bam_files -out /path/to/HaplotypeCaller_output_directory --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park -reference_name b37
 ```
 
 For the filtering:
