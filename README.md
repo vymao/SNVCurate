@@ -12,7 +12,7 @@ If you have some samples with matched normals and some without that you would li
 ### Environment/file setup:
 1. Create two files: One csv with tumor/normal matched pairs (leave `N/A` if no normal) and one text file with each normal sample (if applicable). See `Tumor_Normal_sample.csv` and `HaplotypeCaller_sample.txt` for formatting.
 2. Set up the environment using Conda, or download and install the packages individually (see .yml file for dependencies). Other modules available on the cluster will be loaded automatically within the relevant script.
-3. Run `RenameBAMsample.sh` to reconfigure the BAM sample name to single tumor/normal. 
+3. Run `RenameBAMsample.sh` to reconfigure the BAM sample name to single tumor/normal. You should use this directory as the source of BAM files for later steps.
 4. Run `SetupDatabases.sh` to setup links to relevant Annovar databases. 
 5. Activate the environment. 
 
@@ -45,7 +45,7 @@ sh SetupDatabases.sh /path/to/empty/directory/for/databases hg19
 
 python3 Mutect2_read.py -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/Mutect2_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park
 python3 MuSE_read.py -tumor -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/MuSE_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -data_type WES -r1 1 -r2 2 -p medium
-python3 HaplotypeCaller_read.py -tumor /path/to/HaplotypeCaller_samples.csv -out /path/to/HaplotypeCaller_output_directory -csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park -reference_name b37
+python3 HaplotypeCaller_read.py -csv /path/to/tumor_normal.csv -normal /path/to/bam_files -out /path/to/HaplotypeCaller_output_directory -csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park -reference_name b37
 ```
 
 For the filtering:
