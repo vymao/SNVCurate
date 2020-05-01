@@ -63,6 +63,8 @@ def main():
         else: 
             end = add_vcf_header(args, germline_file_path, False)
 
+
+        print(get_annotated_columns(args['input_path']))
         if args['file_type'].lower() == 'vcf':
             with open(args['input_path'], 'r') as f:
                 for index, line in enumerate(f):
@@ -87,10 +89,6 @@ def main():
                 for index, line in enumerate(f):
                     if not line.isspace() and index in range(int(args['r1']) + 1, int(args['r2']) + 1):
                         anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_path, tumor_index)
-
-    elif args['mode'].lower() == 'combine':
-        path_to_combine = '/n/data1/hms/dbmi/park/victor/scripts/other/Filter_Mutect_Germlines_CombineAnno.sh'
-        os.system('sbatch ' + path_to_combine + ' ' + args['hap_path'] + ' ' + args['mut'] + ' ' + args['output_path'])
     else: 
         print('Invalid mode.')
 
@@ -283,6 +281,25 @@ def get_tumor_column(file_path):
 
     return 10
 
+
+def get_annotated_columns(file): 
+    list_of_databases = ['ExAC', 'gnomAD', '1000g', 'avsnp']
+    header = ""
+    column_indices = []
+
+    with open(file, 'r') as main: 
+        for index, line in enumerate(main): 
+            if index == 0: 
+                header = line
+                break
+
+    line_list = line..rstrip().split('\t')
+    for item in line_list: 
+        for database in list_of_databases: 
+            if database in item: 
+                column_indices.append(line_list.index(item))
+
+    return column_indices
 
 if __name__ == "__main__":
     main()
