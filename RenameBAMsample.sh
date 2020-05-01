@@ -17,6 +17,7 @@ bam_dir=$1
 output_dir=$2
 
 for file in ${bam_dir}/*.bam; do
+        cd ${output_dir}
 	sample=$(basename $file | cut -d'.' -f1)
         if [ ! -f ${output_dir}/${sample}.bam ]; then
               sbatch ${path2SNVCurate}/runRenaming.sh ${file} ${output_dir}

@@ -64,7 +64,6 @@ def main():
             end = add_vcf_header(args, germline_file_path, False)
 
 
-        print(get_annotated_columns(args['input_path']))
         if args['file_type'].lower() == 'vcf':
             with open(args['input_path'], 'r') as f:
                 for index, line in enumerate(f):
@@ -170,12 +169,13 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
     #print(line_list[4])
     #print(line_list[27])
     #print("")
+    columns_examine = get_annotated_columns(args['input_path'])
 
     
     for item in line_list: 
-        if line_list.index(item) > 27: 
+        if line_list.index(item) not in columns_examine: 
             continue
-        if line_list.index(item) > 4:
+        if line_list.index(item) > columns_examine[0]:
             try: 
                 number = float(item)
                 if number > float(args['threshhold']):
@@ -293,7 +293,7 @@ def get_annotated_columns(file):
                 header = line
                 break
 
-    line_list = line..rstrip().split('\t')
+    line_list = line.rstrip().split('\t')
     for item in line_list: 
         for database in list_of_databases: 
             if database in item: 
