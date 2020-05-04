@@ -26,7 +26,7 @@ for path in ${path2Mutect}/*; do
     dirname="$(basename "${path}")"
 
     rm -f *PASS* 
-    rm -f *INTERSECTION* *TIER* 000* *MUTECT* *Combined.vcf *M2_RISK* *Combined.RENAMED.vcf *filtered.vcf
+    rm -f *INTERSECTION* *TIER* 000* *MUTECT* *M2_RISK* *filtered.vcf
 
     if [ ! -f ${dirname}.PASS_MuTecT.vcf ]; then
         for file in ${dirname}.vcf; do
