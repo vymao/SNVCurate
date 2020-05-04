@@ -9,6 +9,7 @@
   "MuTecT.output_directory": "output_dir/",
   "MuTecT.normal_name": "normal_sample", 
   "MuTecT.parallel": "True",
+  "MuTecT.path2picard": "path/to/picard",
 
   "##_COMMENT2": "REFERENCE FILES",
   "MuTecT.ref_dict": "/n/data1/hms/dbmi/park/victor/references/human_g1k_v37_decoy/human_g1k_v37_decoy.dict",

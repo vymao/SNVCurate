@@ -24,6 +24,7 @@ workflow MuTecT {
   String mode
   String normal_name
   String parallel
+  File path2picard
 
   Array[File] scattered_calling_intervals = read_lines(interval_list)
 
@@ -58,6 +59,15 @@ workflow MuTecT {
             gnomad_index = gnomad_index,
             regions_list = interval_file,
             normal_name = normal_name
+        }
+
+        call bgZipVCFs {
+          input:
+            input_vcf = MuTecT_normal.output_vcf,
+            input_vcf_index = MuTecT_normal.output_vcf_index,
+            output_filename = output_filename,
+            output_basename = vcf_basename,
+            output_directory = output_directory
         }
       }
     } 
@@ -115,10 +125,12 @@ workflow MuTecT {
 
     call MergeVCFs { 
       input:
-        input_vcfs = if (mode == "normal") then MuTecT_normal.output_vcf else MuTecT_PoN.output_vcf,
-        input_vcfs_indexes = if (mode == "normal") then MuTecT_normal.output_vcf_index else MuTecT_PoN.output_vcf_index,
+        input_vcfs = if (mode == "normal") then bgZipVCFs.output_vcf else MuTecT_PoN.output_vcf,
+        input_vcfs_indexes = if (mode == "normal") then bgZipVCFs.output_vcf_index else MuTecT_PoN.output_vcf_index,
         output_filename = output_filename,
-        output_directory = output_directory
+        output_basename = vcf_basename,
+        output_directory = output_directory,
+        picard = path2picard
       
     }
   }
@@ -287,6 +299,38 @@ task MergeVCFs {
   Array[File] input_vcfs
   Array[File] input_vcfs_indexes
   String output_filename
+  String output_basename
+  String output_directory
+  File picard
+
+  # Runtime parameters
+  Int? mem_gb
+  Int? disk_space_gb
+  Boolean use_ssd = false
+  Int? preemptible_attempts
+
+  Int machine_mem_gb = select_first([mem_gb, 3])
+  Int command_mem_gb = machine_mem_gb - 1
+
+
+  command <<<
+  set -e
+    ##module load bcftools
+    ##bcftools concat -a ${sep=' ' input_vcfs} -o ${output_filename}
+    java -jar ${picard} MergeVcfs I=${sep=' I=' input_vcfs} O=${output_filename} 
+  >>>
+
+
+  output {
+    File output_vcf = "${output_filename}"
+  }
+}
+
+task bgZipVCFs {
+  File input_vcf
+  File input_vcf_index
+  String output_filename
+  String output_basename
   String output_directory
 
   # Runtime parameters
@@ -302,12 +346,15 @@ task MergeVCFs {
   command <<<
   set -e
     module load bcftools
-    bcftools concat ${sep=' ' input_vcfs} -o ${output_filename}
+    bgzip -c ${input_vcf} > ${output_filename}.gz
+    bcftools index ${output_filename}.gz
+
   >>>
 
 
   output {
-    File output_vcf = "${output_filename}"
+    File output_vcf = "${output_filename}.gz"
+    File output_vcf_index = "${output_filename}.gz.csi"
   }
 }
 

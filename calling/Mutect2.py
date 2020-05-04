@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
+    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
     return parser.parse_args()
 
 def main():
@@ -129,6 +130,7 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
         d["MuTecT.gatk_path"] = args.gatk_path_new
         d["MuTecT.interval_list"] = args.interval_list
         d["MuTecT.gnomad_index"] = args.gnomad_path + '.tbi'
+        d["MuTecT.path2picard"] = args.picard
 
         if args.panel == "nopath":
             d["MuTecT.normal_bam"] = normal_file

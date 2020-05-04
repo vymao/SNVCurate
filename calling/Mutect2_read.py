@@ -52,7 +52,7 @@ def generate_regions_files(args):
 
 def return_region_files(args):
     regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
-    region_files = [os.path.join(regions_out_directory, file) for file in os.listdir(regions_out_directory) if "scattered.interval_list" in file]
+    region_files = [os.path.join(regions_out_directory, file) for file in os.listdir(regions_out_directory) if "scattered.intervals" in file]
     return region_files
 
 def get_column(csv, sample):
@@ -101,6 +101,7 @@ def main():
             os.remove(intervals_list_file) 
         generate_regions_files(args)
         region_files = return_region_files(args)
+        print(region_files)
         with open(intervals_list_file, 'a') as intervals:
             for file in region_files:
                 intervals.write(file + '\n')
