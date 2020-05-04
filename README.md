@@ -189,7 +189,7 @@ usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PA
 - `[PATH_TO_MUTECT]`: Path to MuTecT output.
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
 - `[CSV]`: Path to the original csv file containing matched tumor/normal pairs. 
-- `[PATH_TO_NORMAL]`: The full path to the directory of the normal calls from HaplotypeCaller (if used). 
+- `[PATH_TO_NORMAL]` (optional): The full path to the directory of the normal calls from HaplotypeCaller (if used). 
 
 9. `runAll.sh`: Bash script to execute all filtering steps. **NOTE: This feature is not yet available. Please follow the steps in the instructions instead**.
 ```
