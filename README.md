@@ -163,7 +163,8 @@ usage: sh Intersect.sh [OUTPUT_DIRECTORY] [MUTECT2_PATH] [MUSE_PATH]
 
 7. `Filter.sh`: Bash script to filter the intersection of the calls. 
 ```
-usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [PANEL] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]                                   [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [BAM_PATH] [FILTER_WITH_PANEL] [PANEL]
+usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [PANEL] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]
+                    [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [BAM_PATH] [FILTER_WITH_PANEL] [PANEL]
 ```
 - **All fields are required unless indicated. All paths should be full paths.**
 - `[PATH_TO_INTERSECTION]`: The full path to the directory of the intersection of the calls. 
