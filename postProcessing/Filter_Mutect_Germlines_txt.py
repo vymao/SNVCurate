@@ -278,8 +278,10 @@ def get_tumor_column(file_path):
                 for i in range(len(line_list)): 
                     if line_list[i] != normal_sample and line_list[i] not in blacklist: 
                         return i
+                    if line_list[i] == "TUMOR":
+                        return i
 
-    return 10
+    return 9
 
 
 def get_annotated_columns(file): 
