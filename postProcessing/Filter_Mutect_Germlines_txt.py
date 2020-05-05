@@ -269,16 +269,19 @@ def get_tumor_column(file_path):
     blacklist = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
     normal_sample = ""
     normal_column = 0
+    gatk_4120 = False
     with open(file_path, 'r') as vcf: 
         for index, line in enumerate(vcf):
             if "##normal_sample" in line: 
                 normal_sample = line.rstrip().split('=')[1]
+                gatk_4120 = True
             if "#CHROM" in line: 
                 line_list = line.rstrip().split('\t')
-                for i in range(len(line_list)): 
-                    if line_list[i] != normal_sample and line_list[i] not in blacklist: 
+                print(line_list)
+                for i in range(len(line_list)):
+                    if line_list[i] != normal_sample and line_list[i] not in blacklist and gatk_4120: 
                         return i
-                    if line_list[i] == "TUMOR":
+                    if line_list[i] == 'TUMOR':
                         return i
 
     return 9
