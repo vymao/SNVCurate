@@ -44,6 +44,12 @@ for file in *M2_Risk_variants_filtered.vcf; do
     #sed -i '/#/d' ${dirname}.M2_RISK.germline_variants_filtered*.txt 
 done 
 
+if [ -f ${dirname}.PoN_filtered.vcf ]; then 
+    outname=${dirname}.PoN_filtered
+    /home/mk446/bin/annovar/table_annovar.pl ${dirname}.PoN_filtered.vcf '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    #sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
+fi
+
 
 mutect=${out}/${dirname}/intersection_files
 
@@ -67,6 +73,18 @@ done
 for file in *M2_Risk_variants_filtered.*txt.LABELED; do 
     python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
 done 
+
+if [ -f ${dirname}.PoN_filtered.vcf ]; then 
+    for file in *PoN_filtered.*txt; do 
+        python3 ${path2SNVCurate}/Label_Source.py -source pon -out ${path}/annotation_files -in $file
+    done 
+
+    for file in *PoN_filtered.*txt.LABELED; do 
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${dirname}.PoN_filtered.vcf
+    done
+
+fi
+
 
 
 
@@ -97,6 +115,7 @@ Filtered_file='*germline_variants_filtered.*txt.LABELED.levels'
 Haplo_file='.LABELED.levels'
 Somatic_file='*somatic_variants_filtered_2.*txt*.levels'
 bad_file='ANNO.bad_somatic_quality.*vcf'
+pon_file='*PoN_filtered.*.levels'
 #Mutect_Germline_risk_file="$dirname.germline_variants_filtered.vcf.TUMOR.avinput.hg19_multianno.csv"
 
 if [ $path2normal != "False" ]; then
@@ -131,6 +150,11 @@ else
     fi
 fi
 
+if [ -f ${path}/annotation_files/${dirname}.PoN_filtered.vcf ]; then 
+    for file in ${path}/annotation_files/*${pon_file}; do
+        tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
+    done
+fi
 
 if [ ! -f ${out}/${dirname}.somatic.csv ]; then
     for file in ${path}/annotation_files/*${Somatic_file}; do
@@ -139,7 +163,6 @@ if [ ! -f ${out}/${dirname}.somatic.csv ]; then
 fi
 
 if [ ! -f ${out}/${dirname}.bad_somatic_reads.vcf ]; then
-    echo "Yes"
     for file in ${path}/cut_filtering/*${bad_file}; do
         cp $file "${out}/${dirname}.bad_somatic_reads.vcf"
     done

@@ -56,6 +56,8 @@ def main():
         end = 'Common variant filtering'
     elif args['source'].lower() == 'haplotypecaller_panel':
         end = 'HaplotypeCaller_PANEL'
+    elif args['source'].lower() == 'pon':
+        end = 'PoN_Mask_InDel_filtering'
 
     #files = get_file(args['input_file'], 'combined.vcf', 'combined') 
     base = os.path.basename(args['input_file'])
