@@ -30,33 +30,35 @@ def main():
     if args['mutect_path'] is None: 
         print('No Mutect2 output path given.')
         sys.exit()
-
+    
     tumor_normal_matched = os.path.join(args['out'], 'Tumor_Normal.csv')
+    with open(tumor_normal_matched, 'w') as matched: 
+        matched.write('Tumor,Normal\n')
 
     with open(args['csv'], 'r') as main: 
         for index, line in enumerate(main): 
             if index == 0: 
                 continue
             else: 
-                file_list = line.rstrip().split(',')
-                sample = line[0].rstrip().split('.')[0]
+                line_list = line.rstrip().split(',')
+                sample = os.path.basename(line_list[0]).rstrip().split('.')[0]
 
-                os.symlink(line[0], os.path.join(args['bam_path'], sample + '.bam'))
+                os.symlink(line_list[0], os.path.join(args['bam_path'], sample + '.bam'))
                 matched = sample + '.bam'
 
                 os.makedirs(os.path.join(args['mutect_path'], sample), exist_ok=True)
                 mutect_sample_path = os.path.join(args['mutect_path'], sample)
-                os.symlink(line[1], os.path.join(mutect_sample_path, sample + '.vcf'))
+                os.symlink(line_list[1], os.path.join(mutect_sample_path, sample + '.vcf'))
 
                 if args['muse_path'] is not None: 
-                    if line[2] is not None: 
+                    if line_list[2] is not None: 
                         os.makedirs(os.path.join(args['muse_path'], sample), exist_ok=True)
                         muse_sample_path = os.path.join(args['muse_path'], sample)
-                        os.symlink(line[2], os.path.join(muse_sample_path, sample + '.vcf'))
+                        os.symlink(line_list[2], os.path.join(muse_sample_path, sample + '.vcf'))
                 if args['haplotypecaller_path'] is not None: 
-                    if line[3] is not None: 
-                        normal_sample = line[3].rstrip().split('.')[0]
-                        os.symlink(line[3], os.path.join(args['haplotypecaller_path'], normal_sample + '.vcf'))
+                    if line_list[3] is not None: 
+                        normal_sample = os.path.basename(line_list[3]).rstrip().split('.')[0]
+                        os.symlink(line_list[3], os.path.join(args['haplotypecaller_path'], normal_sample + '.vcf'))
 
                         matched += ',' + normal_sample + '.bam'
                     else: 
@@ -64,7 +66,7 @@ def main():
                 else: 
                     matched += ',N/A'
                 with open(tumor_normal_matched, 'a') as csv_out: 
-                    csv_out.write(matched)
+                    csv_out.write(matched + '\n')
 
 
 if __name__ == "__main__":
