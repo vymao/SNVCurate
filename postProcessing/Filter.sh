@@ -44,8 +44,8 @@ fi
 normalname="null"
 
 for path in ${path2Intersection}/*; do
-    cd $path
     [ -d $path ] || continue
+    cd $path
     mkdir -p slurm_submissions
     cd slurm_submissions
 
