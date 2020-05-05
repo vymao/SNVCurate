@@ -109,19 +109,24 @@ def main():
      vcfs.to_csv(os.path.join(path_vcfs_intersection, 'Final_Callset.txt'), sep = '\t', index=False)
 
      output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
-     prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
-     command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv') + " " + "/home/mk446/bin/annovar/humandb/" + \
+     prep_annovar(vcfs, basename + '.annot_normal.txt', path_vcfs_intersection)
+     command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/home/mk446/bin/annovar/humandb/" + \
                " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -csvout -polish"
 
      os.system(command)
    
 
      somatic_file_path = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")  
+     PoN_filtered_file = os.path.join(path_vcfs_intersection, basename + "_Filtered_file.vcf")
      if (os.path.exists(somatic_file_path)): 
           os.remove(somatic_file_path)
+     if (os.path.exists(PoN_filtered_file)):
+          os.remove(PoN_filtered_file)
 
      add_vcf_header(args['somatic_vcf'], somatic_file_path, True)
+     add_vcf_header(args['somatic_vcf'], PoN_filtered_file, True)
 
+     """
      with open(os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv'), 'r') as f: 
           for index, line in enumerate(f):
                if index == 0: 
@@ -129,6 +134,22 @@ def main():
                with open(os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf"), 'a') as new: 
                     vcf_line = find_in_vcf(args['somatic_vcf'], line)
                     new.write(vcf_line)
+     """
+
+
+     with open(args['somatic_vcf'], 'r') as old: 
+          for index, line in enumerate(old): 
+               if '#' in line: 
+                    continue
+               vcf_line = find_in_vcf(os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt'), line)
+               if vcf_line is None: 
+                    file = os.path.join(path_vcfs_intersection, basename + "_Filtered_file.vcf")
+                    with open(file, 'a') as to_write: 
+                         to_write.write(line)
+               else: 
+                    file = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")
+                    with open(file, 'a') as to_write: 
+                         to_write.write(line)
 
 def collect_bams(bam_path, sample):
     normals = [os.path.realpath(file) for file in glob.glob(os.path.join(bam_path, sample + '*.bam'))]
@@ -329,6 +350,6 @@ def find_in_vcf(vcf_file, line):
                     #print(vcf_line_list)
                     if int(pos) == int(vcf_line_list[1]) or int(pos) == int(vcf_line_list[1]) - 1 or int(pos) == int(vcf_line_list[1]) + 1:
                          return vcf_line
-
+     return None
 if __name__ == "__main__":
      main()
