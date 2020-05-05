@@ -89,6 +89,11 @@ workflow MuTecT {
           gnomad_index = gnomad_index,
           normal_name = normal_name
       }
+      call LearnReadOrientationModel {
+        input:
+          gatk_path = gatk_path,
+          artifacts = MuTecT_single.artifacts
+      }
     } 
   }
 
@@ -109,7 +114,7 @@ workflow MuTecT {
           docker = gatk_docker,
           gatk_path = gatk_path, 
           gnomad = gnomad,
-     	  gnomad_index = gnomad_index,
+     	    gnomad_index = gnomad_index,
           regions_list = interval_file
       }
     }
@@ -144,6 +149,7 @@ workflow MuTecT {
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,  
+      input_priors = LearnReadOrientationModel.output_artifacts,
       output_directory = output_directory
   }
 
@@ -239,6 +245,7 @@ task MuTecT_single {
       -I ${normal_bam} \
       -normal ${normal_name} \
       --germline-resource ${gnomad} \
+      --f1r2-tar-gz f1r2.tar.gz \
       -O ${output_filename} 
   >>>
 
@@ -246,6 +253,7 @@ task MuTecT_single {
     File output_vcf = "${output_filename}"
     File output_vcf_index = "${output_filename}.idx"
     File output_stats = "${output_filename}.stats"
+    File artifacts = "f1r2.tar.gz"
   }
 }
 
@@ -292,6 +300,24 @@ task MuTecT_PoN {
     File output_vcf = "${output_filename}"
     File output_vcf_index = "${output_filename}.idx"
     File output_stats = "${output_filename}.stats"
+  }
+}
+
+task LearnReadOrientationModel {
+  String gatk_path
+  File artifacts
+
+  command <<<
+  set -e
+  
+    ${gatk_path} \
+      LearnReadOrientationModel \
+      -I ${artifacts} \
+      -O read-orientation-model.tar.gz
+  >>>
+
+  output {
+    File output_artifacts = "read-orientation-model.tar.gz"
   }
 }
 
@@ -399,6 +425,7 @@ task MergeMutectStats {
 task FilterMutectCalls {
   File input_vcf
   File input_stats
+  File input_priors
 
   String output_filename
   File ref_dict
@@ -425,6 +452,7 @@ task FilterMutectCalls {
       -R ${ref_fasta} \
       -V ${input_vcf} \
       --stats ${input_stats} \
+      --ob-priors read-orientation-model.tar.gz \
       -O ${output_directory}${output_filename}
   >>>
 
