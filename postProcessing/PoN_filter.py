@@ -223,6 +223,7 @@ def create_indel_mask(indels, path_bed_out):
      indels['END_POS'] = indels['POS'].astype(int) + pd.DataFrame([indels['REF'].apply(lambda x: len(x)), indels['ALT'].apply(lambda x: len(x))]).max()
      indels[['POS', 'END_POS']] = indels[['POS', 'END_POS']].astype(int)
      indels['START_POS'] = indels['POS'] - 200
+     indels = indels[indels['START_POS'] >= 0]
      indels['END_POS'] = indels['END_POS'] + 200
      indels['indic'] = 'INDEL'
      indels[['#CHROM', 'START_POS', 'END_POS', 'indic']].to_csv(path_bed_out, sep='\t', index=False, header=None)
