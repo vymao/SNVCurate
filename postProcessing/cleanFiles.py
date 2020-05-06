@@ -44,21 +44,22 @@ def main():
                 sample = os.path.basename(line_list[0]).rstrip().split('.')[0]
 
                 os.symlink(line_list[0], os.path.join(args['bam_path'], sample + '.bam'))
+                os.symlink(line_list[1], os.path.join(args['bam_path'], sample + '.bai'))
                 matched = sample + '.bam'
 
                 os.makedirs(os.path.join(args['mutect_path'], sample), exist_ok=True)
                 mutect_sample_path = os.path.join(args['mutect_path'], sample)
-                os.symlink(line_list[1], os.path.join(mutect_sample_path, sample + '.vcf'))
+                os.symlink(line_list[2], os.path.join(mutect_sample_path, sample + '.vcf'))
 
                 if args['muse_path'] is not None: 
-                    if line_list[2] is not None: 
+                    if line_list[3] is not None: 
                         os.makedirs(os.path.join(args['muse_path'], sample), exist_ok=True)
                         muse_sample_path = os.path.join(args['muse_path'], sample)
-                        os.symlink(line_list[2], os.path.join(muse_sample_path, sample + '.vcf'))
+                        os.symlink(line_list[3], os.path.join(muse_sample_path, sample + '.vcf'))
                 if args['haplotypecaller_path'] is not None: 
-                    if line_list[3] is not None: 
-                        normal_sample = os.path.basename(line_list[3]).rstrip().split('.')[0]
-                        os.symlink(line_list[3], os.path.join(args['haplotypecaller_path'], normal_sample + '.vcf'))
+                    if line_list[4] is not None: 
+                        normal_sample = os.path.basename(line_list[4]).rstrip().split('.')[0]
+                        os.symlink(line_list[4], os.path.join(args['haplotypecaller_path'], normal_sample + '.vcf'))
 
                         matched += ',' + normal_sample + '.bam'
                     else: 

@@ -288,7 +288,7 @@ def get_tumor_column(file_path):
 
 
 def get_annotated_columns(file): 
-    list_of_databases = ['ExAC', 'gnomAD', '1000g', 'avsnp']
+    list_of_databases = ['ExAC', 'gnomAD', '1000g']
     header = ""
     column_indices = []
 

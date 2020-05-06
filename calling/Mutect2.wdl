@@ -149,7 +149,7 @@ workflow MuTecT {
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,  
-      input_priors = LearnReadOrientationModel.output_artifacts,
+      #input_priors = LearnReadOrientationModel.output_artifacts,
       output_directory = output_directory
   }
 
@@ -452,7 +452,7 @@ task FilterMutectCalls {
       -R ${ref_fasta} \
       -V ${input_vcf} \
       --stats ${input_stats} \
-      --ob-priors read-orientation-model.tar.gz \
+      --ob-priors ${input_priors} \
       -O ${output_directory}${output_filename}
   >>>
 
