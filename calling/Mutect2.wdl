@@ -89,10 +89,10 @@ workflow MuTecT {
           gnomad_index = gnomad_index,
           normal_name = normal_name
       }
-      call LearnReadOrientationModel {
-        input:
-          gatk_path = gatk_path,
-          artifacts = MuTecT_single.artifacts
+
+      call LearnReadOrientationModel  {
+        gatk_path = gatk_path,
+        artifact = MuTecT_single.artifacts
       }
     } 
   }
@@ -138,6 +138,11 @@ workflow MuTecT {
         picard = path2picard
       
     }
+
+    call LearnReadOrientationModel {
+      gatk_path = gatk_path,
+      artifacts = MuTecT_normal.artifacts
+    }
   }
 
   call FilterMutectCalls {
@@ -148,7 +153,9 @@ workflow MuTecT {
       input_stats = if (parallel == "True") then MergeMutectStats.output_stats else MuTecT_single.output_stats,
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
+      input_priors = LearnReadOrientationModel.output_artifacts,
       ref_fasta_index = ref_fasta_index,  
+
       output_directory = output_directory
   }
 
@@ -198,6 +205,7 @@ task MuTecT_normal {
       -normal ${normal_name} \
       --germline-resource ${gnomad} \
       -L ${regions_list} \
+      --f1r2-tar-gz ${output_filename}.f1r2.tar.gz \
       -O ${output_filename} 
   >>>
 
@@ -205,6 +213,7 @@ task MuTecT_normal {
     File output_vcf = "${output_filename}"
     File output_vcf_index = "${output_filename}.idx"
     File output_stats = "${output_filename}.stats"
+    File artifacts = "${output_filename}.f1r2.tar.gz"
   }
 }
 
@@ -304,14 +313,16 @@ task MuTecT_PoN {
 
 task LearnReadOrientationModel {
   String gatk_path
-  File artifacts
+  File? artifact
+  Array[File]? artifacts
+  String inputs = select_first([artifact, ${sep=' ' artifacts}, "default"])
 
   command <<<
   set -e
   
     ${gatk_path} \
       LearnReadOrientationModel \
-      -I ${artifacts} \
+      ${inputs} \
       -O read-orientation-model.tar.gz
   >>>
 
@@ -424,6 +435,7 @@ task MergeMutectStats {
 task FilterMutectCalls {
   File input_vcf
   File input_stats
+  File input_priors
 
   String output_filename
   File ref_dict
@@ -450,6 +462,7 @@ task FilterMutectCalls {
       -R ${ref_fasta} \
       -V ${input_vcf} \
       --stats ${input_stats} \
+      --ob-priors ${input_priors} \
       -O ${output_directory}${output_filename}
   >>>
 
