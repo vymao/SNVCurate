@@ -199,3 +199,13 @@ usage: sh runAll.sh [CONFIG_PATH]
 ```
 - `[CONFIG_PATH]`: Path to JSON configuration file.
 
+10. `cleanFiles.py`: A file used to create the proper directory/file structure for the filtering portion of the pipeline. Instead of moving files, this will read the input csv file and create symbolic links. 
+ ```
+ usage: python3 cleanFiles.py [-mutect_path MUTECT_OUTPUT_PATH] [-muse_path MUSE_OUTPUT_PATH] 
+                              [-haplotypecaller_path HAPLOTYPECALLER_OUTPUT_PATH] [-bam_path BAM_PATH] [-csv CSV_OF_FILES] 
+                              [-out OUTPUT_DIRECTORY]
+ ```
+ -`-bam_path`: The path to the BAM files and their respective index files. 
+ -`csv`: The csv detailing the organization of samples. See `/postProcessing/cleanUp.csv` for proper formatting.
+ -`out`: The output directory for the tumor-normal matched csv to be written to. 
+
