@@ -1,12 +1,14 @@
 # SNVCurate
 A pipeline for producing a callset of somatic mutations. It also provides a method to curate targeted capture regions in the event that this BED file is not available. 
-This pipeline is used only for running on Orchestra, the Harvard Medical School cluster, with the SLURM job scheduler. 
+This pipeline is used only for running on Orchestra, the Harvard Medical School cluster, with the SLURM job scheduler. This pipeline also utilizes GATK 4.1.2.0, the latest version of GATK available on the cluster.
 
 **Note: This pipeline presumes that the BAM files are formatted properly (demultiplexed and indexed correctly). If no matched normal is available, run this pipeline using another normal of the same sequencing type.**
 
 The pipeline is split into two parts: one to generate callsets from Mutect2 (and MuSE + HaplotypeCaller if normals are available), and one to filter those calls. Callset generation is automated on the cluster using the Cromwell execution engine and customized .wdl scripts produced from the datasets inputted. Post-processing is automated using bash wrapper scripts utilizing various software pre-loaded in the environment. It is split this way to prevent overloading of the job partitions, so you can continue submitting jobs as they complete.
 
 If you have some samples with matched normals and some without that you would like to call, you should create separate .csv files for each of these datasets and run this pipeline on each set individually. 
+
+If you would like to run the filtering portion only on existing VCFs, then please see the Wiki for how to do so. 
 
 ## Running the SNV curating pipeline (see below for more information on individual scripts): 
 ### Environment/file setup:
@@ -196,4 +198,14 @@ usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PA
 usage: sh runAll.sh [CONFIG_PATH] 
 ```
 - `[CONFIG_PATH]`: Path to JSON configuration file.
+
+10. `cleanFiles.py`: A file used to create the proper directory/file structure for the filtering portion of the pipeline. Instead of moving files, this will read the input csv file and create symbolic links. 
+ ```
+ usage: python3 cleanFiles.py [-mutect_path MUTECT_OUTPUT_PATH] [-muse_path MUSE_OUTPUT_PATH] 
+                              [-haplotypecaller_path HAPLOTYPECALLER_OUTPUT_PATH] [-bam_path BAM_PATH] [-csv CSV_OF_FILES] 
+                              [-out OUTPUT_DIRECTORY]
+ ```
+ - `-bam_path`: The path to the BAM files and their respective index files. 
+ - `-csv`: The csv detailing the organization of samples. See `/postProcessing/cleanUp.csv` for proper formatting.
+ - `-out`: The output directory for the tumor-normal matched csv to be written to. 
 
