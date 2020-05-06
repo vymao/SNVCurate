@@ -63,11 +63,13 @@ for path in ${path2Intersection}/*; do
     if [ $filterwithPanel == "false" ]; then
         #sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate
         rm -f Filter_SUBMIT.sh
-        echo -e "${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate" >> Filter_SUBMIT.sh
+        echo "#!/bin/bash" >> Filter_SUBMIT.sh
+        echo -e "sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate" >> Filter_SUBMIT.sh
     else
         #sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate
         rm -f Filter_SUBMIT.sh
-        echo -e "${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate" >> Filter_SUBMIT.sh
+        echo "#!/bin/bash" >> Filter_SUBMIT.sh
+        echo -e "sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate" >> Filter_SUBMIT.sh
     fi
 done
 

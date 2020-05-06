@@ -18,12 +18,13 @@ output_dir=$2
 
 cd ${output_dir}
 rm -f RenameBAMsample_SUBMIT.sh
+echo "#!/bin/bash" >> ${output_dir}/RenameBAMsample_SUBMIT.txt
 
 for file in ${bam_dir}/*.bam; do
     cd ${output_dir}
 	sample=$(basename $file | cut -d'.' -f1)
     if [ ! -f ${output_dir}/${sample}.bam ]; then
           #sbatch ${path2SNVCurate}/runRenaming.sh ${file} ${output_dir}
-          echo -e "${path2SNVCurate}/runRenaming.sh ${file} ${output_dir}\n" >> ${output_dir}/RenameBAMsample_SUBMIT.sh
+          echo -e "sbatch ${path2SNVCurate}/runRenaming.sh ${file} ${output_dir}" >> ${output_dir}/RenameBAMsample_SUBMIT.sh
     fi 
 done
