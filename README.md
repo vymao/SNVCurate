@@ -205,7 +205,7 @@ usage: sh runAll.sh [CONFIG_PATH]
                               [-haplotypecaller_path HAPLOTYPECALLER_OUTPUT_PATH] [-bam_path BAM_PATH] [-csv CSV_OF_FILES] 
                               [-out OUTPUT_DIRECTORY]
  ```
- -`-bam_path`: The path to the BAM files and their respective index files. 
- -`csv`: The csv detailing the organization of samples. See `/postProcessing/cleanUp.csv` for proper formatting.
- -`out`: The output directory for the tumor-normal matched csv to be written to. 
+ - `-bam_path`: The path to the BAM files and their respective index files. 
+ - `csv`: The csv detailing the organization of samples. See `/postProcessing/cleanUp.csv` for proper formatting.
+ - `out`: The output directory for the tumor-normal matched csv to be written to. 
 
