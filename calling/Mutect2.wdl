@@ -90,9 +90,10 @@ workflow MuTecT {
           normal_name = normal_name
       }
 
-      call LearnReadOrientationModel  {
-        gatk_path = gatk_path,
-        artifact = MuTecT_single.artifacts
+      call LearnReadOrientationModel {
+        input:
+          gatk_path = gatk_path,
+          artifact = MuTecT_single.artifacts
       }
     } 
   }
@@ -139,9 +140,10 @@ workflow MuTecT {
       
     }
 
-    call LearnReadOrientationModel {
-      gatk_path = gatk_path,
-      artifacts = MuTecT_normal.artifacts
+    call LearnReadOrientationModel_parallel {
+      input:      
+        gatk_path = gatk_path,
+        artifacts = MuTecT_normal.artifacts
     }
   }
 
@@ -153,7 +155,7 @@ workflow MuTecT {
       input_stats = if (parallel == "True") then MergeMutectStats.output_stats else MuTecT_single.output_stats,
       ref_dict = ref_dict,
       ref_fasta = ref_fasta,
-      input_priors = LearnReadOrientationModel.output_artifacts,
+      input_priors = if (parallel == "True") then LearnReadOrientationModel_parallel.output_artifacts else LearnReadOrientationModel.output_artifacts,
       ref_fasta_index = ref_fasta_index,  
 
       output_directory = output_directory
@@ -313,16 +315,14 @@ task MuTecT_PoN {
 
 task LearnReadOrientationModel {
   String gatk_path
-  File? artifact
-  Array[File]? artifacts
-  String inputs = select_first([artifact, ${sep=' ' artifacts}, "default"])
+  File artifact
 
   command <<<
   set -e
   
     ${gatk_path} \
       LearnReadOrientationModel \
-      ${inputs} \
+      ${artifact} \
       -O read-orientation-model.tar.gz
   >>>
 
@@ -330,6 +330,25 @@ task LearnReadOrientationModel {
     File output_artifacts = "read-orientation-model.tar.gz"
   }
 }
+
+task LearnReadOrientationModel_parallel {
+  String gatk_path
+  Array[File] artifacts
+
+  command <<<
+  set -e
+
+    ${gatk_path} \
+      LearnReadOrientationModel \
+      ${artifacts} \
+      -O read-orientation-model.tar.gz
+  >>>
+
+  output {
+    File output_artifacts = "read-orientation-model.tar.gz"
+  }
+}
+
 
 task MergeVCFs {
   Array[File] input_vcfs
