@@ -46,14 +46,14 @@ normalname="null"
 for path in ${path2Intersection}/*; do
     [ -d $path ] || continue
     cd $path
-    mkdir -p slurm_submissions
-    cd slurm_submissions
+    mkdir -p batch_submissions
+    cd batch_submissions
 
     dirname=$(basename $path)
 
     if [ $matchedNormal == "true" ]; then
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
-	base=$(basename $normal)
+        base=$(basename $normal)
         dir=$(dirname $normal)
         normalname=${dir}/${base}/${normalname}/${normalname}.vcf
     else
@@ -61,9 +61,13 @@ for path in ${path2Intersection}/*; do
     fi
 
     if [ $filterwithPanel == "false" ]; then
-        sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate
+        #sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate
+        rm -f Filter_SUBMIT.sh
+        echo -e "${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate" >> Filter_SUBMIT.sh
     else
-        sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate
+        #sbatch ${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate
+        rm -f Filter_SUBMIT.sh
+        echo -e "${path2SNVCurate}/RunFilter.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate" >> Filter_SUBMIT.sh
     fi
 done
 
