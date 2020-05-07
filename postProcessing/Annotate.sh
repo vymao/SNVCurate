@@ -13,11 +13,13 @@
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2SNVCurate="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-out=$1
-path2Mutect=$2
-reference=$3
-path2normal=$5
-csv=$4
+annovarscript=$1
+path2database=$2
+out=$3
+path2Mutect=$4
+reference=$5
+path2normal=$7
+csv=$6
 
 cd $out
 
@@ -28,9 +30,9 @@ for path in ${out}/*; do
     [ -d $path ] || continue
     cd ${path}/batch_submissions
     if ! [ -z "$path2normal" ]; then
-        sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
+        sbatch ${path2SNVCurate}/runAnnotate.sh $path $annovarscript $path2database $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
     else
-        sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference False $csv $path2SNVCurate
+        sbatch ${path2SNVCurate}/runAnnotate.sh $path $annovarscript $path2database $out $path2Mutect $reference False $csv $path2SNVCurate
     fi
 done
 

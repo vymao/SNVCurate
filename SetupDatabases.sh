@@ -15,9 +15,9 @@ module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2database=$1
 reference=$2
+annovar_database=$3
 cd $path2database
 
-annovar_database=/home/mk446/bin/annovar/humandb
 ln -s ${annovar_database}/${reference}_refGene.txt ${reference}_refGene.txt
 ln -s ${annovar_database}/${reference}_AFR.sites.2015_08.txt ${reference}_AFR.sites.2015_08.txt
 ln -s ${annovar_database}/${reference}_ALL.sites.2015_08.txt ${reference}_ALL.sites.2015_08.txt

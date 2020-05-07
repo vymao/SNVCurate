@@ -12,12 +12,14 @@
 
 
 path=$1
-out=$2
-path2Mutect=$3
-reference=$4
-path2normal=$5
-csv=$6
-path2SNVCurate=$7
+annovarscript=$2
+path2database=$3
+out=$4
+path2Mutect=$5
+reference=$6
+path2normal=$7
+csv=$8
+path2SNVCurate=$9
 
 
 dirname="$(basename "${path}")"
@@ -28,25 +30,25 @@ rm -f *LABELED
 
 for file in *somatic_variants_filtered_2.vcf; do 
     outname=${dirname}.somatic_variants_filtered_2
-    /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
     #sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
 done
 
 for file in *germline_variants_filtered.vcf; do 
     outname=${dirname}.germline_variants_filtered
-    /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
     #sed -i '/#/d' *PASS.ANNO.germline_variants_filtered*.txt 
 done   
 
 for file in *M2_Risk_variants_filtered.vcf; do 
     outname=${dirname}.M2_Risk_variants_filtered
-    /home/mk446/bin/annovar/table_annovar.pl $file '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
     #sed -i '/#/d' ${dirname}.M2_RISK.germline_variants_filtered*.txt 
 done 
 
 if [ -f ${dirname}.PoN_filtered.vcf ]; then 
     outname=${dirname}.PoN_filtered
-    /home/mk446/bin/annovar/table_annovar.pl ${dirname}.PoN_filtered.vcf '/home/mk446/bin/annovar/humandb/' -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    ${annovarscript} ${dirname}.PoN_filtered.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
     #sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
 fi
 
@@ -95,7 +97,7 @@ if [ $path2normal != "False" ]; then
 
     cd ${normalname}*
 
-    /home/mk446/bin/annovar/table_annovar.pl ${path2normal}/${normalname}/${normalname}.vcf '/home/mk446/bin/annovar/humandb/' -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    ${annovarscript} ${path2normal}/${normalname}/${normalname}.vcf ${path2database} -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
 
      
     if [ ! -f ${normalname}*.LABELED ]; then
