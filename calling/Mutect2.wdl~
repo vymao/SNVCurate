@@ -322,7 +322,7 @@ task LearnReadOrientationModel {
   
     ${gatk_path} \
       LearnReadOrientationModel \
-      -I ${artifact} \
+      ${artifact} \
       -O read-orientation-model.tar.gz
   >>>
 
@@ -340,7 +340,7 @@ task LearnReadOrientationModel_parallel {
 
     ${gatk_path} \
       LearnReadOrientationModel \
-      -I ${sep=' -I ' artifacts} \
+      ${artifacts} \
       -O read-orientation-model.tar.gz
   >>>
 
