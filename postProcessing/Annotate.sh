@@ -28,15 +28,9 @@ for path in ${out}/*; do
     [ -d $path ] || continue
     cd ${path}/batch_submissions
     if ! [ -z "$path2normal" ]; then
-        #sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
-        rm -f Annotate_SUBMIT.sh
-        echo "#!/bin/bash" >> Annotate_SUBMIT.sh
-        echo -e "${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference $path2normal $csv $path2SNVCurate \n" >> Annotate_SUBMIT.sh
+        sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
     else
-        #sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference False $csv $path2SNVCurate
-	rm -f Annotate_SUBMIT.sh
-        echo "#!/bin/bash" >> Annotate_SUBMIT.sh
-	echo -e "sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference False $csv $path2SNVCurate" >> Annotate_SUBMIT.sh
+        sbatch ${path2SNVCurate}/runAnnotate.sh $path $out $path2Mutect $reference False $csv $path2SNVCurate
     fi
 done
 

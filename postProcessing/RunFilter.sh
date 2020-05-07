@@ -40,7 +40,7 @@ mkdir -p cut_filtering
 cd cut_filtering 
 
 if [ ! -f ${path2Intersection}*txt ]; then
-    /home/mk446/bin/annovar/table_annovar.pl ${path2Intersection}/${dirname}.INTERSECTION.vcf '/home/mk446/bin/annovar/humandb/' -buildver 'hg19' -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+    /home/mk446/bin/annovar/table_annovar.pl ${path2Intersection}/${dirname}.INTERSECTION.vcf '/home/mk446/bin/annovar/humandb/' -buildver 'hg19' -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,1000g2015aug_all' -operation 'g,f,f,f' -nastring . -vcfinput -polish
 fi
 
 for file in *.txt; do 
