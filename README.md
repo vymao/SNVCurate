@@ -30,7 +30,7 @@ This is best run on an interactive session with 5G of memory.
 2. Run the script `Filter.sh` to filter the intersection.
 3. Run the script `Annotate.sh` to finish. 
 
-Note that `Filter.sh` and `Annotate.sh` will submit SLURM batch jobs, which you should wait for to finish until moving to the next step. To change the parameters of the SLURM batch jobs (ie. time, queue, node count, etc.), change the parameters of the headers of the scripts `runRenaming.sh`, `/postProcessing/runAnnotate.sh`, and `/postProcessing/RunFilter.sh`. 
+Note that `Filter.sh` and `Annotate.sh` will submit SLURM batch jobs, which you should wait for to finish until moving to the next step. To change the parameters of the SLURM batch jobs (ie. time, queue, node count, etc.), change the parameters of the headers of the scripts `runRenaming.sh`, `postProcessing/runAnnotate.sh`, and `postProcessing/RunFilter.sh`. 
 
 ## Example:
 The files under `SNVCurate/test/` were used for generating the callsets within that folder. The BAM files used for calling are at `/n/data1/hms/dbmi/park/victor/other/pipeline_test/bam_files`, and the steps utilized documented below (the actual file paths should be changed). 
