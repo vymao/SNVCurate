@@ -72,7 +72,7 @@ usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
 ```
 usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE] [ANNOVAR_DATABASES]
 ```
-- `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
+- `[OUTPUT_DIRECTORY]`: Output directory for the relevant databases via symbolic linking. 
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
 - `[ANNOVAR_DATABASES]`: Path to Annovar databases. On Orchestra, this is `/home/mk446/bin/annovar/humandb/`. 
 
