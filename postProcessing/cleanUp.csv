@@ -1,2 +1,2 @@
 BAM,BAI,Mutect,MuSE,HaplotypeCaller
-/path/to/bam,/path/to/bam,/path/to/Mutect_vcf,/path/to/MuSE_vcf,/path/to/HaplotypeCaller_vcf
+/path/to/bam_file,/path/to/bai_file,/path/to/Mutect_vcf,/path/to/MuSE_vcf,/path/to/HaplotypeCaller_vcf
