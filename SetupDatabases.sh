@@ -33,3 +33,5 @@ ln -s ${annovar_database}/all_repeats.b37.bed all_repeats.b37.bed
 ln -s ${annovar_database}/20141020.strict_mask.whole_genome.bed 20141020.strict_mask.whole_genome.bed
 ln -s ${annovar_database}/all.repeatmasker.b37.bed all.repeatmasker.b37.bed
 ln -s ${annovar_database}/${reference}_refGeneMrna.fa ${reference}_refGeneMrna.fa
+ln -s ${annovar_database}/${reference}_clinvar_20190305.txt ${reference}_clinvar_20190305.txt
+ln -s ${annovar_database}/${reference}_dbnsfp33a.txt ${reference}_dbnsfp33a.txt
