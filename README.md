@@ -8,4 +8,4 @@ The pipeline is split into two parts: one to generate callsets from Mutect2 (and
 
 If you have some samples with matched normals and some without that you would like to call, you should create separate .csv files for each of these datasets and run this pipeline on each set individually. 
 
-**Please see the [wiki](https://github.com/vymao/SNVCurate/wiki)** for instructions on how to use this pipeline.
+**Please see the [wiki](https://github.com/vymao/SNVCurate/wiki) for instructions on how to use this pipeline.**
