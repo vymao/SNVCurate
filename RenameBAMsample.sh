@@ -8,7 +8,6 @@
 #SBATCH --account=park_contrib
 #SBATCH --mem=2000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
-#SBATCH --mail-user=victor_mao@hms.harvard.edu   # Email to which notifications will be sent
 
 module load gcc/6.2.0 samtools
 
