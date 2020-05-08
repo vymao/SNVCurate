@@ -30,7 +30,7 @@ This is best run on an interactive session with 5G of memory.
 2. Run the script `Filter.sh` to filter the intersection.
 3. Run the script `Annotate.sh` to finish. 
 
-Note that `Filter.sh` and `Annotate.sh` will submit SLURM batch jobs, which you should wait for to finish until moving to the next step. 
+Note that `Filter.sh` and `Annotate.sh` will submit SLURM batch jobs, which you should wait for to finish until moving to the next step. To change the parameters of the SLURM batch jobs (ie. time, queue, node count, etc.), change the parameters of the headers of the scripts `runRenaming.sh`, `/postProcessing/runAnnotate.sh`, and `/postProcessing/RunFilter.sh`. 
 
 ## Example:
 The files under `SNVCurate/test/` were used for generating the callsets within that folder. The BAM files used for calling are at `/n/data1/hms/dbmi/park/victor/other/pipeline_test/bam_files`, and the steps utilized documented below (the actual file paths should be changed). 
@@ -63,10 +63,11 @@ sh Annotate.sh /path/to/filtering_output_directory /path/to/Mutect2_output_direc
 
 1. `RenameBAMsample.sh`: Bash script to rename `SM` tag in the read groups for each sample according to the sample name. Note: this takes quite a bit of memory and computational capacity so running on an interactive session with sufficient memory is recommended.
 ```
-usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY]
+usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY] [ANNOVAR_DATABASE]
 ```
 - `[BAM_DIRECTORY]`: Directory for BAM files. 
 - `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
+- `[ANNOVAR_DATABASE]`: Path to Annovar databases. On Orchestra, this is `/home/mk446/bin/annovar/humandb/`. 
 
 2. `SetupDatabases.sh`: Bash script to create links to relevant databases and set up a space for new accessible databases.  
 ```
@@ -166,7 +167,7 @@ usage: sh Intersect.sh [OUTPUT_DIRECTORY] [MUTECT2_PATH] [MUSE_PATH]
 7. `Filter.sh`: Bash script to filter the intersection of the calls. 
 ```
 usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [ALT_CUT] [TOTAL_CUT] [VAF_CUT] [MAF_CUT]
-                    [REFERENCE] [PATH_TO_ANNOVAR_DATABASES] [BAM_PATH] [FILTER_WITH_PANEL] [PANEL]
+                    [REFERENCE] [ANNOVAR_DATABASES] [BAM_PATH] [ANNOVAR_SCRIPT] [FILTER_WITH_PANEL] [PANEL]
 ```
 - **All fields are required unless indicated. All paths should be full paths.**
 - `[PATH_TO_INTERSECTION]`: The full path to the directory of the intersection of the calls. 
@@ -177,16 +178,19 @@ usage: sh Filter.sh [PATH_TO_INTERSECTION] [NORMAL] [MATCHED_NORMAL] [CSV] [ALT_
 - `[TOTAL_CUT]`: The total read-level depth (ie. alt + ref) to cut at. 
 - `[MAF_CUT]`: The population germline cutoff to cut at. 
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
-- `[PATH_TO_ANNOVAR_DATABASES]`: A path to a directory for which the script will output soft links to Annovar databases, along with custom filtering BED files. 
+- `[ANNOVAR_DATABASES]`: The path to the Annovar databases created from `SetupDatabases.sh`. 
 - `[BAM_PATH]`: The full path to the directory of BAM files.
+- `[ANNOVAR_SCRIPT]`: The path to the Annovar Perl script. On Orchestra, this is `/home/mk446/bin/annovar/table_annovar.pl`. 
 - `[FILTER_WITH_PANEL]`: True (if PoN filtering is desired), False (otherwise). Currently, panel filtering is only supported for hg19/b37.
 - `[PANEL]` (optional): The path to a Panel of Normals to filter with, if desired. For hg19/b37, the TCGA panel located at `/n/data1/hms/dbmi/park/victor/references/` is recommended.
 
 8. `Annotate.sh`: Bash script to annotate the filtering results and merge them into final annotated callsets. 
 ```
-usage: sh Annotate.sh [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PATH_TO_NORMAL]
+usage: sh Annotate.sh [ANNOVAR_SCRIPT] [ANNOVAR_DATABASES] [OUTPUT_DIRECTORY] [PATH_TO_MUTECT2] [REFERENCE] [CSV] [PATH_TO_NORMAL]
 ```
 - All paths should be full paths.
+- `[ANNOVAR_SCRIPT]`: The path to the Annovar Perl script. On Orchestra, this is `/home/mk446/bin/annovar/table_annovar.pl`. 
+- `[ANNOVAR_DATABASES]`: The path to the Annovar databases created from `SetupDatabases.sh`. 
 - `[OUTPUT_DIRECTORY]`: The same output directory used before.
 - `[PATH_TO_MUTECT]`: Path to MuTecT output.
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
