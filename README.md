@@ -63,18 +63,18 @@ sh Annotate.sh /path/to/filtering_output_directory /path/to/Mutect2_output_direc
 
 1. `RenameBAMsample.sh`: Bash script to rename `SM` tag in the read groups for each sample according to the sample name. Note: this takes quite a bit of memory and computational capacity so running on an interactive session with sufficient memory is recommended.
 ```
-usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY] [ANNOVAR_DATABASE]
+usage: sh RenameBAMsample.sh [BAM_DIRECTORY] [OUTPUT_DIRECTORY] 
 ```
 - `[BAM_DIRECTORY]`: Directory for BAM files. 
 - `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
-- `[ANNOVAR_DATABASE]`: Path to Annovar databases. On Orchestra, this is `/home/mk446/bin/annovar/humandb/`. 
 
 2. `SetupDatabases.sh`: Bash script to create links to relevant databases and set up a space for new accessible databases.  
 ```
-usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE]
+usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE] [ANNOVAR_DATABASES]
 ```
 - `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
+- `[ANNOVAR_DATABASE]`: Path to Annovar databases. On Orchestra, this is `/home/mk446/bin/annovar/humandb/`. 
 
 3. `Mutect2_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
 ```
