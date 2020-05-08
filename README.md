@@ -74,7 +74,7 @@ usage: sh SetupDatabases.sh [OUTPUT_DIRECTORY] [REFERENCE] [ANNOVAR_DATABASES]
 ```
 - `[OUTPUT_DIRECTORY]`: Output directory for renamed BAM files. 
 - `[REFERENCE]`: hg19 or hg38 (for Annovar). 
-- `[ANNOVAR_DATABASE]`: Path to Annovar databases. On Orchestra, this is `/home/mk446/bin/annovar/humandb/`. 
+- `[ANNOVAR_DATABASES]`: Path to Annovar databases. On Orchestra, this is `/home/mk446/bin/annovar/humandb/`. 
 
 3. `Mutect2_read.py`: Wrapper script to run the GATK MuTect2 pipeline for somatic mutation calling. 
 ```
