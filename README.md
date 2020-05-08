@@ -45,7 +45,7 @@ For setup and calling:
 conda env create -f environment.yml
 conda activate SNVCurate
 sh RenameBAMsample.sh /path/to/bam_files /path/to/empty/directory/for/renamed_bams
-sh SetupDatabases.sh /path/to/empty/directory/for/databases hg19
+sh SetupDatabases.sh /path/to/empty/directory/for/databases hg19 /path/to/databases
 
 python3 Mutect2_read.py -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/Mutect2_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -r1 1 -r2 2 -p park
 python3 MuSE_read.py -tumor -tumor /path/to/bam_files -normal /path/to/bam_files -out /path/to/MuSE_output_directory -csv /path/to/tumor_normal.csv --mail_user victor_mao@hms.harvard.edu -data_type WES -r1 1 -r2 2 -p medium
@@ -55,8 +55,8 @@ python3 HaplotypeCaller_read.py -csv /path/to/tumor_normal.csv -normal /path/to/
 For the filtering:
 ```
 sh Intersect.sh /path/to/filtering_output_directory /path/to/Mutect2_output_directory /path/to/MuSE_output_directory
-sh Filter.sh /path/to/filtering_output_directory /path/to/HaplotypeCaller_output_directory True /path/to/tumor_normal.csv 4 10 0.05 0.01 hg19 /path/to/databases /path/to/bam_files True /path/to/panel
-sh Annotate.sh /path/to/filtering_output_directory /path/to/Mutect2_output_directory hg19 /path/to/tumor_normal.csv /path/to/HaplotypeCaller_output_directory 
+sh Filter.sh /path/to/filtering_output_directory /path/to/HaplotypeCaller_output_directory True /path/to/tumor_normal.csv 4 10 0.05 0.01 hg19 /path/to/databases /path/to/bam_files /path/to/Annovar.pl True /path/to/panel
+sh Annotate.sh /path/to/Annovar.pl /path/to/created/directory/for/databases /path/to/filtering_output_directory /path/to/Mutect2_output_directory hg19 /path/to/tumor_normal.csv /path/to/HaplotypeCaller_output_directory 
 ```
 
 ## Information about relevant scripts: 
