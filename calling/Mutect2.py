@@ -38,7 +38,7 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    os.system('module load samtools')
+    os.system('module load gcc/6.2.0 python/3.6.0 java bcftools samtools')
     args = parse_args()
     clean_arg_paths(args)
 
@@ -68,7 +68,7 @@ def getSampleName(args):
     normal_dir = os.path.dirname(args.input_normal_path)
     normal_sample = os.path.basename(args.input_normal_path)
     output_sam = os.path.join(normal_dir, normal_sample + "_header.sam")
-    os.system("samtools view -H" + args.input_normal_path + " > " + output_sam)
+    os.system("samtools view -H " + args.input_normal_path + " > " + output_sam)
 
     with open(output_sam, 'r') as header: 
         for index, line in enumerate(header): 

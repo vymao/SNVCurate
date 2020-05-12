@@ -91,7 +91,7 @@ def main():
         print("Invalid r1 parameter. r1 must be greater than 0 to account for headers")
         sys.exit()
 
-    os.system('module load gcc/6.2.0 python/3.6.0 java bcftools')
+    os.system('module load gcc/6.2.0 python/3.6.0 java bcftools samtools')
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
     if (args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta') and args['parallel'].lower() == "true":
