@@ -47,16 +47,18 @@ def generate_regions_files(args):
     ref = os.path.basename(args['reference_path']).split('.')[0]
     regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
     intervals_ref_dir = os.path.join(regions_out_directory, ref)
-    if overwrite_intervals or not os.path.isdir(intervals_ref_dir):
+    if args['overwrite_intervals'] or not os.path.isdir(intervals_ref_dir) or args['scatter_size'] != '50':
         os.makedirs(intervals_ref_dir, exist_ok=True)
         os.system(args['gatk4_path'] + ' SplitIntervals' + '\\' + '\n' + \
          '\t' + '-R ' + args['reference_path'] + ' \\' + '\n' + \
          '\t' + '-scatter ' + args['scatter_size'] + ' \\' + '\n' + \
-         '\t' + '-O ' + regions_out_directory + ' \\')
+         '\t' + '-O ' + intervals_ref_dir + ' \\')
 
 def return_region_files(args):
+    ref = os.path.basename(args['reference_path']).split('.')[0]
     regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
-    region_files = [os.path.join(regions_out_directory, file) for file in os.listdir(regions_out_directory) if "scattered.intervals" in file]
+    intervals_ref_dir = os.path.join(regions_out_directory, ref)
+    region_files = [os.path.join(intervals_ref_dir, file) for file in os.listdir(intervals_ref_dir) if "scattered.intervals" in file]
     return region_files
 
 def get_column(csv, sample):
@@ -104,8 +106,13 @@ def main():
         if os.path.isfile(intervals_list_file):
             os.remove(intervals_list_file) 
         generate_regions_files(args)
+        print("Gathering split region files...")
         region_files = return_region_files(args)
-        print(region_files)
+        if len(region_files) == int(args['scatter_size']):
+            print("Done.")
+        else: 
+            print("Could not gather. Check memory allocation or overwrite intervals file creation and try again.")
+            sys.exit()
         with open(intervals_list_file, 'a') as intervals:
             for file in region_files:
                 intervals.write(file + '\n')
