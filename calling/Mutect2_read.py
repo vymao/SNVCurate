@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
+    parser.add_argument('-overwrite_intervals', default=False)
     parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to software')
     parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
     parser.add_argument('-parallel', default='True')
@@ -43,12 +44,15 @@ def arg_clean(args):
     return output_dir
 
 def generate_regions_files(args):
+    ref = os.path.basename(args['reference_path']).split('.')[0]
     regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
-    os.makedirs(regions_out_directory, exist_ok=True)
-    os.system(args['gatk4_path'] + ' SplitIntervals' + '\\' + '\n' + \
-     '\t' + '-R ' + args['reference_path'] + ' \\' + '\n' + \
-     '\t' + '-scatter ' + args['scatter_size'] + ' \\' + '\n' + \
-     '\t' + '-O ' + regions_out_directory + ' \\')
+    intervals_ref_dir = os.path.join(regions_out_directory, ref)
+    if overwrite_intervals or not os.path.isdir(intervals_ref_dir):
+        os.makedirs(intervals_ref_dir, exist_ok=True)
+        os.system(args['gatk4_path'] + ' SplitIntervals' + '\\' + '\n' + \
+         '\t' + '-R ' + args['reference_path'] + ' \\' + '\n' + \
+         '\t' + '-scatter ' + args['scatter_size'] + ' \\' + '\n' + \
+         '\t' + '-O ' + regions_out_directory + ' \\')
 
 def return_region_files(args):
     regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
