@@ -38,6 +38,7 @@ def parse_args():
     return parser.parse_args()
 
 def main():
+    os.system('module load samtools')
     args = parse_args()
     clean_arg_paths(args)
 
@@ -62,6 +63,21 @@ def main():
 
     if not os.path.isfile(path_to_vcf):
         submit_job(sh_file_name)
+
+def getSampleName(args):
+    normal_dir = os.path.dirname(args.input_normal_path)
+    normal_sample = os.path.basename(args.input_normal_path)
+    output_sam = os.path.join(normal_dir, normal_sample + "_header.sam")
+    os.system("samtools view -H" + args.input_normal_path + " > " + output_sam)
+
+    with open(output_sam, 'r') as header: 
+        for index, line in enumerate(header): 
+            if "@RG" in line: 
+                line_list = line.split('\t')
+                for item in line_list: 
+                    if "SM" in item: 
+                        normal = item.rstrip().split(':')
+                        return normal[1]
 
 def clean_arg_paths(args):
     """Modifies all user-inputted directory paths such that they end with a '/'"""
@@ -116,7 +132,13 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
 
     dict_path = os.path.dirname(args.reference_path)
     ref = os.path.basename(args.reference_path).split('.fa')[0]
+
     
+    normal_ID = getSampleName(args)
+    if normal_ID is None: 
+        print("Normal ID in sample header could not be found. Please rename BAM and try again.")
+        sys.exit()
+
     with open(dir + 'Input.json') as f:
         data = f.read()
         d = json.loads(data)
@@ -136,7 +158,7 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
             d["MuTecT.normal_bam"] = normal_file
             d["MuTecT.normal_bam_index"] = normal_path
             d["MuTecT.mode"] = "normal"
-            d["MuTecT.normal_name"] = normal_sample_name
+            d["MuTecT.normal_name"] = normal_ID
             if args.parallel.lower() == "false":
                 d["MuTecT.parallel"] = "False"
         else: 
