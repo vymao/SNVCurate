@@ -95,11 +95,11 @@ def main():
      else: hg19 = False
 
 
-     clean_bins(path_bins, path_bins_out, genotyped)
+     clean_bins(path_bins, path_bins_out, genotyped, hg19)
      bins = pd.read_csv(path_bins_out, sep='\t', header=None)
      
      
-     soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams)
+     soft_clipped_cutoff = generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams, hg19)
      soft_clipped_cutoff.to_csv(path_soft_clipped_cutoff_out, index=False)
      
 
@@ -230,7 +230,7 @@ def create_indel_mask(indels, path_bed_out):
      indels[['#CHROM', 'START_POS', 'END_POS', 'indic']].to_csv(path_bed_out, sep='\t', index=False, header=None)
      #return test
 
-def clean_bins(path_bins, path_bins_out, Genotyped):
+def clean_bins(path_bins, path_bins_out, Genotyped, hg19):
      # Import bins
      bins = pd.read_csv(path_bins, sep='\t', header=None)
      # Convert to 1-based coordinate system (for SAM) from 0-based (BED)
@@ -239,11 +239,13 @@ def clean_bins(path_bins, path_bins_out, Genotyped):
      bins = bins[bins[0].isin([i for i in bins[0].unique() if len(i) <= 5])]
      # Convert chromosome naming convention to comply with samtools
      if Genotyped:
-          bins[0] = bins[0].apply(lambda x: x.strip('chr'))
+          if not hg19:
+               #chrom = chrom.split('chr')[1]
+               bins[0] = bins[0].apply(lambda x: x.strip('chr'))
           bins[0] = bins[0].apply(lambda x: re.sub('M', 'MT', x))
      bins.to_csv(path_bins_out, header=None, index=False, sep='\t')
     
-def generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams):
+def generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams, hg19):
      bam_files = []
      soft_clipped = []
      """
@@ -254,11 +256,11 @@ def generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams):
      """
 
      bam_files.append(ntpath.basename(path_bams))
-     soft_clipped.append(return_soft_clipped_percentile(path_bams, bins))
+     soft_clipped.append(return_soft_clipped_percentile(path_bams, bins, hg19))
      soft_clipped_cutoff = pd.DataFrame({'sampleId': bam_files, 'Soft Clipped Cutoff': soft_clipped})
      return soft_clipped_cutoff
 
-def return_soft_clipped_percentile(path, bins):
+def return_soft_clipped_percentile(path, bins, hg19):
      samfile = pysam.AlignmentFile(path, "rb")
      sampled_bins = bins.sample(n=50000)
      soft_clipped = []
