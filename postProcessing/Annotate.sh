@@ -29,10 +29,14 @@ rm -f *reads.vcf *somatic.txt *combined.txt
 for path in ${out}/*; do 
     [ -d $path ] || continue
     cd ${path}/batch_submissions
+    dir=$(basename $path)
+
+    ln -s ${path2SNVCurate}/runAnnotate.sh ${dir}_ANNOTATE.sh
+
     if ! [ -z "$path2normal" ]; then
-        sbatch ${path2SNVCurate}/runAnnotate.sh $path $annovarscript $path2database $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
+        sbatch ${dir}_ANNOTATE.sh $path $annovarscript $path2database $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
     else
-        sbatch ${path2SNVCurate}/runAnnotate.sh $path $annovarscript $path2database $out $path2Mutect $reference False $csv $path2SNVCurate
+        sbatch ${dir}_ANNOTATE.sh $path $annovarscript $path2database $out $path2Mutect $reference False $csv $path2SNVCurate
     fi
 done
 

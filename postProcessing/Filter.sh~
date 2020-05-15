@@ -51,7 +51,7 @@ for path in ${path2Intersection}/*; do
     cd batch_submissions
 
     dirname=$(basename $path)
-    ln -s ${path2SNVCurate}/RunFilter.sh ${dirname}_FILTER.sh
+    cp ${path2SNVCurate}/RunFilter.sh ${dirname}_FILTER.sh
 
     if [ $matchedNormal == "true" ]; then
         normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)

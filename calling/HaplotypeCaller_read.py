@@ -9,7 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-input_path', help='Path to the text file')
     parser.add_argument('-normal', '--input_normal_path', help='path to normal file')
-    parser.add_argument('-output_path', default='/n/data1/hms/dbmi/park/victor/other/', help='Path to where the final pipeline output will be written to. Default output will be to /n/data1/hms/dbmi/park/victor/other/.')
+    parser.add_argument('-out', '--output_path', default='/n/data1/hms/dbmi/park/victor/other/', help='Path to where the final pipeline output will be written to. Default output will be to /n/data1/hms/dbmi/park/victor/other/.')
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('-t', '--runtime', default='0-15:0:0', help='slurm job submission option')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')

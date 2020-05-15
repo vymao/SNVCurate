@@ -90,7 +90,7 @@ def main():
      path_bams = collect_bams(args['bam'], basename)
      path_soft_clipped_cutoff_out = os.path.join(path_vcfs_intersection, 'soft_clipped_cutoff.csv')
 
-     if args['reference'] == 'hg19': hg19 = True
+     if args['reference'] == 'hg19' or args['reference'] == 'hg38': hg19 = True
      else: hg19 = False
 
 
