@@ -242,7 +242,7 @@ def clean_bins(path_bins, path_bins_out, Genotyped, hg19):
           if not hg19:
                #chrom = chrom.split('chr')[1]
                bins[0] = bins[0].apply(lambda x: x.strip('chr'))
-          bins[0] = bins[0].apply(lambda x: re.sub('M', 'MT', x))
+               bins[0] = bins[0].apply(lambda x: re.sub('M', 'MT', x))
      bins.to_csv(path_bins_out, header=None, index=False, sep='\t')
     
 def generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams, hg19):

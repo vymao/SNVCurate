@@ -170,7 +170,8 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
     #print(line_list[27])
     #print("")
     columns_examine = get_annotated_columns(args['input_path'])
-
+    if line_list[1] == "41256830": 
+        print('yes')
     
     for item in line_list: 
         if line_list.index(item) not in columns_examine: 
