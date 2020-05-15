@@ -30,26 +30,41 @@ rm -f *LABELED
 
 for file in *somatic_variants_filtered_2.vcf; do 
     outname=${dirname}.somatic_variants_filtered_2
-    ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-    #sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
+    
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    else
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    fi
 done
 
 for file in *germline_variants_filtered.vcf; do 
     outname=${dirname}.germline_variants_filtered
-    ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-    #sed -i '/#/d' *PASS.ANNO.germline_variants_filtered*.txt 
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nas$
+    else 
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nas$
+    fi
 done   
 
 for file in *M2_Risk_variants_filtered.vcf; do 
     outname=${dirname}.M2_Risk_variants_filtered
-    ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-    #sed -i '/#/d' ${dirname}.M2_RISK.germline_variants_filtered*.txt 
+
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nas$
+    else 
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nas$
+    fi
 done 
 
 if [ -f ${dirname}.PoN_filtered.vcf ]; then 
     outname=${dirname}.PoN_filtered
-    ${annovarscript} ${dirname}.PoN_filtered.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-    #sed -i '/#/d' *PASS.ANNO.somatic_variants_filtered*.txt   
+    
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} ${dirname}.PoN_filtered.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    else
+        ${annovarscript} ${dirname}.PoN_filtered.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish  
+    fi
 fi
 
 
@@ -96,9 +111,12 @@ if [ $path2normal != "False" ]; then
     normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
 
     cd ${normalname}*
-
-    ${annovarscript} ${path2normal}/${normalname}/${normalname}.vcf ${path2database} -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
-
+    
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} ${path2normal}/${normalname}/${normalname}.vcf ${path2database} -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish 
+    else
+        ${annovarscript} ${path2normal}/${normalname}/${normalname}.vcf ${path2database} -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    fi  
      
     if [ ! -f ${normalname}*.LABELED ]; then
         python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out ${path2normal}/${normalname}* -in ${normalname}.*txt

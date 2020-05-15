@@ -14,7 +14,7 @@
 module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2database=$1
-reference=$2
+reference=$(echo "${2}" | awk '{print tolower($0)}')
 annovar_database=$3
 cd $path2database
 
@@ -34,4 +34,9 @@ ln -s ${annovar_database}/20141020.strict_mask.whole_genome.bed 20141020.strict_
 ln -s ${annovar_database}/all.repeatmasker.b37.bed all.repeatmasker.b37.bed
 ln -s ${annovar_database}/${reference}_refGeneMrna.fa ${reference}_refGeneMrna.fa
 ln -s ${annovar_database}/${reference}_clinvar_20190305.txt ${reference}_clinvar_20190305.txt
-ln -s ${annovar_database}/${reference}_dbnsfp33a.txt ${reference}_dbnsfp33a.txt
+
+if [ $reference == "hg19" ]; then
+     ln -s ${annovar_database}/${reference}_dbnsfp33a.txt ${reference}_dbnsfp33a.txt
+else
+     ln -s ${annovar_database}/${reference}_dbnsfp30a.txt ${reference}_dbnsfp30a.txt
+fi

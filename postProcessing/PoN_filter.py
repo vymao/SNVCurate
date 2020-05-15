@@ -24,6 +24,7 @@ def parse_args():
 
 def main():
      args = vars(parse_args())
+     args['reference'] = args['reference'].lower()
      
      path_vcfs_intersection = os.path.dirname(args['somatic_vcf'])
      basename = os.path.basename(args['somatic_vcf']).split('.')[0]
@@ -64,7 +65,7 @@ def main():
  
      os.system(command)
          
-     path_intermed_in = os.path.join(path_vcfs_intersection, output_name + '.hg19_multianno.csv')
+     path_intermed_in = os.path.join(path_vcfs_intersection, output_name + '.' + args['reference'] + '_multianno.csv')
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
      vcfs = gen_dummies(vcfs, genotyped)
 
