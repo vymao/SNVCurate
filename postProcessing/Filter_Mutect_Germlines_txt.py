@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('-hap', default=None, help='Path to matched normal file')
     parser.add_argument('-mut', help='Path to Mutect2 subdirectories')
     parser.add_argument('-normals', help='Path to matched normals csv')
-    parser.add_argument('-pon', help='Panel of normals for samples without normals')
+    parser.add_argument('-pon', default=None, help='Panel of normals for samples without normals')
     parser.add_argument('-alt_cut', default=8, help='Alternate read level cutoff')
     parser.add_argument('-tot_cut', default=20, help='Alternate + reference total read level cutoff')
     parser.add_argument('-vaf_cut', default=0.05, help='VAF level cutoff')
@@ -165,14 +165,9 @@ def vcf_examine(line, args, germline_file_path, somatic_file_path, examine_phras
 
 def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_path, tumor_index): 
     line_list = line.strip().split('\t')
-    germline = False
-    #print(line_list[4])
-    #print(line_list[27])
-    #print("")
+    common = False
     columns_examine = get_annotated_columns(args['input_path'])
-    if line_list[1] == "41256830": 
-        print('yes')
-    
+
     for item in line_list: 
         if line_list.index(item) not in columns_examine: 
             continue
@@ -184,26 +179,32 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
                     with open(germline_file_path, 'a') as f:
                         if not check_in_file(vcf_line, germline_file_path):
                             f.write(vcf_line)
-                            germline = True
+                            common = True
                             break
             except:
                 continue
-            if germline:
+            if common:
                 return
 
-    if not germline: 
+    if not common: 
         vcf_line = find_in_vcf(args, line, 'vcf_path')
         with open(somatic_file_path, 'a') as f:
             
-            if check_germline_risk(vcf_line) and find_in_vcf(args, line, 'hap_path') is None and vcf_line is not None:
-                if check_read_levels(vcf_line, args, tumor_index): 
-                    f.write(vcf_line)
-                    return 
-                else: 
-                    with open(bad_read_path, 'a') as bad: 
-                        bad.write(vcf_line)
-                        return
-    
+            if check_germline_risk(vcf_line) and vcf_line is not None:
+                germline_line = find_in_vcf(args, line, 'hap_path') 
+                if germline_line is None:
+                    if check_read_levels(vcf_line, args, tumor_index): 
+                        f.write(vcf_line)
+                        return 
+                    else: 
+                        with open(bad_read_path, 'a') as bad: 
+                            bad.write(vcf_line)
+                            return
+                else if args['pon'] is not None:
+                    with open(germline_file_path, 'a') as f:
+                        if not check_in_file(germline_line, germline_file_path):
+                            f.write(germline_line)
+
 
 def check_germline_risk(vcf_line):
     if 'germline_risk' in vcf_line: 
@@ -213,8 +214,6 @@ def check_germline_risk(vcf_line):
 
 def check_read_levels(vcf_line, args, index):
     line_list = vcf_line.rstrip().split('\t')
-    print(index)
-    print(line_list)
     tumor_info = line_list[index].split(':')[1].split(',')
 
     if len(tumor_info) != 2: 

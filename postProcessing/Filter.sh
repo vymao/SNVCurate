@@ -32,15 +32,20 @@ panel=${14}
 
 cd $path2Intersection
 
-if [ -z "$1" ]; then
-    err "No path to intersection file provided."
-    exit 1
+if [ ! ${matchedNormal} == "false" ]; then
+    if [ ! ${matchedNormal} == "true" ]; then
+        err "Matched normal Boolean field must be True or False"
+        exit 1
+    fi
 fi
 
-if [ -z "$2" ]; then
-    err "No path to germline VCF provided."
-    exit 1
+if [ ! ${filterwithPanel} == "false" ]; then
+    if [ ! ${filterwithPanel} == "true" ]; then
+        err "Filter with masks Boolean field must be True or False"
+        exit 1
+    fi
 fi
+
 
 normalname="null"
 
@@ -63,9 +68,9 @@ for path in ${path2Intersection}/*; do
     fi
 
     if [ $filterwithPanel == "false" ]; then
-        sbatch ${dirname}_FILTER.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate $annovarscript
+        sbatch ${dirname}_FILTER.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database False $path2SNVCurate $annovarscript $matchedNormal
     else
-        sbatch ${dirname}_FILTER.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate $annovarscript
+        sbatch ${dirname}_FILTER.sh ${path}/intersection_files $normalname $csv $alt_cut $tot_cut $vaf_cut $maf_cut $bam $reference $path2database $panel $path2SNVCurate $annovarscript $matchedNormal
     fi
 done
 
