@@ -19,12 +19,12 @@ annovar_database=$3
 cd $path2database
 
 ln -s ${annovar_database}/${reference}_refGene.txt ${reference}_refGene.txt
-ln -s ${annovar_database}/${reference}_AFR.sites.2015_08.txt ${reference}_AFR.sites.2015_08.txt
-ln -s ${annovar_database}/${reference}_ALL.sites.2015_08.txt ${reference}_ALL.sites.2015_08.txt
-ln -s ${annovar_database}/${reference}_AMR.sites.2015_08.txt ${reference}_AMR.sites.2015_08.txt
-ln -s ${annovar_database}/${reference}_EAS.sites.2015_08.txt ${reference}_EAS.sites.2015_08.txt
-ln -s ${annovar_database}/${reference}_EUR.sites.2015_08.txt ${reference}_EUR.sites.2015_08.txt
-ln -s ${annovar_database}/${reference}_SAS.sites.2015_08.txt ${reference}_SAS.sites.2015_08.txt
+#ln -s ${annovar_database}/${reference}_AFR.sites.2015_08.txt ${reference}_AFR.sites.2015_08.txt
+#ln -s ${annovar_database}/${reference}_ALL.sites.2015_08.txt ${reference}_ALL.sites.2015_08.txt
+#ln -s ${annovar_database}/${reference}_AMR.sites.2015_08.txt ${reference}_AMR.sites.2015_08.txt
+#ln -s ${annovar_database}/${reference}_EAS.sites.2015_08.txt ${reference}_EAS.sites.2015_08.txt
+#ln -s ${annovar_database}/${reference}_EUR.sites.2015_08.txt ${reference}_EUR.sites.2015_08.txt
+#ln -s ${annovar_database}/${reference}_SAS.sites.2015_08.txt ${reference}_SAS.sites.2015_08.txt
 ln -s ${annovar_database}/${reference}_exac03.txt ${reference}_exac03.txt
 ln -s ${annovar_database}/${reference}_esp6500siv2_all.txt ${reference}_esp6500siv2_all.txt
 ln -s ${annovar_database}/simpleRepeat.bed simpleRepeat.bed
@@ -35,8 +35,15 @@ ln -s ${annovar_database}/all.repeatmasker.b37.bed all.repeatmasker.b37.bed
 ln -s ${annovar_database}/${reference}_refGeneMrna.fa ${reference}_refGeneMrna.fa
 ln -s ${annovar_database}/${reference}_clinvar_20190305.txt ${reference}_clinvar_20190305.txt
 
+
+
 if [ $reference == "hg19" ]; then
      ln -s ${annovar_database}/${reference}_dbnsfp33a.txt ${reference}_dbnsfp33a.txt
+     ln -s ${annovar_database}/${reference}_gnomad211_exome.txt ${reference}_gnomad211_exome.txt
+     ln -s ${annovar_database}/${reference}_gnomad211_genome.txt ${reference}_gnomad211_genome.txt
 else
      ln -s ${annovar_database}/${reference}_dbnsfp30a.txt ${reference}_dbnsfp30a.txt
+     ln -s ${annovar_database}/${reference}_gnomad_exome.txt ${reference}_gnomad211_exome.txt
+     ln -s ${annovar_database}/${reference}_gnomad_genome.txt ${reference}_gnomad211_genome.txt
+
 fi

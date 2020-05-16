@@ -41,7 +41,11 @@ mkdir -p cut_filtering
 cd cut_filtering 
 
 if [ ! -f ${path2Intersection}*txt ]; then
-    ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf '/home/mk446/bin/annovar/humandb/' -buildver 'hg19' -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,1000g2015aug_all' -operation 'g,f,f,f' -nastring . -vcfinput -polish
+    if [ $reference == "hg19" ]; then
+        ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,g$
+    else
+        ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+    fi
 fi
 
 for file in *.txt; do 
