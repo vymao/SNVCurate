@@ -76,13 +76,15 @@ def main():
             if args['hap'] is not None: 
                 args['hap_path'] = args['hap']
             else: 
+                """
                 normal = get_normal(args)
                 if normal is None: 
                     args['hap_path'] = args['pon']
                 else: 
                     normal_vcf = normal.split('.bam')[0] + '.vcf'
                     args['hap_path'] = os.path.join(args['hap_path'], normal_vcf)
-
+                """
+                args['hap_path'] = args['pon']
             tumor_index = get_tumor_column(args['vcf_path'])
             with open(args['input_path'], 'r') as f:
                 for index, line in enumerate(f):
@@ -200,7 +202,7 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
                         with open(bad_read_path, 'a') as bad: 
                             bad.write(vcf_line)
                             return
-                else if args['pon'] is not None:
+                elif args['pon'] is not None:
                     with open(germline_file_path, 'a') as f:
                         if not check_in_file(germline_line, germline_file_path):
                             f.write(germline_line)
