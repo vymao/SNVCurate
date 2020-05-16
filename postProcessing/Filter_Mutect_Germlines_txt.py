@@ -204,8 +204,8 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
                             return
                 elif args['pon'] is not None:
                     with open(germline_file_path, 'a') as f:
-                        if not check_in_file(germline_line, germline_file_path):
-                            f.write(germline_line)
+                        if not check_in_file(vcf_line, germline_file_path):
+                            f.write(vcf_line)
 
 
 def check_germline_risk(vcf_line):

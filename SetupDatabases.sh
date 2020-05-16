@@ -43,7 +43,7 @@ if [ $reference == "hg19" ]; then
      ln -s ${annovar_database}/${reference}_gnomad211_genome.txt ${reference}_gnomad211_genome.txt
 else
      ln -s ${annovar_database}/${reference}_dbnsfp30a.txt ${reference}_dbnsfp30a.txt
-     ln -s ${annovar_database}/${reference}_gnomad_exome.txt ${reference}_gnomad211_exome.txt
-     ln -s ${annovar_database}/${reference}_gnomad_genome.txt ${reference}_gnomad211_genome.txt
+     ln -s ${annovar_database}/${reference}_gnomad_exome.txt ${reference}_gnomad_exome.txt
+     ln -s ${annovar_database}/${reference}_gnomad_genome.txt ${reference}_gnomad_genome.txt
 
 fi
