@@ -20,7 +20,7 @@ cd $path2database
 
 ln -s ${annovar_database}/${reference}_refGene.txt ${reference}_refGene.txt
 #ln -s ${annovar_database}/${reference}_AFR.sites.2015_08.txt ${reference}_AFR.sites.2015_08.txt
-#ln -s ${annovar_database}/${reference}_ALL.sites.2015_08.txt ${reference}_ALL.sites.2015_08.txt
+ln -s ${annovar_database}/${reference}_ALL.sites.2015_08.txt ${reference}_ALL.sites.2015_08.txt
 #ln -s ${annovar_database}/${reference}_AMR.sites.2015_08.txt ${reference}_AMR.sites.2015_08.txt
 #ln -s ${annovar_database}/${reference}_EAS.sites.2015_08.txt ${reference}_EAS.sites.2015_08.txt
 #ln -s ${annovar_database}/${reference}_EUR.sites.2015_08.txt ${reference}_EUR.sites.2015_08.txt

@@ -157,7 +157,6 @@ if [ $path2normal != "False" ]; then
     fi
 
 else
-    normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
     if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
         for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
             cp $file "${out}/${dirname}.germline_combined.txt"

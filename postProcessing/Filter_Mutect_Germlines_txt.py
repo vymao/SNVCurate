@@ -169,13 +169,21 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
     line_list = line.strip().split('\t')
     common = False
     columns_examine = get_annotated_columns(args['input_path'])
+    if line_list[1] == "70405064":
+        print(line_list)
+        print(columns_examine)
+
 
     for item in line_list: 
         if line_list.index(item) not in columns_examine: 
             continue
         if line_list.index(item) > columns_examine[0]:
+            if line_list[1] == "70405064": 
+                print(item)
             try: 
                 number = float(item)
+                if line_list[1] == "70405064":
+                    print(number > float(args['threshhold']))
                 if number > float(args['threshhold']):
                     vcf_line = find_in_vcf(args, line, 'vcf_path')
                     with open(germline_file_path, 'a') as f:
@@ -290,7 +298,7 @@ def get_tumor_column(file_path):
 
 
 def get_annotated_columns(file): 
-    list_of_databases = ['ExAC', 'gnomAD', '1000g']
+    list_of_databases = ['ExAC', 'gnomAD', '1000g', 'AF']
     header = ""
     column_indices = []
 
@@ -300,12 +308,23 @@ def get_annotated_columns(file):
                 header = line
                 break
 
-    line_list = line.rstrip().split('\t')
+    line_list = header.rstrip().split('\t')
+    for i in range(len(line_list)): 
+        for database in list_of_databases: 
+            if database in line_list[i]: 
+                column_indices.append(i)
+                break
+
+
+
+    """
     for item in line_list: 
         for database in list_of_databases: 
             if database in item: 
                 column_indices.append(line_list.index(item))
-
+                print(column_indices)
+                break
+    """
     return column_indices
 
 if __name__ == "__main__":
