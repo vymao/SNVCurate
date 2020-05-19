@@ -106,14 +106,18 @@ def main():
      soft_clipped_cutoff = pd.read_csv(path_soft_clipped_cutoff_out)
      vcfs = merge_soft_clipped_cutoff(vcfs, soft_clipped_cutoff, path_vcfs_intersection)
      vcfs = annotate_clipped_reads(vcfs, hg19, path_bams)
-     vcfs = vcfs[vcfs['clipped_reads'] < vcfs['Soft Clipped Cutoff']]
+     vcfs = vcfs[vcfs['clipped_reads'] <= vcfs['Soft Clipped Cutoff']]
      vcfs.to_csv(os.path.join(path_vcfs_intersection, 'Final_Callset.txt'), sep = '\t', index=False)
 
      output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
      prep_annovar(vcfs, basename + '.annot_normal.txt', path_vcfs_intersection)
-     command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/home/mk446/bin/annovar/humandb/" + \
+     
+     if args['reference'] == 'hg19': 
+          command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/home/mk446/bin/annovar/humandb/" + \
                " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -csvout -polish"
-
+     else: 
+          command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/home/mk446/bin/annovar/humandb/" + \
+               " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp30a -operation g,f,f -nastring . -csvout -polish"
      os.system(command)
    
 
@@ -269,12 +273,16 @@ def return_soft_clipped_percentile(path, bins, hg19):
           num_reads = 0
           num_sc_reads = 0
           for read in samfile.fetch(chrom, start, stop):
+               #print(read)
                num_reads += 1
                lst = re.findall(r"[^\W\d_]+|\d+", str(read).split('\t')[5])
                if 'S' in lst:
                     num_sc_reads += 1
           if num_reads > 0:
                soft_clipped.append(num_sc_reads/(num_reads))
+     #print("length of soft clipped array: " + str(len(soft_clipped)))
+     #print("soft clipped: ")
+     #print(soft_clipped)
      return np.percentile(np.array(soft_clipped), 95)
 
 def return_num_clipped_reads(chrom, start, stop, path, sam_file, hg19):
