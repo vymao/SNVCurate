@@ -143,7 +143,7 @@ workflow MuTecT {
     call LearnReadOrientationModel_parallel {
       input:      
         gatk_path = gatk_path,
-        artifacts = MuTecT_normal.artifacts
+        artifacts = if (mode == "normal") then MuTecT_normal.artifacts else MuTecT_PoN.artifacts,
     }
   }
 
@@ -302,6 +302,7 @@ task MuTecT_PoN {
       -I ${input_bam} \
       --panel-of-normal ${panel} \
       --germline-resource ${gnomad} \
+      --f1r2-tar-gz f1r2.tar.gz \
       -L ${regions_list} \
       -O ${output_filename} 
   >>>
@@ -310,6 +311,7 @@ task MuTecT_PoN {
     File output_vcf = "${output_filename}"
     File output_vcf_index = "${output_filename}.idx"
     File output_stats = "${output_filename}.stats"
+    File artifacts = "f1r2.tar.gz"
   }
 }
 
