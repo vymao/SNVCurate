@@ -115,7 +115,8 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
 
     bai_suffix = '.bai'
     bam_path = os.path.join(bam_dir, re.sub('.bam', '.bam.bai', bam_sample))
-
+    
+    normal_path = ""
     if args.panel == "nopath":
         normal_file = args.input_normal_path
         normal_sample_name = os.path.basename(normal_file).split('.')[0]
@@ -133,11 +134,11 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
     dict_path = os.path.dirname(args.reference_path)
     ref = os.path.basename(args.reference_path).split('.fa')[0]
 
-    
-    normal_ID = getSampleName(args)
-    if normal_ID is None: 
-        print("Normal ID in sample header could not be found. Please rename BAM and try again.")
-        sys.exit()
+    if args.panel == "nopath":    
+        normal_ID = getSampleName(args)
+        if normal_ID is None: 
+            print("Normal ID in sample header could not be found. Please rename BAM and try again.")
+            sys.exit()
 
     with open(dir + 'Input.json') as f:
         data = f.read()
