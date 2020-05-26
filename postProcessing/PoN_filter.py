@@ -244,11 +244,14 @@ def clean_bins(path_bins, path_bins_out, Genotyped, hg19):
      # Remove non canonical Chroms 1-22 + X,Y,MT
      bins = bins[bins[0].isin([i for i in bins[0].unique() if len(i) <= 5])]
      # Convert chromosome naming convention to comply with samtools
+
+     """
      if Genotyped:
           if not hg19:
-               chrom = chrom.split('chr')[1]
+               #chrom = chrom.split('chr')[1]
                bins[0] = bins[0].apply(lambda x: x.strip('chr'))
                bins[0] = bins[0].apply(lambda x: re.sub('M', 'MT', x))
+     """
      bins.to_csv(path_bins_out, header=None, index=False, sep='\t')
     
 def generate_soft_clipped_cutoff(path_vcfs_intersection, bins, path_bams, hg19):
@@ -274,7 +277,14 @@ def return_soft_clipped_percentile(path, bins, hg19):
      for chrom, start, stop in lst:
           num_reads = 0
           num_sc_reads = 0
-          for read in samfile.fetch(chrom, start, stop):
+          try: 
+               current_read = samfile.fetch(chrom, start, stop)
+          except: 
+               chrom = chrom.split('chr')[1]
+               if 'M' in chrom: 
+                    chrom = re.sub('M', 'MT', chrom)
+               current_read = samfile.fetch(chrom, start, stop)
+          for read in current_read:
                #print(read)
                num_reads += 1
                lst = re.findall(r"[^\W\d_]+|\d+", str(read).split('\t')[5])
@@ -292,13 +302,19 @@ def return_num_clipped_reads(chrom, start, stop, path, sam_file, hg19):
      #    chrom_number = chromosome.split('chr')[1]
      #    return chrom_number
      #chrom = chrom.apply(strip_chrom)
-     if not hg19:
-        chrom = chrom.split('chr')[1]
      samfile = sam_file
      num_reads = 0
      num_sc_reads = 0
 
-     for read in samfile.fetch(chrom, start, stop):
+     try: 
+          current_read = samfile.fetch(chrom, start, stop)
+     except: 
+          chrom = chrom.split('chr')[1]
+          if 'M' in chrom: 
+               chrom = re.sub('M', 'MT', chrom)
+          current_read = samfile.fetch(chrom, start, stop)
+
+     for read in current_read:
           num_reads += 1
           lst = re.findall(r"[^\W\d_]+|\d+", str(read).split('\t')[5])
           if 'S' in lst:
