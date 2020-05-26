@@ -300,7 +300,7 @@ task MuTecT_PoN {
       Mutect2 \
       -R ${ref_fasta} \
       -I ${input_bam} \
-      --panel-of-normal ${panel} \
+      --panel-of-normals ${panel} \
       --germline-resource ${gnomad} \
       --f1r2-tar-gz f1r2.tar.gz \
       -L ${regions_list} \

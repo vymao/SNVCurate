@@ -38,8 +38,11 @@ def parse_args():
     return parser.parse_args()
 
 def arg_clean(args):
-    if args['output_directory'] == '.' or args['output_directory'] == './': output_dir = os.getcwd()
-    else: output_dir = args['output_directory'] 
+    if args['output_directory'] == '.' or args['output_directory'] == './': 
+        output_dir = os.getcwd()
+        args['output_directory'] = output_dir
+    else: 
+        output_dir = args['output_directory'] 
 
     return output_dir
 
@@ -101,7 +104,7 @@ def main():
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
     if (args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta') and args['parallel'].lower() == "true":
-        regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
+        regions_out_directory = os.path.join(output_dir, '.Mutect2/.regions/')
         intervals_list_file = os.path.join(regions_out_directory, reference_name + '.scattered_intervals.list')
         if os.path.isfile(intervals_list_file):
             os.remove(intervals_list_file) 
@@ -133,7 +136,7 @@ def main():
                         os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
                             ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
                             + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] 
-                            + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'])                    
+                            + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'])                    
                     else:
                         continue
                 else: 

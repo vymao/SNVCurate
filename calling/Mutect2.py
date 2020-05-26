@@ -164,7 +164,7 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
                 d["MuTecT.parallel"] = "False"
         else: 
             d["MuTecT.panel"] = args.panel
-            d["MuTecT.panel_bam_index"] = args.panel + '.idx'
+            d["MuTecT.panel_index"] = args.panel + '.idx'
             d["MuTecT.mode"] = "panel"
             d["MuTecT.normal_name"] = "NA"
 

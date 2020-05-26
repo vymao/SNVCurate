@@ -39,19 +39,19 @@ def main():
      prep_annovar(vcfs, basename + '.annot_normal.csv', path_vcfs_intersection)
 
      if args['normal_vcf'] is not None: 
-          #path_vcfs_germline = os.path.dirname(args['normal_vcf'])
-          #germline = import_append_process_vcfs(args['normal_vcf'])
-          #germline_indel_vcf = keep_only_indels(germline)
-          #create_indel_mask(germline_indel_vcf, os.path.join(args["annovar"], 'FCD_indels.bed'))
+          path_vcfs_germline = os.path.dirname(args['normal_vcf'])
+          germline = import_append_process_vcfs(args['normal_vcf'])
+          germline_indel_vcf = keep_only_indels(germline)
+          create_indel_mask(germline_indel_vcf, os.path.join(args["annovar"], 'FCD_indels.bed'))
           output_name = os.path.join(path_vcfs_intersection, basename + "_Common_filtered")
           sample_paths = os.path.join(path_vcfs_intersection, basename+ '.annot_normal.csv')
 
-          genotyped = False
+          genotyped = True
 
           command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
-                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r" + \
-                         " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + \
-                         "--argument ',,,,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
+                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r,r" + \
+                         " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed,FCD_indels.bed " + \
+                         "--argument ',,,,-colsWanted 4,-colsWanted 5,,,,' -csvout -polish"
      else: 
           sample_paths = os.path.join(path_vcfs_intersection, basename+ '.annot_normal.csv')
           output_name = os.path.join(path_vcfs_intersection, basename + "_Common_filtered")
@@ -81,7 +81,7 @@ def main():
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
      print("vcfs length: " + str(len(vcfs)))
 
-     """
+    
      path_bedtools_intersect = '/n/data1/hms/dbmi/park/alon/command_line_tools/Bedtools/Intersect.py'
      path_exome_capture_bed = '/n/data1/hms/dbmi/park/alon/files/FCD/Reference_Files/TruSeq_Exome_Targeted_Regions_Manifest/truseq-exome-targeted-regions-manifest-v1-2.bed'
      path_bins = '/n/data1/hms/dbmi/park/alon/files/FCD/Reference_Files/bins/bins.bed'
@@ -108,7 +108,7 @@ def main():
      vcfs = annotate_clipped_reads(vcfs, hg19, path_bams)
      vcfs = vcfs[vcfs['clipped_reads'] <= vcfs['Soft Clipped Cutoff']]
 
-     """
+     
      vcfs.to_csv(os.path.join(path_vcfs_intersection, 'Final_Callset.txt'), sep = '\t', index=False)
 
      output_name = os.path.join(path_vcfs_intersection, basename + ".Final_Callset")
@@ -246,7 +246,7 @@ def clean_bins(path_bins, path_bins_out, Genotyped, hg19):
      # Convert chromosome naming convention to comply with samtools
      if Genotyped:
           if not hg19:
-               #chrom = chrom.split('chr')[1]
+               chrom = chrom.split('chr')[1]
                bins[0] = bins[0].apply(lambda x: x.strip('chr'))
                bins[0] = bins[0].apply(lambda x: re.sub('M', 'MT', x))
      bins.to_csv(path_bins_out, header=None, index=False, sep='\t')
