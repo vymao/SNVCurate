@@ -50,7 +50,7 @@ def main():
     sh_file_name = gen_sh_file_name(args, output_file_name)
 
     write_out(args, slurm_command, primary_command, sh_file_name)
-    sample_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
+    sample_name = ntpath.basename(args.input_tumor_path).split('.')[0]
     path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".MuSE", sample_name)), sample_name + '.vcf') 
     vcf_dir = os.path.join(args.output_directory, os.path.join(".MuSE", sample_name))
     os.makedirs(vcf_dir, exist_ok=True) 
