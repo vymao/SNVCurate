@@ -8,9 +8,9 @@ def parse_args():
     """Uses argparse to enable user to customize script functionality""" 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-tumor', '--input_tumor_path', help='path to input tumor file')
-    parser.add_argument('-normal', '--input_normal_path', help='path to normal file')
+    parser.add_argument('-normal', '--input_normal_path', default=None, help='path to normal file')
     parser.add_argument('-pon', '--panel', default='nopath', help='path to panel of norms')
-    parser.add_argument('-csv', help='csv containing matched tumor/normal pairs')
+    parser.add_argument('-csv', default=None, help='csv containing matched tumor/normal pairs')
     parser.add_argument('-out', '--output_directory', default='./', help='directory to which the output directory "/.Mutect2/" will be written to')
     parser.add_argument('-n', '--num_cores', default='1', help='slurm job submission option')
     parser.add_argument('-t', '--runtime', default='0-12:0:0', help='slurm job submission option')
@@ -100,6 +100,10 @@ def main():
         print("Invalid r1 parameter. r1 must be greater than 0 to account for headers")
         sys.exit()
 
+    if args['csv'] is None: 
+        print("Missing csv input")
+        sys.exit()
+
     os.system('module load gcc/6.2.0 python/3.6.0 java bcftools samtools')
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
@@ -130,8 +134,8 @@ def main():
                 current_tumor_sample = get_bam(args['csv'], index, tumor_index)
                 current_normal_sample = get_bam(args['csv'], index, normal_index)
 
-                if current_tumor_sample is None or current_normal_sample is None:
-                    if current_normal_sample is None and current_tumor_sample is not None and args['panel'] != 'nopath': 
+                if current_tumor_sample is None or current_normal_sample is None or args['input_normal_path'] is None:
+                    if (current_normal_sample is None and current_tumor_sample is not None and args['panel'] != 'nopath') or (args['input_normal_path'] is None and args['panel'] != 'nopath'): 
                         tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
                         os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
                             ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
