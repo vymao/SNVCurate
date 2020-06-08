@@ -47,7 +47,7 @@ bcftools sort ${path2Intersection}/${dirname}.INTERSECTION.vcf > ${dirname}.INTE
 bgzip -c ${dirname}.INTERSECTION.sorted.vcf > ${dirname}.INTERSECTION.sorted.vcf.gz
 tabix -p vcf ${dirname}.INTERSECTION.sorted.vcf.gz
 
-bcftools isec -p $PWD -Oz ${dirname}.INTERSECTION.sorted.vcf.gz ${normal}
+bcftools isec -p $PWD ${dirname}.INTERSECTION.sorted.vcf.gz ${normal}
 mv 0000.vcf ${dirname}.UNIQUE.vcf
 mv 0002.vcf ${dirname}.NORMAL_INTERSECTED.vcf
 rm ${dirname}.INTERSECTION.sorted.vcf ${dirname}.INTERSECTION.sorted.vcf.gz 000*.vcf ${dirname}.INTERSECTION.sorted.vcf.gz.tbi
