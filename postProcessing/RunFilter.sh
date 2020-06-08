@@ -13,7 +13,6 @@
 #module load gcc/6.2.0 python/3.6.0 java bcftools
 
 path2SNVCurate=${12}
-echo $0
 
 path2Intersection=$1
 normal=$2
@@ -29,6 +28,9 @@ bam=$8
 path2AnnovarScript=${13}
 
 
+set -e
+
+
 sampledir=$(dirname $path2Intersection)
 dirname=$(basename $sampledir)
 
@@ -40,11 +42,22 @@ mkdir -p cut_filtering
 
 cd cut_filtering 
 
+bcftools sort ${path2Intersection}/${dirname}.INTERSECTION.vcf > ${dirname}.INTERSECTION.sorted.vcf
+
+bgzip -c ${dirname}.INTERSECTION.sorted.vcf > ${dirname}.INTERSECTION.sorted.vcf.gz
+tabix -p vcf ${dirname}.INTERSECTION.sorted.vcf.gz
+
+bcftools isec -p $PWD -Oz ${dirname}.INTERSECTION.sorted.vcf.gz ${normal}
+mv 0000.vcf ${dirname}.UNIQUE.vcf
+mv 0002.vcf ${dirname}.NORMAL_INTERSECTED.vcf
+rm ${dirname}.INTERSECTION.sorted.vcf ${dirname}.INTERSECTION.sorted.vcf.gz 000*.vcf ${dirname}.INTERSECTION.sorted.vcf.gz.tbi
+
+
 if [ ! -f ${path2Intersection}*txt ]; then
     if [ $reference == "hg19" ]; then
-        ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad211_genome,gnomad211_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+        ${path2AnnovarScript} ${dirname}.UNIQUE.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad211_genome,gnomad211_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
     else
-        ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+        ${path2AnnovarScript} ${dirname}.UNIQUE.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
     fi
 fi
 
@@ -52,7 +65,6 @@ for file in *.txt; do
     mv $file ${file}.csv
 done
 
-set -e
 echo "Running with parameters:"
 echo "alt_cut: ${alt_cut}"
 echo "total_cut: ${tot_cut}"
@@ -78,12 +90,13 @@ if [ ${panelfilter} != "False" ]; then
     
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
     mv ${dirname}_Final_Callset.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
-    mv ${dirname}_Filtered_file.vcf ${sampledir}/annotation_files/${dirname}.PoN_filtered.vcf
+    mv ${dirname}.NORMAL_INTERSECTED.vcf ${sampledir}/annotation_files/${dirname}.normal_intersected.vcf
     mv ${dirname}.germline_variants_filtered.vcf ${sampledir}/annotation_files
 else 
     cp ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files/${dirname}.somatic_variants_filtered_2.vcf
     mv ${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
     mv ${dirname}.germline_variants_filtered.vcf ${sampledir}/annotation_files
+    mv ${dirname}.NORMAL_INTERSECTED.vcf ${sampledir}/annotation_files/${dirname}.normal_intersected.vcf
 fi
 
 

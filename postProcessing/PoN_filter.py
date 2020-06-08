@@ -69,16 +69,18 @@ def main():
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
      vcfs = gen_dummies(vcfs, genotyped)
 
-     pon = import_vcf(args['pon'])
-     pon['PON'] = True
-     pon = pon.drop_duplicates(['#CHROM', 'POS'])
-     vcfs_merged = vcfs.merge(pon[['#CHROM', 'POS', 'PON']], how='left', on=['#CHROM', 'POS'])
-     vcfs = vcfs_merged
+     #pon = import_vcf(args['pon'])
+     #pon['PON'] = True
+     #pon = pon.drop_duplicates(['#CHROM', 'POS'])
+     #vcfs_merged = vcfs.merge(pon[['#CHROM', 'POS', 'PON']], how='left', on=['#CHROM', 'POS'])
+     #vcfs = vcfs_merged
 
      if genotyped:
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['CE_Indel']==False) & (vcfs['PON']!=True)]
      else:
-          vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
+          #vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
+          vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True)]
+          vcfs_complement = vcfs[(vcfs['Common Variant']== True) & (vcfs['1000G_blacklist']== False)] 
      print("vcfs length: " + str(len(vcfs)))
      """
     
@@ -144,6 +146,21 @@ def main():
      """
 
 
+     vcf_original = import_vcf(args['somatic_vcf'])
+     vcfs_filtered = vcfs_original.merge(vcfs[['#CHROM', 'POS', 'REF', 'ALT']], how='left')
+     vcfs_captured = vcfs_original.merge(vcfs_complement[['#CHROM', 'POS', 'REF', 'ALT']], how='left')
+
+     with open(somatic_file_path, 'a') as file: 
+          for i in range(len(vcfs_filtered)): 
+               line = vcfs_filtered.iloc[i]
+               file.write(line)
+
+     with open(PoN_filtered_file, 'a') as file: 
+          for i in range(len(vcfs_captured)): 
+               line = vcfs_captured.iloc[i]
+               file.write(line)
+
+     """
      with open(args['somatic_vcf'], 'r') as old: 
           for index, line in enumerate(old): 
                if '#' in line: 
@@ -157,6 +174,7 @@ def main():
                     file = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")
                     with open(file, 'a') as to_write: 
                          to_write.write(line)
+     """
 
 def collect_bams(bam_path, sample):
     normals = [os.path.realpath(file) for file in glob.glob(os.path.join(bam_path, sample + '*.bam'))]

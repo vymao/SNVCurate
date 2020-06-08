@@ -57,13 +57,23 @@ for file in *M2_Risk_variants_filtered.vcf; do
     fi
 done 
 
-if [ -f ${dirname}.PoN_filtered.vcf ]; then 
-    outname=${dirname}.PoN_filtered
+for file in *.normal_intersected.vcf; do 
+    outname=${dirname}.normal_intersected
+
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    else 
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    fi
+done 
+
+if [ -f ${dirname}_Filtered_file.vcf]; then 
+    outname=${dirname}_Filtered_file.vcf
     
     if [ $reference == "hg19" ]; then
-        ${annovarscript} ${dirname}.PoN_filtered.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+        ${annovarscript} ${dirname}_Filtered_file.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
     else
-        ${annovarscript} ${dirname}.PoN_filtered.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish  
+        ${annovarscript} ${dirname}_Filtered_file.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish  
     fi
 fi
 
@@ -91,13 +101,21 @@ for file in *M2_Risk_variants_filtered.*txt.LABELED; do
     python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
 done 
 
-if [ -f ${dirname}.PoN_filtered.vcf ]; then 
-    for file in *PoN_filtered.*txt; do 
+for file in *normal_intersected.*txt; do 
+   python3 ${path2SNVCurate}/Label_Source.py -source intersect -out ${path}/annotation_files -in $file
+done 
+
+for file in *normal_intersected.*txt.LABELED; do 
+    python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
+done 
+
+if [ -f ${dirname}._Filtered_file.vcf ]; then 
+    for file in *_Filtered_file.*txt; do 
         python3 ${path2SNVCurate}/Label_Source.py -source pon -out ${path}/annotation_files -in $file
     done 
 
-    for file in *PoN_filtered.*txt.LABELED; do 
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${dirname}.PoN_filtered.vcf
+    for file in *_Filtered_file.*txt.LABELED; do 
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${dirname}.normal_intersected.vcf
     done
 
 fi
@@ -136,42 +154,51 @@ Haplo_file='.LABELED.levels'
 Somatic_file='*somatic_variants_filtered_2.*txt*.levels'
 bad_file='ANNO.bad_somatic_quality.*vcf'
 pon_file='*PoN_filtered.*.levels'
+intersect_file="*normal_intersected*.levels"
 #Mutect_Germline_risk_file="$dirname.germline_variants_filtered.vcf.TUMOR.avinput.hg19_multianno.csv"
 
 if [ $path2normal != "False" ]; then
     normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
     if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
         for file in ${path2normal}/${normalname}/${normalname}*${Haplo_file}; do
-            cp $file "${out}/${dirname}.germline_combined.txt"
+            ln -s $file "${out}/${dirname}.HaplotypeCaller.txt"
         done
 
         for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
             #cp $file "${Output_path}/${dirname}.germline_combined.csv"
-            tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
+            cp $file "${out}/${dirname}.germline_filtered.txt"
+            #tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
         done
         
-
         for file in ${path}/annotation_files/*${Filtered_file}; do
-            tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
+            tail -n +2 $file >> "${out}/${dirname}.germline_filtered.txt"
+        done
+
+        for file in ${path}/annotation_files/*${intersect_file}; do
+            tail -n +2 $file >> "${out}/${dirname}.germline_filtered.txt"
         done
     fi
 
 else
     if [ ! -f ${out}/${dirname}.germline_combined.csv ]; then
         for file in ${path}/annotation_files/*${Mutect_Germline_anno_file}; do
-            cp $file "${out}/${dirname}.germline_combined.txt"
+            cp $file "${out}/${dirname}.germline_filtered.txt"
        done
         
 
         for file in ${path}/annotation_files/*${Filtered_file}; do
-            tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
+            tail -n +2 $file >> "${out}/${dirname}.germline_filtered.txt"
+        done
+
+        for file in ${path}/annotation_files/*${intersect_file}; do
+            tail -n +2 $file >> "${out}/${dirname}.germline_filtered.txt"
         done
     fi
 fi
 
 if [ -f ${path}/annotation_files/${dirname}.PoN_filtered.vcf ]; then 
     for file in ${path}/annotation_files/*${pon_file}; do
-        tail -n +2 $file >> "${out}/${dirname}.germline_combined.txt"
+        tail -n +2 $file >> "${out}/${dirname}.germline_filtered.txt"
     done
 fi
 

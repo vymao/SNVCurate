@@ -169,21 +169,45 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
     line_list = line.strip().split('\t')
     common = False
     columns_examine = get_annotated_columns(args['input_path'])
-    if line_list[1] == "70405064":
-        print(line_list)
-        print(columns_examine)
+    total = len(columns_examine)
+    columns_examine = iter(get_annotated_columns)
 
+    vcf_line = find_in_vcf(args, line, 'vcf_path')
 
+    if not check_germline_risk(vcf_line): 
+        common = True
+    if not check_read_levels(vcf_line, args, tumor_index): 
+        with open(bad_read_path, 'a') as bad: 
+            bad.write(vcf_line)   
+        common = True     
+
+    count = 0
+    while not common and count < total: 
+        index = next(columns_examine)
+        item = line_list[index]
+        try: 
+            number = float(item)
+            if number > float(args['threshhold']) and vcf_line is not None:
+                with open(germline_file_path, 'a') as f:
+                    f.write(vcf_line)
+                        common = True
+        except:
+            continue
+
+        count += 1
+        
+    if not common and vcf_line is not None: 
+        with open(somatic_file_path, 'a') as f: 
+            f.write(vcf_line)
+            return 
+
+    """
     for item in line_list: 
         if line_list.index(item) not in columns_examine: 
             continue
         if line_list.index(item) > columns_examine[0]:
-            if line_list[1] == "70405064": 
-                print(item)
             try: 
                 number = float(item)
-                if line_list[1] == "70405064":
-                    print(number > float(args['threshhold']))
                 if number > float(args['threshhold']):
                     vcf_line = find_in_vcf(args, line, 'vcf_path')
                     with open(germline_file_path, 'a') as f:
@@ -214,7 +238,7 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
                     with open(germline_file_path, 'a') as f:
                         if not check_in_file(vcf_line, germline_file_path):
                             f.write(vcf_line)
-
+    """
 
 def check_germline_risk(vcf_line):
     if 'germline_risk' in vcf_line: 
