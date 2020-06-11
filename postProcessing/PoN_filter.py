@@ -69,11 +69,12 @@ def main():
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
      vcfs = gen_dummies(vcfs, genotyped)
 
-     #pon = import_vcf(args['pon'])
-     #pon['PON'] = True
-     #pon = pon.drop_duplicates(['#CHROM', 'POS'])
-     #vcfs_merged = vcfs.merge(pon[['#CHROM', 'POS', 'PON']], how='left', on=['#CHROM', 'POS'])
-     #vcfs = vcfs_merged
+     if args['normal_vcf'] is not None: 
+         pon = import_vcf(args['pon'])
+         pon['PON'] = True
+         pon = pon.drop_duplicates(['#CHROM', 'POS', 'REF', 'ALT'])
+         vcfs = vcfs.merge(pon[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+         #vcfs = vcfs_merged
 
      if genotyped:
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['CE_Indel']==False) & (vcfs['PON']!=True)]
@@ -147,9 +148,11 @@ def main():
 
 
      vcf_original = import_vcf(args['somatic_vcf'])
-     vcfs_filtered = vcfs_original.merge(vcfs[['#CHROM', 'POS', 'REF', 'ALT']], how='left')
-     vcfs_captured = vcfs_original.merge(vcfs_complement[['#CHROM', 'POS', 'REF', 'ALT']], how='left')
-
+     vcfs_filtered = vcf_original.merge(vcfs[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+     vcfs_captured = vcf_original.merge(vcfs_complement[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+     vcfs_filtered.to_csv(somatic_file_path, mode='a', header=False, sep = '\t', index = False)
+     vcfs_captured.to_csv(PoN_filtered_file, mode='a', header=False, sep = '\t', index = False)
+     """
      with open(somatic_file_path, 'a') as file: 
           for i in range(len(vcfs_filtered)): 
                line = vcfs_filtered.iloc[i]
@@ -159,7 +162,7 @@ def main():
           for i in range(len(vcfs_captured)): 
                line = vcfs_captured.iloc[i]
                file.write(line)
-
+     """
      """
      with open(args['somatic_vcf'], 'r') as old: 
           for index, line in enumerate(old): 

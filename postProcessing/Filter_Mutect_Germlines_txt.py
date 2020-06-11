@@ -170,31 +170,29 @@ def anno_examine(line, args, germline_file_path, somatic_file_path, bad_read_pat
     common = False
     columns_examine = get_annotated_columns(args['input_path'])
     total = len(columns_examine)
-    columns_examine = iter(get_annotated_columns)
-
+    #columns_examine = iter(columns_examine)
+    
     vcf_line = find_in_vcf(args, line, 'vcf_path')
-
     if not check_germline_risk(vcf_line): 
         common = True
-    if not check_read_levels(vcf_line, args, tumor_index): 
+    if not check_read_levels(vcf_line, args, tumor_index):
         with open(bad_read_path, 'a') as bad: 
             bad.write(vcf_line)   
         common = True     
-
     count = 0
-    while not common and count < total: 
-        index = next(columns_examine)
+    while not common and count < total:
+        index = columns_examine[count]
         item = line_list[index]
         try: 
             number = float(item)
             if number > float(args['threshhold']) and vcf_line is not None:
                 with open(germline_file_path, 'a') as f:
                     f.write(vcf_line)
-                        common = True
+                common = True
+            count += 1
         except:
+            count += 1
             continue
-
-        count += 1
         
     if not common and vcf_line is not None: 
         with open(somatic_file_path, 'a') as f: 
@@ -311,7 +309,7 @@ def get_tumor_column(file_path):
                 gatk_4120 = True
             if "#CHROM" in line: 
                 line_list = line.rstrip().split('\t')
-                print(line_list)
+
                 for i in range(len(line_list)):
                     if line_list[i] != normal_sample and line_list[i] not in blacklist and gatk_4120: 
                         return i

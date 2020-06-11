@@ -67,8 +67,8 @@ for file in *.normal_intersected.vcf; do
     fi
 done 
 
-if [ -f ${dirname}_Filtered_file.vcf]; then 
-    outname=${dirname}_Filtered_file.vcf
+if [ -f ${dirname}_Filtered_file.vcf ]; then 
+    outname=${dirname}.PoN_filtered
     
     if [ $reference == "hg19" ]; then
         ${annovarscript} ${dirname}_Filtered_file.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
@@ -109,13 +109,13 @@ for file in *normal_intersected.*txt.LABELED; do
     python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
 done 
 
-if [ -f ${dirname}._Filtered_file.vcf ]; then 
-    for file in *_Filtered_file.*txt; do 
+if [ -f ${dirname}_Filtered_file.vcf ]; then 
+    for file in *PoN_filtered.*txt; do 
         python3 ${path2SNVCurate}/Label_Source.py -source pon -out ${path}/annotation_files -in $file
     done 
 
-    for file in *_Filtered_file.*txt.LABELED; do 
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${dirname}.normal_intersected.vcf
+    for file in *PoN_filtered.*txt.LABELED; do 
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${dirname}_Filtered_file.vcf
     done
 
 fi
@@ -196,7 +196,7 @@ else
     fi
 fi
 
-if [ -f ${path}/annotation_files/${dirname}.PoN_filtered.vcf ]; then 
+if [ -f ${path}/annotation_files/${dirname}_Filtered_file.vcf ]; then 
     for file in ${path}/annotation_files/*${pon_file}; do
         tail -n +2 $file >> "${out}/${dirname}.germline_filtered.txt"
     done
