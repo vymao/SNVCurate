@@ -73,7 +73,10 @@ def main():
          pon = import_vcf(args['pon'])
          pon['PON'] = True
          pon = pon.drop_duplicates(['#CHROM', 'POS', 'REF', 'ALT'])
-         vcfs = vcfs.merge(pon[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+         vcfs_merged = vcfs.merge(pon[['#CHROM', 'POS', 'REF', 'ALT', 'PON']], how='left')
+         vcfs = vcfs_merged[vcfs_merged['PON'] == True]
+         vcfs_pon_filtered = vcfs_merged[vcfs_merged['PON'] != True]
+
          #vcfs = vcfs_merged
 
      if genotyped:
@@ -82,6 +85,7 @@ def main():
           #vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True)]
           vcfs_complement = vcfs[(vcfs['Common Variant']== True) & (vcfs['1000G_blacklist']== False)] 
+     
      print("vcfs length: " + str(len(vcfs)))
      """
     
@@ -150,8 +154,13 @@ def main():
      vcf_original = import_vcf(args['somatic_vcf'])
      vcfs_filtered = vcf_original.merge(vcfs[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
      vcfs_captured = vcf_original.merge(vcfs_complement[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+
      vcfs_filtered.to_csv(somatic_file_path, mode='a', header=False, sep = '\t', index = False)
      vcfs_captured.to_csv(PoN_filtered_file, mode='a', header=False, sep = '\t', index = False)
+
+     if args['normal_vcf'] is not None: 
+          vcf_original.merge(vcfs_pon_filtered[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+          vcf_original.to_csv(PoN_filtered_file, mode='a', header=False, sep = '\t', index = False)
      """
      with open(somatic_file_path, 'a') as file: 
           for i in range(len(vcfs_filtered)): 
