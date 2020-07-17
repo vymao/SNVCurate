@@ -4,8 +4,8 @@
 #SBATCH -N 1                               # Request one node (if you request more than one core with -c, also using
                                            # -N 1 means all cores will be on the same node)
 #SBATCH -t 0-06:00:00                        # Runtime in D-HH:MM format
-#SBATCH -p short                 # Partition to run in
-#H --account=park_contrib
+#SBATCH -p park                 # Partition to run in
+#SBATCH --account=park_contrib
 #SBATCH --mem=10000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
 
@@ -129,28 +129,30 @@ if [ $path2normal != "False" ]; then
     normalname=$(grep "$dirname" ${csv} | cut -d',' -f2 | cut -d'.' -f1)
 
     cd ${normalname}*
-    
+    echo $normalname
+    echo ${path2normal}/${normalname}/${normalname}.vcf
+
     if [ $reference == "hg19" ]; then
         ${annovarscript} ${path2normal}/${normalname}/${normalname}.vcf ${path2database} -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish 
     else
         ${annovarscript} ${path2normal}/${normalname}/${normalname}.vcf ${path2database} -out $normalname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish
     fi  
-     
+    : '     
     if [ ! -f ${normalname}*.LABELED ]; then
         python3 ${path2SNVCurate}/Label_Source.py -source HaplotypeCaller -out ${path2normal}/${normalname}* -in ${normalname}.*txt
     fi
     
     if [ ! -f ${normalname}*.LABELED.levels ]; then
-        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file ${normalname}*.LABELED -vcf_path ${path2normal}/${normalname}.vcf -hap True
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file ${normalname}*.LABELED -vcf_path ${path2normal}/${normalname}/${normalname}.vcf -hap True
     fi
-   
+    '
 fi
 
 cd $path
 
 Mutect_Germline_anno_file='*M2_Risk_variants_filtered.*txt.LABELED.levels'
 Filtered_file='*germline_variants_filtered.*txt.LABELED.levels'
-Haplo_file='.LABELED.levels'
+Haplo_file='_multianno.txt'
 Somatic_file='*somatic_variants_filtered_2.*txt*.levels'
 bad_file='ANNO.bad_somatic_quality.*vcf'
 pon_file='*PoN_filtered.*.levels'

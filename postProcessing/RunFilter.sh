@@ -4,8 +4,8 @@
 #SBATCH -N 1                               # Request one node (if you request more than one core with -c, also using
                                            # -N 1 means all cores will be on the same node)
 #SBATCH -t 0-12:00:00                        # Runtime in D-HH:MM format
-#SBATCH -p short                 # Partition to run in
-# --account=park_contrib
+#SBATCH -p park                 # Partition to run in
+#SBATCH --account=park_contrib
 #SBATCH --mem=10000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
 
@@ -26,8 +26,9 @@ reference=$9
 path2database=${10}
 bam=$8
 path2AnnovarScript=${13}
-matchedNormal=${14}
-
+matchedNormal=$(echo "${14}" | awk '{print tolower($0)}')
+echo "here"
+echo $matchedNormal
 
 set -e
 
@@ -86,12 +87,12 @@ mv ${dirname}.*.ANNO.germline_variants_filtered* ${dirname}.germline_variants_fi
 if [ ${panelfilter} != "False" ]; then
     cd ${sampledir}/cut_filtering
     
-    echo "Running command python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter"
-    
-    if [ ${matchedNormal} != "False" ]; then
-        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter
+    if [ ${matchedNormal} != "false" ]; then
+        echo "Running command python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter"
+        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter -maf_cut $maf_cut
     else
-        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -annovar $path2database -reference $reference -bam $bam -pon $panelfilter            
+        echo "Running command python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -annovar $path2database -reference $reference -bam $bam -pon $panelfilter"
+        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -annovar $path2database -reference $reference -bam $bam -pon $panelfilter -maf_cut $maf_cut            
     fi
 
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files

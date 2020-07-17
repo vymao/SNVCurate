@@ -19,6 +19,7 @@ def parse_args():
      parser.add_argument('-pon', default='/n/data1/hms/dbmi/park/victor/references/TCGA_1000_PON.hg19.REORDERED.vcf')
      parser.add_argument('-bam')
      parser.add_argument('-out')
+     parser.add_argument('-maf_cut')
 
      return parser.parse_args()
 
@@ -49,9 +50,9 @@ def main():
           genotyped = False
 
           command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
-                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r" + \
+                         output_name + " -remove -protocol refGene,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,r,r,r,r,r" + \
                          " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed, " + \
-                         "--argument ',,,,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
+                         "--argument ',,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
      else: 
           sample_paths = os.path.join(path_vcfs_intersection, basename+ '.annot_normal.csv')
           output_name = os.path.join(path_vcfs_intersection, basename + "_Common_filtered")
@@ -59,23 +60,23 @@ def main():
           genotyped = False
 
           command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
-                         output_name + " -remove -protocol refGene,1000g2015aug_all,exac03,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,f,f,r,r,r,r,r" + \
+                         output_name + " -remove -protocol refGene,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,r,r,r,r,r" + \
                          " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + \
-                         "--argument ',,,,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
+                         "--argument ',,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
  
      os.system(command)
          
      path_intermed_in = os.path.join(path_vcfs_intersection, output_name + '.' + args['reference'] + '_multianno.csv')
      vcfs = import_merge_annovar_annotations(vcfs, path_intermed_in)
-     vcfs = gen_dummies(vcfs, genotyped)
+     vcfs = gen_dummies(vcfs, args, genotyped)
 
      if args['normal_vcf'] is not None: 
          pon = import_vcf(args['pon'])
          pon['PON'] = True
          pon = pon.drop_duplicates(['#CHROM', 'POS', 'REF', 'ALT'])
          vcfs_merged = vcfs.merge(pon[['#CHROM', 'POS', 'REF', 'ALT', 'PON']], how='left')
-         vcfs = vcfs_merged[vcfs_merged['PON'] == True]
-         vcfs_pon_filtered = vcfs_merged[vcfs_merged['PON'] != True]
+         vcfs = vcfs_merged[vcfs_merged['PON'] != True]
+         vcfs_pon_filtered = vcfs_merged[vcfs_merged['PON'] == True]
 
          #vcfs = vcfs_merged
 
@@ -85,6 +86,10 @@ def main():
           #vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True)]
           vcfs_complement = vcfs[(vcfs['Common Variant']== True) & (vcfs['1000G_blacklist']== False)] 
+     
+     if args['normal_vcf'] is not None:
+         vcfs.drop(['PON'], axis = 1)
+         vcfs_pon_filtered.drop(['PON'], axis = 1)
      
      print("vcfs length: " + str(len(vcfs)))
      """
@@ -243,11 +248,11 @@ def import_merge_annovar_annotations(vcfs, path_intermed_in):
      vcfs = pd.concat([vcfs, annot[annot.columns[5:]]], axis=1)
      return vcfs       
 
-def gen_dummies(vcfs, Genotyped = True):
+def gen_dummies(vcfs, args, Genotyped = True):
      # Annotate PASS Variants
      vcfs['PASS'] = vcfs['FILTER']== 'PASS'
-     # Annotate Common Variants w/ MAF>1% (1000G, ExAC, ESP5600)
-     vcfs['Common Variant'] = (vcfs['1000g2015aug_all'] > 0.01) | (vcfs['ExAC_ALL'] > 0.01) | (vcfs['esp6500siv2_all'] > 0.01)    # Annotate Single Cell Variants
+
+     vcfs['Common Variant'] = (vcfs['esp6500siv2_all'] > float(args['maf_cut']))    # Annotate Single Cell Variants
      vcfs['1000G_blacklist'] = vcfs['bed4'].notnull()
      if Genotyped: 
           vcfs['CE_Indel'] = vcfs['bed6'].notnull()      
