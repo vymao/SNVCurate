@@ -18,9 +18,9 @@ def parse_args():
     parser.add_argument('--mem_per_cpu', default='15G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')
-    parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
+    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/references/hs37d5/hs37d5_fasta/hs37d5.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/dlsata1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
-    parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
+    parser.add_argument('-dbsnp', '--dbsnp_path', default='/n/data1/hms/dbmi/park/SOFTWARE/GATK/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf.gz', help='path to dbsnp file')
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
     parser.add_argument('-data_type', default='WGS')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')

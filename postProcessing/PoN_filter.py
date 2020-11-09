@@ -49,7 +49,7 @@ def main():
 
           genotyped = False
 
-          command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
+          command = "perl /n/data1/hms/dbmi/park/SOFTWARE/Annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
                          output_name + " -remove -protocol refGene,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,r,r,r,r,r" + \
                          " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed, " + \
                          "--argument ',,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
@@ -59,7 +59,7 @@ def main():
 
           genotyped = False
 
-          command = "perl /home/mk446/bin/annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
+          command = "perl /n/data1/hms/dbmi/park/SOFTWARE/Annovar/table_annovar.pl " + sample_paths + " " + args["annovar"] + " -buildver " + args["reference"] + " -out " + \
                          output_name + " -remove -protocol refGene,esp6500siv2_all,bed,bed,bed,bed,bed -operation g,f,r,r,r,r,r" + \
                          " -bedfile simpleRepeat.bed,hg19_rmsk.bed,all_repeats.b37.bed,20141020.strict_mask.whole_genome.bed,all.repeatmasker.b37.bed " + \
                          "--argument ',,-colsWanted 4,-colsWanted 5,,,' -csvout -polish"
@@ -127,10 +127,10 @@ def main():
      prep_annovar(vcfs, basename + '.annot_normal.txt', path_vcfs_intersection)
      
      if args['reference'] == 'hg19': 
-          command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/home/mk446/bin/annovar/humandb/" + \
+          command = "perl /n/data1/hms/dbmi/park/SOFTWARE/Annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/n/data1/hms/dbmi/park/SOFTWARE/Annovar/humandb" + \
                " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp33a -operation g,f,f -nastring . -csvout -polish"
      else: 
-          command = "perl /home/mk446/bin/annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/home/mk446/bin/annovar/humandb/" + \
+          command = "perl /n/data1/hms/dbmi/park/SOFTWARE/Annovar/table_annovar.pl " + os.path.join(path_vcfs_intersection, basename + '.annot_normal.txt') + " " + "/n/data1/hms/dbmi/park/SOFTWARE/Annovar/humandb" + \
                " -buildver " + args["reference"] + " -out " + output_name + " -remove -protocol refGene,clinvar_20190305,dbnsfp30a -operation g,f,f -nastring . -csvout -polish"
      os.system(command)
    

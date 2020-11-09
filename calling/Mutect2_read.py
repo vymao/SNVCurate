@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')
-    parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
+    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf', help='path to dbsnp file')
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
@@ -30,9 +30,9 @@ def parse_args():
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
-    parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/software/MuTecT2_b37_scattered_intervals.txt')
+    parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt')
     parser.add_argument('-overwrite_intervals', default=False)
-    parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to software')
+    parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/SOFTWARE/GATK/gatk-4.1.9.0/gatk', help='path to software')
     parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
     parser.add_argument('-parallel', default='True')
     return parser.parse_args()
@@ -52,7 +52,7 @@ def generate_regions_files(args):
     intervals_ref_dir = os.path.join(regions_out_directory, ref)
     if args['overwrite_intervals'] or not os.path.isdir(intervals_ref_dir) or args['scatter_size'] != '50':
         os.makedirs(intervals_ref_dir, exist_ok=True)
-        os.system(args['gatk4_path'] + ' SplitIntervals' + '\\' + '\n' + \
+        os.system(args['gatk_path'] + ' SplitIntervals' + '\\' + '\n' + \
          '\t' + '-R ' + args['reference_path'] + ' \\' + '\n' + \
          '\t' + '-scatter ' + args['scatter_size'] + ' \\' + '\n' + \
          '\t' + '-O ' + intervals_ref_dir + ' \\')
@@ -61,7 +61,7 @@ def return_region_files(args):
     ref = os.path.basename(args['reference_path']).split('.')[0]
     regions_out_directory = os.path.join(args['output_directory'], '.Mutect2/.regions/')
     intervals_ref_dir = os.path.join(regions_out_directory, ref)
-    region_files = [os.path.join(intervals_ref_dir, file) for file in os.listdir(intervals_ref_dir) if "scattered.intervals" in file]
+    region_files = [os.path.join(intervals_ref_dir, file) for file in os.listdir(intervals_ref_dir) if "scattered.interval" in file]
     return region_files
 
 def get_column(csv, sample):
@@ -107,23 +107,24 @@ def main():
     os.system('module load gcc/6.2.0 python/3.6.0 java bcftools samtools')
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
-    if (args['scatter_size'] != '50' or args['reference_path'] != '/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta') and args['parallel'].lower() == "true":
-        regions_out_directory = os.path.join(output_dir, '.Mutect2/.regions/')
-        intervals_list_file = os.path.join(regions_out_directory, reference_name + '.scattered_intervals.list')
-        if os.path.isfile(intervals_list_file):
-            os.remove(intervals_list_file) 
-        generate_regions_files(args)
-        print("Gathering split region files...")
-        region_files = return_region_files(args)
-        if len(region_files) == int(args['scatter_size']):
-            print("Done.")
-        else: 
-            print("Could not gather. Check memory allocation or overwrite intervals file creation and try again.")
-            sys.exit()
-        with open(intervals_list_file, 'a') as intervals:
-            for file in region_files:
-                intervals.write(file + '\n')
-        args['interval_list'] = intervals_list_file
+    if args['interval_list'] != '/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt': 
+        if (args['scatter_size'] != '50' or args['reference_path'] != '/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta') and args['parallel'].lower() == "true":
+            regions_out_directory = os.path.join(output_dir, '.Mutect2/.regions/')
+            intervals_list_file = os.path.join(regions_out_directory, reference_name + '.scattered_intervals.list')
+            if os.path.isfile(intervals_list_file):
+                os.remove(intervals_list_file) 
+            generate_regions_files(args)
+            print("Gathering split region files...")
+            region_files = return_region_files(args)
+            if len(region_files) == int(args['scatter_size']):
+                print("Done.")
+            else: 
+                print("Could not gather. Check memory allocation or overwrite intervals file creation and try again.")
+                sys.exit()
+            with open(intervals_list_file, 'a') as intervals:
+                for file in region_files:
+                    intervals.write(file + '\n')
+            args['interval_list'] = intervals_list_file
 
     tumor_index = get_column(args['csv'], "T")
     normal_index = get_column(args['csv'], "N")
@@ -140,7 +141,7 @@ def main():
                         os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
                             ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
                             + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] 
-                            + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'])                    
+                            + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'] + ' -gatk_new ' + args['gatk_path'])                    
                     else:
                         continue
                 else: 
@@ -150,7 +151,7 @@ def main():
                     os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
                         ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
                         + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] 
-                        + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'])
+                        + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'] + ' -gatk_new ' + args['gatk_path'])
 
 if __name__ == "__main__":
     main()

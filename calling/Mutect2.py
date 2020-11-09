@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
-    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
+    parser.add_argument('-picard', default='/n/data1/hms/dbmi/park/alon/software/picard.jar')
     return parser.parse_args()
 
 def main():
@@ -59,9 +59,11 @@ def main():
     primary_command = return_primary_command(args, output_file_name, input_json, input_config, input_wdl)
     
     sh_file_name = gen_sh_file_name(args, output_file_name)
-    write_out(args, slurm_command, primary_command, sh_file_name)
-
+    write_out(args, slurm_command, primary_command, sh_file_name) 
+     
+    #print(path_to_vcf)
     if not os.path.isfile(path_to_vcf):
+        print(path_to_vcf)
         submit_job(sh_file_name)
 
 def getSampleName(args):
