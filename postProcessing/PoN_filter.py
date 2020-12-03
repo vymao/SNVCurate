@@ -85,7 +85,7 @@ def main():
      else:
           #vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True)]
-          vcfs_complement = vcfs[(vcfs['Common Variant']== True) & (vcfs['1000G_blacklist']== False)] 
+          vcfs_complement = vcfs[(vcfs['Common Variant']== True) | (vcfs['1000G_blacklist']== False)] 
      
      if args['normal_vcf'] is not None:
          vcfs.drop(['PON'], axis = 1)
