@@ -44,22 +44,11 @@ mkdir -p cut_filtering
 
 cd cut_filtering 
 
-bcftools sort ${path2Intersection}/${dirname}.INTERSECTION.vcf > ${dirname}.INTERSECTION.sorted.vcf
-
-bgzip -c ${dirname}.INTERSECTION.sorted.vcf > ${dirname}.INTERSECTION.sorted.vcf.gz
-tabix -p vcf ${dirname}.INTERSECTION.sorted.vcf.gz
-
-bcftools isec -p $PWD ${dirname}.INTERSECTION.sorted.vcf.gz ${normal}
-mv 0000.vcf ${dirname}.UNIQUE.vcf
-mv 0002.vcf ${dirname}.NORMAL_INTERSECTED.vcf
-rm ${dirname}.INTERSECTION.sorted.vcf ${dirname}.INTERSECTION.sorted.vcf.gz 000*.vcf ${dirname}.INTERSECTION.sorted.vcf.gz.tbi
-
-
 if [ ! -f ${path2Intersection}*txt ]; then
     if [ $reference == "hg19" ]; then
-        ${path2AnnovarScript} ${dirname}.UNIQUE.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad211_genome,gnomad211_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+        ${path2AnnovarScript} ${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad211_genome,gnomad211_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
     else
-        ${path2AnnovarScript} ${dirname}.UNIQUE.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+        ${path2AnnovarScript} ${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
     fi
 fi
 
@@ -81,6 +70,16 @@ for file in ${dirname}*csv; do
     fi
 done
 
+bcftools sort ${dirname}.*.ANNO.somatic_variants_filtered* > ${dirname}.INTERSECTION.sorted.vcf
+
+bgzip -c ${dirname}.INTERSECTION.sorted.vcf > ${dirname}.INTERSECTION.sorted.vcf.gz
+tabix -p vcf ${dirname}.INTERSECTION.sorted.vcf.gz
+
+bcftools isec -p $PWD ${dirname}.INTERSECTION.sorted.vcf.gz ${normal}
+mv 0000.vcf ${dirname}.UNIQUE.vcf
+mv 0002.vcf ${dirname}.NORMAL_INTERSECTED.vcf
+rm ${dirname}.INTERSECTION.sorted.vcf ${dirname}.INTERSECTION.sorted.vcf.gz 000*.vcf ${dirname}.INTERSECTION.sorted.vcf.gz.tbi
+
 mv ${dirname}.*.ANNO.somatic_variants_filtered* ${dirname}.somatic_variants_filtered_1.vcf
 mv ${dirname}.*.ANNO.germline_variants_filtered* ${dirname}.germline_variants_filtered.vcf
 
@@ -89,10 +88,10 @@ if [ ${panelfilter} != "False" ]; then
     
     if [ ${matchedNormal} != "false" ]; then
         echo "Running command python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter"
-        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter -maf_cut $maf_cut
+        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.UNIQUE.vcf -normal_vcf $normal -annovar $path2database -reference $reference -bam $bam -pon $panelfilter -maf_cut $maf_cut
     else
         echo "Running command python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -annovar $path2database -reference $reference -bam $bam -pon $panelfilter"
-        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf -annovar $path2database -reference $reference -bam $bam -pon $panelfilter -maf_cut $maf_cut            
+        python3 ${path2SNVCurate}/PoN_filter.py -somatic_vcf ${sampledir}/cut_filtering/${dirname}.UNIQUE.vcf -annovar $path2database -reference $reference -bam $bam -pon $panelfilter -maf_cut $maf_cut            
     fi
 
     mv ${sampledir}/cut_filtering/${dirname}.somatic_variants_filtered_1.vcf ${sampledir}/annotation_files
