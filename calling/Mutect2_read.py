@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
+    parser.add_argument('-wdl', default=None)
     parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt')
     parser.add_argument('-overwrite_intervals', default=False)
     parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/SOFTWARE/GATK/gatk-4.1.9.0/gatk', help='path to software')
@@ -138,20 +139,21 @@ def main():
                 if current_tumor_sample is None or current_normal_sample is None or args['input_normal_path'] is None:
                     if (current_normal_sample is None and current_tumor_sample is not None and args['panel'] != 'nopath') or (args['input_normal_path'] is None and args['panel'] != 'nopath'): 
                         tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
-                        os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] +
-                            ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
-                            + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] 
-                            + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'] + ' -gatk_new ' + args['gatk_path'])                    
+  
+                        command = 'python3 ' + tool + ' -tumor ' + tumor_sample + ' -pon ' + args['panel'] + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'] + ' -gatk_new ' + args['gatk_path']
+
+                        if args['wdl']: command += ' -wdl ' + args['wdl']
+                        os.system(command)                    
                     else:
                         continue
                 else: 
                     tumor_sample = os.path.join(args['input_tumor_path'], get_bam(args['csv'], index, tumor_index))
                     normal_sample = os.path.join(args['input_normal_path'], get_bam(args['csv'], index, normal_index))
 
-                    os.system('python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + 
-                        ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] 
-                        + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] 
-                        + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'] + ' -gatk_new ' + args['gatk_path'])
+                    command = 'python3 ' + tool + ' -tumor ' + tumor_sample + ' -normal ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' -n ' + args['num_cores'] + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' --mem_per_cpu ' + args['mem_per_cpu'] + ' --mail_type ' + args['mail_type'] + ' -reference ' + args['reference_path'] + ' -dbsnp ' + args['dbsnp_path'] + ' -scatter ' + args['scatter_size'] + ' -gnomad ' + args['gnomad_path'] + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell'] + ' -parallel ' + args['parallel'] + ' -interval_list ' + args['interval_list'] + ' -gatk_new ' + args['gatk_path']
+                  
+                    if args['wdl']: command += ' -wdl ' + args['wdl']
+                    os.system(command)
 
 if __name__ == "__main__":
     main()

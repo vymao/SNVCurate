@@ -77,6 +77,16 @@ if [ -f ${dirname}_Filtered_file.vcf ]; then
     fi
 fi
 
+if [ -f ${dirname}_blacklist_file.vcf ]; then 
+    outname=${dirname}.1000G_blacklist
+    
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} ${dirname}_blacklist_file.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    else
+        ${annovarscript} ${dirname}_blacklist_file.vcf ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish  
+    fi
+fi
+
 
 mutect=${out}/${dirname}/intersection_files
 
@@ -120,6 +130,17 @@ if [ -f ${dirname}_Filtered_file.vcf ]; then
 
 fi
 
+if [ -f ${dirname}_blacklist_file.vcf ]; then
+    for file in *1000G_blacklist.*txt; do
+        python3 ${path2SNVCurate}/Label_Source.py -source pon -out ${path}/annotation_files -in $file
+    done
+
+    for file in *1000G_blacklist.*txt.LABELED; do
+        python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${dirname}_blacklist_file.vcf
+    done
+
+fi
+
 
 
 
@@ -157,6 +178,7 @@ Somatic_file='*somatic_variants_filtered_2.*txt*.levels'
 bad_file='ANNO.bad_somatic_quality.*vcf'
 pon_file='*PoN_filtered.*.levels'
 intersect_file="*normal_intersected*.levels"
+blacklist_file="*1000G_blacklist*.levels"
 #Mutect_Germline_risk_file="$dirname.germline_variants_filtered.vcf.TUMOR.avinput.hg19_multianno.csv"
 
 if [ $path2normal != "False" ]; then
@@ -204,7 +226,7 @@ if [ -f ${path}/annotation_files/${dirname}_Filtered_file.vcf ]; then
     done
 fi
 
-if [ ! -f ${out}/${dirname}.somatic.csv ]; then
+if [ ! -f ${out}/${dirname}.somatic.txt ]; then
     for file in ${path}/annotation_files/*${Somatic_file}; do
         cp $file "${out}/${dirname}.somatic.txt"
     done
@@ -216,3 +238,8 @@ if [ ! -f ${out}/${dirname}.bad_somatic_reads.vcf ]; then
     done
 fi
 
+if [ ! -f ${out}/${dirname}.1000G_blacklist.txt ]; then
+    for file in ${path}/annotation_files/*${blacklist_file}; do
+        cp $file "${out}/${dirname}.1000G_blacklist.txt"
+    done
+fi

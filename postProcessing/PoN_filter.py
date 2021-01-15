@@ -84,8 +84,10 @@ def main():
           vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['CE_Indel']==False) & (vcfs['PON']!=True)]
      else:
           #vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True) & (vcfs['PON']!=True)]
-          vcfs = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True)]
-          vcfs_complement = vcfs[(vcfs['Common Variant']== True) | (vcfs['1000G_blacklist']== False)] 
+          vcfs_pass = vcfs[(vcfs['Common Variant']==False) & (vcfs['1000G_blacklist']==True)]
+          vcfs_complement = vcfs[(vcfs['Common Variant']== True)] 
+          vcfs_complement_blacklist = vcfs[(vcfs['1000G_blacklist']== False)]
+          vcfs = vcfs_pass 
      
      if args['normal_vcf'] is not None:
          vcfs.drop(['PON'], axis = 1)
@@ -137,13 +139,17 @@ def main():
 
      somatic_file_path = os.path.join(path_vcfs_intersection, basename + "_Final_Callset.vcf")  
      PoN_filtered_file = os.path.join(path_vcfs_intersection, basename + "_Filtered_file.vcf")
+     blacklist_file = os.path.join(path_vcfs_intersection, basename + "_blacklist_file.vcf")
      if (os.path.exists(somatic_file_path)): 
           os.remove(somatic_file_path)
      if (os.path.exists(PoN_filtered_file)):
           os.remove(PoN_filtered_file)
+     if (os.path.exists(blacklist_file)):
+          os.remove(blacklist_file)
 
      add_vcf_header(args['somatic_vcf'], somatic_file_path, True)
      add_vcf_header(args['somatic_vcf'], PoN_filtered_file, True)
+     add_vcf_header(args['somatic_vcf'], blacklist_file, True)
 
      """
      with open(os.path.join(path_vcfs_intersection, basename + '.annot_normal.csv'), 'r') as f: 
@@ -159,13 +165,15 @@ def main():
      vcf_original = import_vcf(args['somatic_vcf'])
      vcfs_filtered = vcf_original.merge(vcfs[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
      vcfs_captured = vcf_original.merge(vcfs_complement[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+     vcfs_blacklist = vcf_original.merge(vcfs_complement_blacklist[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
 
      vcfs_filtered.to_csv(somatic_file_path, mode='a', header=False, sep = '\t', index = False)
      vcfs_captured.to_csv(PoN_filtered_file, mode='a', header=False, sep = '\t', index = False)
+     vcfs_blacklist.to_csv(blacklist_file, mode='a', header=False, sep = '\t', index = False)
 
      if args['normal_vcf'] is not None: 
-          vcf_original.merge(vcfs_pon_filtered[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
-          vcf_original.to_csv(PoN_filtered_file, mode='a', header=False, sep = '\t', index = False)
+          vcfs_pon = vcf_original.merge(vcfs_pon_filtered[['#CHROM', 'POS', 'REF', 'ALT']], how='inner')
+          vcfs_pon.to_csv(PoN_filtered_file, mode='a', header=False, sep = '\t', index = False)
      """
      with open(somatic_file_path, 'a') as file: 
           for i in range(len(vcfs_filtered)): 

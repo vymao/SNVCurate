@@ -35,6 +35,7 @@ def parse_args():
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     parser.add_argument('-picard', default='/n/data1/hms/dbmi/park/alon/software/picard.jar')
+    parser.add_argument('-wdl', default=None)
     return parser.parse_args()
 
 def main():
@@ -45,10 +46,14 @@ def main():
     dirname = os.path.dirname(os.path.abspath(__file__))
     overrides = os.path.join(dirname, 'Overrides.config')
     wdl = os.path.join(dirname, 'Mutect2.wdl')
-    json = os.path.join(dirname, 'Mutect2_Inputs.json') 
+    json = os.path.join(dirname, 'Mutect2_Inputs.json')
+
+    if args.wdl is not None: 
+        wdl = args.wdl 
 
     sample_name = ntpath.basename(args.input_tumor_path).split('.')[0]
-    path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".Mutect2", sample_name)), sample_name + '.vcf') 
+    vcf_name = ntpath.basename(args.input_tumor_path).split('.bam')[0]
+    path_to_vcf = os.path.join(os.path.join(args.output_directory, os.path.join(".Mutect2", sample_name)), vcf_name + '.vcf') 
     vcf_dir = os.path.join(args.output_directory, os.path.join(".Mutect2", sample_name))
     os.makedirs(vcf_dir, exist_ok=True) 
 

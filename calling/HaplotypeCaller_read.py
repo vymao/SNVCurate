@@ -17,16 +17,17 @@ def parse_args():
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')
-    parser.add_argument('-gatk', '--gatk_path', default='/home/mk446/BiO/Install/GATK4.1.2.0/gatk', help='path to software execution script')
-    parser.add_argument('-reference', '--reference_path', default='/home/mk446/BiO/Install/GATK-bundle/2.8/b37/human_g1k_v37_decoy.fasta', help='path to reference_path file')
+    parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/SOFTWARE/GATK/gatk-4.1.9.0/gatk', help='path to software execution script')
+    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta', help='path to reference_path file')
     parser.add_argument('-n', '--num_cores', default='1', help='slurm job submission option')
     parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
     parser.add_argument('-ct', default="3000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='5000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', '--cromwell_path', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
-    parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
+    parser.add_argument('-picard', default='/n/data1/hms/dbmi/park/alon/software/picard.jar')
     parser.add_argument('-csv', help='csv containing matched tumor/normal pairs')
+    parser.add_argument('-intervals', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt')
 
 
     return parser.parse_args()
@@ -62,7 +63,7 @@ def main():
                     os.system('python3 ' + tool + ' -in_file ' + normal_sample + ' -out ' + output_dir + ' -t ' + args['runtime'] + ' --mem_per_cpu ' + args['mem_per_cpu']
                         + ' -p ' + args['queue'] + ' --mail_user ' + args['mail_user'] + ' -gatk ' + args['gatk_path'] + ' -r ' + args['reference_path'] + ' -n ' + args['num_cores']
                         + ' -cn ' + args['cn'] + ' -ct ' + args['ct'] + ' -cm ' + args['cm'] + ' -cromwell ' + args['cromwell_path'] + ' -reference_name ' + args['reference_name']
-                        + ' -picard ' + args['picard'])
+                        + ' -picard ' + args['picard'] + ' -intervals ' + args['intervals'])
 
     """
     with open(args['input_path'], 'r') as f:

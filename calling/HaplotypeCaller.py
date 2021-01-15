@@ -30,6 +30,8 @@ def parse_args():
     parser.add_argument('-gatk', default='/home/mk446/BiO/Install/GATK4.1.2.0//gatk', help='path to software')
     parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
     parser.add_argument('-picard', default='/home/mk446/BiO/Install/picard-tools-2.5.0/picard.jar')
+    parser.add_argument('-intervals', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt')
+
     return parser.parse_args()
 
 def main():
@@ -117,6 +119,7 @@ def generate_cromwell_inputs(args, input_file, json_file, wdl, overrides):
         d["HaplotypeCallerGvcf_GATK4.gatk_path"] = args.gatk
         d["HaplotypeCallerGvcf_GATK4.picard_path"] = args.picard
         d["HaplotypeCallerGvcf_GATK4.bam_directory"] = os.path.dirname(input_file)
+        d["HaplotypeCallerGvcf_GATK4.scattered_calling_intervals_list"] = args.intervals
         
         if args.reference_name.lower() is not "b37":
             d["HaplotypeCallerGvcf_GATK4.reference"] = args.reference_name
