@@ -24,6 +24,7 @@ for path in ${path2Mutect}/*; do
     cd $path
 
     dirname="$(basename "${path}")"
+    [ ! -d "${out}/${dirname}" ] || continue
 
     rm -f *PASS* 
     rm -f *INTERSECTION* *TIER* 000* *MUTECT* *M2_RISK* *filtered.vcf
@@ -32,6 +33,8 @@ for path in ${path2Mutect}/*; do
         for file in ${dirname}.vcf; do
 	    echo "Cleaning Mutect2 sample ${dirname}..." 
             grep "PASS\|#" $file > ${dirname}.PASS_MuTecT.vcf
+            grep -v "PASS" $file > /tmp/${dirname}.filtered_MuTecT.vcf
+            grep -v "germline" /tmp/${dirname}.filtered_MuTecT.vcf > ${dirname}.filtered_MuTecT.vcf
         done
     fi
 
@@ -49,6 +52,7 @@ for path in ${path2Mutect}/*; do
 
     mkdir -p ${test_dir}/intersection_files
     mv ${dirname}.PASS_MuTecT.vcf ${test_dir}/intersection_files
+    mv ${dirname}.filtered_MuTecT.vcf ${test_dir}/annotation_files
 done
 
 if ! [ -z "$path2MuSE" ]; then

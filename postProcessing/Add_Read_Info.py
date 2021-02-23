@@ -10,6 +10,9 @@ def parse_args():
     parser.add_argument('-in_file', help='Path to the input file')
     parser.add_argument('-vcf_path', help='Path to vcf file')
     parser.add_argument('-hap', default=False, help='HaplotypCaller output?')
+    parser.add_argument('-vaf_filter', type=float, default=0)
+    parser.add_argument('-ad_filter', type=int, default=0)
+    parser.add_argument('-tot_filter', type=int,  default=0)
 
     return parser.parse_args()
 
@@ -134,7 +137,7 @@ def main():
     
                         new_line = find_in_vcf(args, line)
                         read_levels = get_read_levels(args, new_line, tumor_index)
-                        if read_levels is not None: 
+                        if read_levels is not None and read_levels[2] >= args['vaf_filter'] and read_levels[1] >= args['ad_filter'] and read_levels[0] + read_levels[1] >= args['tot_filter']: 
                             vcf_line_list.append(read_levels[0])
                             vcf_line_list.append(read_levels[1])
                             vcf_line_list.append(read_levels[2])

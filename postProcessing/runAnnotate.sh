@@ -4,9 +4,9 @@
 #SBATCH -N 1                               # Request one node (if you request more than one core with -c, also using
                                            # -N 1 means all cores will be on the same node)
 #SBATCH -t 0-06:00:00                        # Runtime in D-HH:MM format
-#SBATCH -p park                 # Partition to run in
-#SBATCH --account=park_contrib
-#SBATCH --mem=10000                          # Memory total in MB (for all cores)
+#SBATCH -p short                 # Partition to run in
+#BATCH --account=park_contrib
+#SBATCH --mem=5000                          # Memory total in MB (for all cores)
 #SBATCH --mail-type=FAIL                    # Type of email notification- BEGIN,END,FAIL,ALL
 
 
@@ -87,6 +87,16 @@ if [ -f ${dirname}_blacklist_file.vcf ]; then
     fi
 fi
 
+for file in *filtered_MuTecT.vcf; do
+    outname=${dirname}.Mutect_filtered
+
+    if [ $reference == "hg19" ]; then
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp33a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    else
+        ${annovarscript} $file ${path2database} -out $outname -buildver $reference -remove -protocol 'refGene,clinvar_20190305,dbnsfp30a' -operation 'g,f,f' -nastring . -vcfinput -polish
+    fi
+done
+
 
 mutect=${out}/${dirname}/intersection_files
 
@@ -108,7 +118,7 @@ for file in *M2_Risk_variants_filtered.*txt; do
 done 
 
 for file in *M2_Risk_variants_filtered.*txt.LABELED; do 
-    python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
+    python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf 
 done 
 
 for file in *normal_intersected.*txt; do 
@@ -116,7 +126,7 @@ for file in *normal_intersected.*txt; do
 done 
 
 for file in *normal_intersected.*txt.LABELED; do 
-    python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf
+    python3 ${path2SNVCurate}/Add_Read_Info.py -in_file $file -vcf_path ${path2Mutect}/${dirname}/${dirname}.vcf 
 done 
 
 if [ -f ${dirname}_Filtered_file.vcf ]; then 
@@ -179,6 +189,7 @@ bad_file='ANNO.bad_somatic_quality.*vcf'
 pon_file='*PoN_filtered.*.levels'
 intersect_file="*normal_intersected*.levels"
 blacklist_file="*1000G_blacklist*.levels"
+Mutect_filtered_file="*Mutect_filtered*.txt"
 #Mutect_Germline_risk_file="$dirname.germline_variants_filtered.vcf.TUMOR.avinput.hg19_multianno.csv"
 
 if [ $path2normal != "False" ]; then
@@ -241,5 +252,11 @@ fi
 if [ ! -f ${out}/${dirname}.1000G_blacklist.txt ]; then
     for file in ${path}/annotation_files/*${blacklist_file}; do
         cp $file "${out}/${dirname}.1000G_blacklist.txt"
+    done
+fi
+
+if [ ! -f ${out}/${dirname}.Mutect_filtered.txt ]; then
+    for file in ${path}/annotation_files/*${Mutect_filtered_file}; do
+        cp $file "${out}/${dirname}.Mutect_filtered.txt"
     done
 fi

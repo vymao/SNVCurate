@@ -55,7 +55,6 @@ def main():
         for index, line in enumerate(f):
             if not line.isspace() and index in range(int(args['r1']), int(args['r2'])):
                 current_normal_sample = get_bam(args['csv'], index, normal_index)
-
                 if current_normal_sample is None: 
                     continue
                 else: 
@@ -89,11 +88,11 @@ def get_column(csv, sample):
                 result = [x.strip().lower() for x in line.split(',')]
                 if sample == "T":
                     for header in result: 
-                        if "_t" in header or "tum" in header:
+                        if "_t" in header or "tum" in header.lower():
                             return result.index(header)
                 else:
                     for header in result: 
-                        if "_n" in header or "norm" in header:
+                        if "_n" in header or "norm" in header.lower():
                             return result.index(header)
 
 def get_bam(csv, row, column):
@@ -103,7 +102,6 @@ def get_bam(csv, row, column):
                 result = [x.strip() for x in line.split(',')]
                 if result[column] != 'N/A':
                     return result[column]
-
 
 if __name__ == "__main__":
     main()

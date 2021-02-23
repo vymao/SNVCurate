@@ -18,7 +18,7 @@ path2database=$2
 out=$3
 path2Mutect=$4
 reference=$5
-path2normal=$7
+path2normal=${10}
 csv=$6
 
 cd $out
@@ -36,7 +36,7 @@ for path in ${out}/*; do
     if ! [ -z "$path2normal" ]; then
         sbatch ${dir}_ANNOTATE.sh $path $annovarscript $path2database $out $path2Mutect $reference $path2normal $csv $path2SNVCurate
     else
-        sbatch ${dir}_ANNOTATE.sh $path $annovarscript $path2database $out $path2Mutect $reference False $csv $path2SNVCurate
+        sbatch ${dir}_ANNOTATE.sh $path $annovarscript $path2database $out $path2Mutect $reference False $csv $path2SNVCurate 
     fi
 done
 

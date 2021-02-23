@@ -47,6 +47,7 @@ def main():
     input_files = sort_by_size(input_files)
     
     for input_file in input_files:
+        if not os.path.isfile(input_file): continue
         sample = os.path.basename(input_file).split('.')[0]
         sample_dir = os.path.join(args.output_directory,'.HaplotypeCaller/' + sample + '/')
         os.makedirs(sample_dir, exist_ok=True)
@@ -62,6 +63,7 @@ def main():
         sample_name = ntpath.basename(sh_file_name).split('.')[0] + '.vcf'
         sample_dir = os.path.join(ntpath.basename(sh_file_name).split('.')[0], sample_name)  
         path_to_vcf = os.path.join(ntpath.dirname(ntpath.dirname(ntpath.dirname(sh_file_name))), sample_dir)
+        #print(path_to_vcf)
         if not os.path.isfile(path_to_vcf):
             submit_job(sh_file_name)
 

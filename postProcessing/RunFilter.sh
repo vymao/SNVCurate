@@ -46,9 +46,9 @@ cd cut_filtering
 
 if [ ! -f ${path2Intersection}*txt ]; then
     if [ $reference == "hg19" ]; then
-        ${path2AnnovarScript} ${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad211_genome,gnomad211_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+        ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad211_genome,gnomad211_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
     else
-        ${path2AnnovarScript} ${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
+        ${path2AnnovarScript} ${path2Intersection}/${dirname}.INTERSECTION.vcf ${path2database} -buildver ${reference} -out $dirname -remove -protocol 'refGene,exac03,gnomad_genome,gnomad_exome,1000g2015aug_all' -operation 'g,f,f,f,f' -nastring . -vcfinput -polish
     fi
 fi
 
@@ -66,7 +66,7 @@ echo "MAF_cut: ${maf_cut}"
 for file in ${dirname}*csv; do 
     if [ ! -f cut_filtering/${dirname}.PASS.vcf.hg19_multianno.txt.ANNO.somatic_variants_filtered.*.vcf ]; then
        echo "Running command python3 ${path2SNVCurate}/Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path ${sampledir}/cut_filtering -vcf_path ${path2Intersection}/${dirname}.INTERSECTION.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut"
-       python3 ${path2SNVCurate}/Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path ${sampledir}/cut_filtering -vcf_path ${dirname}.UNIQUE.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut
+       python3 ${path2SNVCurate}/Filter_Mutect_Germlines_txt.py -input_path ${file} -output_path ${sampledir}/cut_filtering -vcf_path ${path2Intersection}/${dirname}.INTERSECTION.vcf -file_type anno -cut $maf_cut -hap $normal -alt_cut $alt_cut -tot_cut $tot_cut -vaf_cut $vaf_cut
     fi
 done
 
