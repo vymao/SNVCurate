@@ -68,10 +68,10 @@ def main():
             with open(args['input_path'], 'r') as f:
                 for index, line in enumerate(f):
                     if not line.isspace() and index in range(int(args['r1']) + end, int(args['r2']) + end):
-                        if not args['panel']:
-                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'germline')
-                        else: 
-                            vcf_examine(line, args, germline_file_path, somatic_file_path, 'panel_of_normals')
+                        #if not args['panel']:
+                        vcf_examine(line, args, germline_file_path, somatic_file_path, 'germline')
+                        #else: 
+                        vcf_examine(line, args, germline_file_path, somatic_file_path, 'panel_of_normals')
         else: 
             if args['hap'] is not None: 
                 args['hap_path'] = args['hap']

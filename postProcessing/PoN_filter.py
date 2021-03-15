@@ -8,7 +8,7 @@ import numpy as np
 import subprocess
 import argparse
 import sys
-import pysam
+#import pysam
 
 def parse_args():
      parser = argparse.ArgumentParser()
