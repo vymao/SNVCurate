@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/human_g1k_v37.fasta', help='path to reference_path file')
     parser.add_argument('-mode', default='group', help='Call Joint Genotyping in group mode or single sample mode')
     parser.add_argument('-r1', default=0, help='Lower index bound for single sample mode')
-    parser.add_argument('-r2', default=1000000, help='Upper index bound for single sample mode')
+    parser.add_argument('-r2', default=100000000, help='Upper index bound for single sample mode')
     parser.add_argument('-temp_dir', default=None, help='Temporary directory for Java')
     return parser.parse_args()
 

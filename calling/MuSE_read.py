@@ -24,7 +24,7 @@ def parse_args():
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
     parser.add_argument('-data_type', default='WGS')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
-    parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
+    parser.add_argument('-r2', default=10000000, help='Upper range bound of indices of BAMs to run')
     parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
     parser.add_argument('-ct', default="1000", help='cromwell run time; please specify as number of minutes')
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')

@@ -17,7 +17,7 @@ def parse_args():
     parser.add_argument('-t1', default='5-00:00:00', help='HaplotypeCaller runtime')
     parser.add_argument('-t2', default='2600', help='Cromwell task runtime')
     parser.add_argument('-r1', default=0, help='Lower range bound of indices of BAMs to run')
-    parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
+    parser.add_argument('-r2', default=10000000, help='Upper range bound of indices of BAMs to run')
     parser.add_argument('-m', default='victor_mao@hms.harvard.edu', help='Email for notifications')
     parser.add_argument('-cut', '--threshhold', default=0.01, help='Threshhold cutoff value for annotations')
     parser.add_argument('-mode', default='annotate', help='Mode of operation: annotate or combine')

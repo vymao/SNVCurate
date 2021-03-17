@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('-p', '--queue', default='park', help='slurm job submission option')
     parser.add_argument('-t', '--runtime', default='0-15:0:0', help='slurm job submission option')
     parser.add_argument('-r1', default=1, help='Lower range bound of indices of BAMs to run')
-    parser.add_argument('-r2', default=100000, help='Upper range bound of indices of BAMs to run')
+    parser.add_argument('-r2', default=10000000, help='Upper range bound of indices of BAMs to run')
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')

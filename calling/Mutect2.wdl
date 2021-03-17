@@ -402,7 +402,7 @@ task bgZipVCFs {
 
   command <<<
   set -e
-    module load bcftools
+    module load bcftools htslib
     bgzip -c ${input_vcf} > ${output_filename}.gz
     bcftools index ${output_filename}.gz
 
