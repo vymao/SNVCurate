@@ -39,7 +39,8 @@ for path in ${path2Mutect}/*; do
     fi
 
     for file in ${dirname}.vcf; do 
-        python3 ${package_path}/Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf 
+        #python3 ${package_path}/Filter_Mutect_Germlines_txt.py -input_path $file -output_path ${path} -vcf $file -file_type vcf
+        grep "germline\|panel\|#" $file > ${dirname}.M2_RISK.germline_variants_filtered.vcf 
     done
 
     test_dir=${out}/${dirname}
@@ -47,7 +48,7 @@ for path in ${path2Mutect}/*; do
     mkdir -p ${test_dir}/annotation_files
 
 
-    mv ${dirname}.*M2_RISK.germline_variants_filtered.vcf ${dirname}.M2_Risk_variants_filtered.vcf
+    mv ${dirname}.M2_RISK.germline_variants_filtered.vcf ${dirname}.M2_Risk_variants_filtered.vcf
     mv ${dirname}.M2_Risk_variants_filtered.vcf ${test_dir}/annotation_files
 
     mkdir -p ${test_dir}/intersection_files
