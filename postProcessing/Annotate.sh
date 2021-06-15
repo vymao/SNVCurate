@@ -18,7 +18,7 @@ path2database=$2
 out=$3
 path2Mutect=$4
 reference=$5
-path2normal=${10}
+path2normal=${7}
 csv=$6
 
 cd $out

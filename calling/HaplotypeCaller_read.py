@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')
     parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/SOFTWARE/GATK/gatk-4.1.9.0/gatk', help='path to software execution script')
-    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta', help='path to reference_path file')
+    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/references/b37/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta', help='path to reference_path file')
     parser.add_argument('-n', '--num_cores', default='1', help='slurm job submission option')
     parser.add_argument('-cn', default="1", help='number of cores for Cromwell jobs')
     parser.add_argument('-ct', default="3000", help='cromwell run time; please specify as number of minutes')
@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument('-reference_name', default='b37', help='hg19, b37, etc.')
     parser.add_argument('-picard', default='/n/data1/hms/dbmi/park/alon/software/picard.jar')
     parser.add_argument('-csv', help='csv containing matched tumor/normal pairs')
-    parser.add_argument('-intervals', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt')
+    parser.add_argument('-intervals', default='/n/data1/hms/dbmi/park/references/b37/Homo_sapiens_assembly19/interval_list.txt')
 
 
     return parser.parse_args()
@@ -47,7 +47,7 @@ def main():
 
     output_dir = arg_clean(args)
 
-    os.system('module load gcc/6.2.0 python/3.6.0 java')
+    os.system('module load gcc/6.2.0 python/3.6.0 java/jdk-1.8u112')
 
     normal_index = get_column(args['csv'], "N")
 

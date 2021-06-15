@@ -39,7 +39,6 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    os.system('module load gcc/6.2.0 python/3.6.0 java bcftools samtools')
     args = parse_args()
     clean_arg_paths(args)
 
@@ -171,7 +170,7 @@ def generate_cromwell_inputs(args, json_file, wdl, overrides):
                 d["MuTecT.parallel"] = "False"
         else: 
             d["MuTecT.panel"] = args.panel
-            d["MuTecT.panel_index"] = args.panel + '.idx'
+            d["MuTecT.panel_index"] = args.panel + '.idx' if ".gz" not in args.panel else args.panel + '.tbi'
             d["MuTecT.mode"] = "panel"
             d["MuTecT.normal_name"] = "NA"
 

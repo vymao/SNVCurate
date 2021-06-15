@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument('--mem_per_cpu', default='10G', help='slurm job submission option')
     parser.add_argument('--mail_type', default='FAIL', help='slurm job submission option')
     parser.add_argument('--mail_user', default=None, help='slurm job submission option')
-    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta', help='path to reference_path file')
+    parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/references/b37/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta', help='path to reference_path file')
     # parser.add_argument('-reference', '--reference_path', default='/n/data1/hms/dbmi/park/SOFTWARE/REFERENCE/hg38/Homo_sapiens_assembly38.fasta', help='path to reference_path 
     parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_b37_common_all_20160601.vcf', help='path to dbsnp file')
     # parser.add_argument('-dbsnp', '--dbsnp_path', default='/home/mk446/BiO/Install/GATK-bundle/dbsnp_147_hg38_common_all_20160601.vcf', help='path to dbsnp file')
@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('-cm', default='7000', help='cromwell cpu memory per core')
     parser.add_argument('-cromwell', default='/n/shared_db/singularity/hmsrc-gatk/cromwell-43.jar', help='path to cromwell.jar file')
     parser.add_argument('-wdl', default=None)
-    parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt')
+    parser.add_argument('-interval_list', default='/n/data1/hms/dbmi/park/references/b37/Homo_sapiens_assembly19/interval_list.txt')
     parser.add_argument('-overwrite_intervals', default=False)
     parser.add_argument('-gatk', '--gatk_path', default='/n/data1/hms/dbmi/park/SOFTWARE/GATK/gatk-4.1.9.0/gatk', help='path to software')
     parser.add_argument('-gatk4', '--gatk4_path', default='/n/data1/hms/dbmi/park/alon/software/gatk/gatk-4.0.3.0/gatk', help='path to software')
@@ -105,11 +105,11 @@ def main():
         print("Missing csv input")
         sys.exit()
 
-    os.system('module load gcc/6.2.0 python/3.6.0 java bcftools samtools')
+    os.system('module load gcc/6.2.0 python/3.6.0 java/jdk-1.8u112 bcftools samtools')
     
     reference_name = os.path.basename(args['reference_path']).split('.')[0]
-    if args['interval_list'] != '/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/interval_list.txt': 
-        if (args['scatter_size'] != '50' or args['reference_path'] != '/n/data1/hms/dbmi/park/victor/references/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta') and args['parallel'].lower() == "true":
+    if args['interval_list'] != '/n/data1/hms/dbmi/park/references/b37/Homo_sapiens_assembly19/interval_list.txt': 
+        if (args['scatter_size'] != '50' or args['reference_path'] != '/n/data1/hms/dbmi/park/references/b37/Homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta') and args['parallel'].lower() == "true":
             regions_out_directory = os.path.join(output_dir, '.Mutect2/.regions/')
             intervals_list_file = os.path.join(regions_out_directory, reference_name + '.scattered_intervals.list')
             if os.path.isfile(intervals_list_file):

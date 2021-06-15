@@ -25,6 +25,8 @@ path2SNVCurate=$9
 dirname="$(basename "${path}")"
 cd ${path}/annotation_files
 
+echo $path2normal
+
 rm -f *levels
 rm -f *LABELED
 
